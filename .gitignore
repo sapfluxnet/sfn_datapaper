@@ -2,9 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
-data
-docs
-maps
+data/*
+docs/*
+maps/*
 *.pdf
 *.xlsx
 
