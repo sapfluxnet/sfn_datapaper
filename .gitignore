@@ -4,6 +4,7 @@
 .Ruserdata
 data
 docs
+maps
 *.pdf
 *.xlsx
 
