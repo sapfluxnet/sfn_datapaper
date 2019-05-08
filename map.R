@@ -221,7 +221,7 @@ save_plot('./output/figs/sfn_sitesmap.eps', sfn_sitesmap)
 # TODO: set the symbol colour black
 # world
 
-
+# igbp
 globforest  +
   geom_point(data=sfn_allsites,
              aes(x=si_long,y=si_lat,col=si_igbp))+
