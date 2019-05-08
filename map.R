@@ -44,6 +44,7 @@ crowther <- raster('maps/Crowther_Nature_Files_Revision_01_WGS84_GeoTiff/Crowthe
 
 # Using raster::aggregate, other options available
 # Two versions, 0.5 deg and 0.1 deg
+# this takes some time
 crowther_0_1 <- aggregate(crowther, fact = 0.1/res(crowther)) # aggregate output
 crowther_0_5 <- aggregate(crowther, fact = 0.5/res(crowther)) # aggregate output
 
@@ -220,9 +221,32 @@ save_plot('./output/figs/sfn_sitesmap.eps', sfn_sitesmap)
 # TODO: set the symbol colour black
 # world
 
+
+globforest  +
+  geom_point(data=sfn_allsites,
+             aes(x=si_long,y=si_lat,col=si_igbp))+
+  
+  guides(fill='none')+xlab(NULL)+ylab(NULL)
+
 globforest  +
   geom_point(data=sfn_sites_type,
              aes(x=si_long,y=si_lat,col=type))+
   
   guides(fill='none')+xlab(NULL)+ylab(NULL)
 
+globforest  +
+  geom_point(data=sfn_sites_nspecies,
+             aes(x=si_long,y=si_lat,col=nspecies))+
+  
+  guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+globforest  +
+  geom_point(data=sfn_sites_nspecies,
+             aes(x=si_long,y=si_lat,col=ntrees))+
+  
+  guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+
+
+
+# TODO: alternative, show histograms

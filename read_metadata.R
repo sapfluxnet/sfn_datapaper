@@ -44,6 +44,15 @@ sfn_allstands<- sfn_metadata_plant[['stand_md']] %>%
 sfn_sitespecies<- sfn_metadata_plant[['species_md']] %>% 
   full_join(sfn_metadata_sapwood[['species_md']]) 
 
+# Calculate number of trees and species
+
+sfn_sites_nspecies <- sfn_sitespecies %>% 
+  group_by(si_code) %>% 
+  summarise(nspecies=length(sp_name),
+            ntrees=sum(sp_ntrees)) %>% 
+  left_join(sfn_allsites %>% select(si_code,si_lat,si_long))
+
+# Number of species
 sfn_species<- sfn_sitespecies %>% 
   distinct(sp_name)
 
@@ -95,6 +104,7 @@ sfn_sites_type <- sfn_sites1 %>%
 # measurement length, species, trees --------------------------------------
 
 
+  
 
 
 
