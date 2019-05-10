@@ -92,6 +92,8 @@ sfn_sites1 <- sfn_sites_plsw %>%
  full_join(sfn_sites_pl) %>% 
   full_join(sfn_sites_sw)  
 
+
+# Measurement type: plant, sapwood, leaf
 sfn_sites_type <- sfn_sites1 %>% 
   mutate(
     type=ifelse(si_code%in%sfn_sites_leaf$si_code,
@@ -100,8 +102,7 @@ sfn_sites_type <- sfn_sites1 %>%
   )
 
 
-
-# measurement length, species, trees --------------------------------------
+# 5. TODO: Dataset length --------------------------------------
 
 
   
