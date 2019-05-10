@@ -227,7 +227,7 @@ globforest  +
              aes(x=si_long,y=si_lat,col=si_igbp))+
   
   guides(fill='none')+xlab(NULL)+ylab(NULL)
-
+# type
 globforest  +
   geom_point(data=sfn_sites_type,
              aes(x=si_long,y=si_lat,col=type))+
