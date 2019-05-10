@@ -1,26 +1,3 @@
-# library(leaflet)
-# if(!require(devtools)){install.package("devtools")}
-# devtools::install_github("khufkens/MODISTools")
-# library("MODISTools")
-# 
-# # Contributions map
-# 
-# leaflet(data = sfn_allsites) %>%
-#   addTiles(urlTemplate = 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-#            attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-#            options = tileOptions(noWrap = FALSE)) %>%
-#   setView(lng = 15, lat = 35, zoom = 2) %>%
-#   clearMarkers() %>%
-#   addCircleMarkers(lng = ~si_long, lat = ~si_lat, layerId = ~si_code,labelOptions(noHide = T),
-#                    radius = 5,
-#                    fillOpacity = 80.7,
-#                    fillColor = "#FDE725",
-#                    stroke = FALSE)
-# 
-
-
-
-
 # 0. Requirements ----------------------------------------------------------
 
 library(raster)
