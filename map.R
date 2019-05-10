@@ -247,6 +247,4 @@ globforest  +
   guides(fill='none')+xlab(NULL)+ylab(NULL)
 
 
-
-
 # TODO: alternative, show histograms
