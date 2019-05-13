@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Sapfluxnet data paper results"
 output: github_document
 ---
 
@@ -7,7 +7,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# A repository for results of the Sfn data paper
+## A repository for results of the Sfn data paper
 
 Figures and tables
 

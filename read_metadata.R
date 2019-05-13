@@ -1,8 +1,6 @@
 library(sapfluxnetr)
 library(tidyverse)
 
-
-
 # 1. Corrections -------------------------------------------------------------
 # They only need to be applied once
 
