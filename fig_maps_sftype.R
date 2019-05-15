@@ -70,6 +70,7 @@ sfn_sftypes <- plot_grid(sfn_sftype,sfn_igbp,sfn_nspecies,sfn_ntrees,
                                    labels=c('a', 'b','c','d'), ncol=2, nrow=2)
 
 
+
 # TODO: alternative, show histograms, 
 
 # Combination of alluvial and histogram for methods x sftype x group (gymno/angio)?
