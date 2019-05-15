@@ -1,5 +1,8 @@
+library(sapfluxnetr)
+library(tidyverse)
+
 # 1. Read metadata ---------------------------------------------------------------
-# From cache
+# From previously written cache file
 
 sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.3/RData/plant', .write_cache = FALSE)
 sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.3/RData/sapwood', .write_cache = FALSE)

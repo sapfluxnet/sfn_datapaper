@@ -7,7 +7,7 @@ library(cowplot)
 
 source('maps_base.R')
 
-# 1. Choose map quality -----------------------------------------------------
+# 0. Choose map quality -----------------------------------------------------
 # 'high' quality for definitive fig, 'draft' is faster
 
 plot_quality <- 'draft'

@@ -1,9 +1,11 @@
 library(sapfluxnetr)
 library(tidyverse)
 
-# 1. Corrections -------------------------------------------------------------
-# They only need to be applied once
+# This scripts only needs to be run once
+# If there are changes in the sfn version used, this needs to be changed 
+# and the script re-run
 
+# 1. Corrections -------------------------------------------------------------
 
 # Delete ESP_PRA
 for (subfolder in c('plant','sapwood','leaf')){
