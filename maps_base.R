@@ -6,7 +6,6 @@ library(ggrepel)
 library(tidyverse)
 library(cowplot)
 
-
 # 1. Crowther forest density map ------------------------------------------
 
 # 1.1. load map -----------------------------------------------------------
@@ -27,7 +26,8 @@ crowther_0_5 <- aggregate(crowther, fact = 0.5/res(crowther)) # aggregate output
 # 1.3. Reclassification to binary raster, forest vs non-forest ------------
 
 
-# Use some density threshold. Check paper for units, I think they're trees/pixel
+# Use some density threshold; trial and error so far...
+# Check paper for units, I think they're trees/pixel
 crowther_rec<- reclassify(crowther,c(0,20000,0,20000,Inf,1))
 crowther_rec_0_1<- reclassify(crowther_0_1,c(0,20000,0,20000,Inf,1))
 crowther_rec_0_1f<- as.factor(round(crowther_rec_0_1))
@@ -81,7 +81,7 @@ globforest_0_5 <- ggplot() +
   coord_sf()
 
 
-# 4. Save maps ------------------------------------------------------------
+# 2. Save maps ------------------------------------------------------------
 
 save.image('maps_base.RData')        
     
