@@ -15,7 +15,7 @@ sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.3/RData/leaf', .write_
 
 
 sfn_allsites<- sfn_metadata_plant[['site_md']] %>% 
-  full_join(select(sfn_metadata_sapwood[['site_md']],-si_remarks))
+  full_join(dplyr::select(sfn_metadata_sapwood[['site_md']],-si_remarks))
 
 sfn_allstands<- sfn_metadata_plant[['stand_md']] %>% 
   full_join(sfn_metadata_sapwood[['stand_md']])
@@ -29,7 +29,7 @@ sfn_sites_nspecies <- sfn_sitespecies %>%
   group_by(si_code) %>% 
   summarise(nspecies=length(sp_name),
             ntrees=sum(sp_ntrees)) %>% 
-  left_join(sfn_allsites %>% select(si_code,si_lat,si_long))
+  left_join(sfn_allsites %>% dplyr::select(si_code,si_lat,si_long))
 
 # Number of species
 sfn_species<- sfn_sitespecies %>% 
@@ -47,20 +47,20 @@ sfn_env <- sfn_metadata_plant[['env_md']] %>%
 # plant, sapwood, leaf
 
 sfn_sites_plsw <- sfn_metadata_plant[['site_md']] %>% 
-  semi_join( select(
+  semi_join( dplyr::select(
     sfn_metadata_sapwood[['site_md']],
     -si_remarks)) %>% 
   mutate(type='plant,sapwood')
 
 
 sfn_sites_pl <- sfn_metadata_plant[['site_md']] %>% 
-  anti_join(select(
+  anti_join(dplyr::select(
     sfn_metadata_sapwood[['site_md']],
     -si_remarks)) %>% 
   mutate(type='plant')
 
 
-sfn_sites_sw <- select(sfn_metadata_sapwood[['site_md']],-si_remarks) %>% 
+sfn_sites_sw <- dplyr::select(sfn_metadata_sapwood[['site_md']],-si_remarks) %>% 
   anti_join(sfn_metadata_plant[['site_md']]) %>% 
   mutate(type='sapwood')
 
