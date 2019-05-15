@@ -19,95 +19,14 @@ for (subfolder in c('plant','sapwood','leaf')){
   source('data_corrections.R')
 }
 
-
-# 2. Read data ---------------------------------------------------------------
-# run after corrections have been made
+# 2. Write metadata -------------------------------------------------------
 
 sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.3/RData/plant', .write_cache = TRUE)
 sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.3/RData/sapwood', .write_cache = TRUE)
 sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.3/RData/leaf', .write_cache = TRUE)
 
 
-# 3. Aggregate all datasets -----------------------------------------------
-
-# Join all metadata regardless of having sap flow per sapwood or per plant
 
 
-sfn_allsites<- sfn_metadata_plant[['site_md']] %>% 
-  full_join(select(sfn_metadata_sapwood[['site_md']],-si_remarks))
-
-sfn_allstands<- sfn_metadata_plant[['stand_md']] %>% 
-  full_join(sfn_metadata_sapwood[['stand_md']])
-
-sfn_sitespecies<- sfn_metadata_plant[['species_md']] %>% 
-  full_join(sfn_metadata_sapwood[['species_md']]) 
-
-# Calculate number of trees and species
-
-sfn_sites_nspecies <- sfn_sitespecies %>% 
-  group_by(si_code) %>% 
-  summarise(nspecies=length(sp_name),
-            ntrees=sum(sp_ntrees)) %>% 
-  left_join(sfn_allsites %>% select(si_code,si_lat,si_long))
-
-# Number of species
-sfn_species<- sfn_sitespecies %>% 
-  distinct(sp_name)
-
-sfn_allplants<- sfn_metadata_plant[['plant_md']] %>% 
-  full_join(sfn_metadata_sapwood[['plant_md']]) %>% 
-  distinct(pl_code,.keep_all = TRUE)
-
-sfn_env <- sfn_metadata_plant[['env_md']] %>% 
-  full_join(sfn_metadata_sapwood[['env_md']])
-
-
-# 4. Measurement type -------------------------------------------------
-# plant, sapwood, leaf
-
-sfn_sites_plsw <- sfn_metadata_plant[['site_md']] %>% 
-  semi_join( select(
-    sfn_metadata_sapwood[['site_md']],
-    -si_remarks)) %>% 
-  mutate(type='plant,sapwood')
-
-
-sfn_sites_pl <- sfn_metadata_plant[['site_md']] %>% 
-  anti_join(select(
-    sfn_metadata_sapwood[['site_md']],
-    -si_remarks)) %>% 
-  mutate(type='plant')
-
-
-sfn_sites_sw <- select(sfn_metadata_sapwood[['site_md']],-si_remarks) %>% 
-    anti_join(sfn_metadata_plant[['site_md']]) %>% 
-  mutate(type='sapwood')
-
-sfn_sites_leaf <- sfn_metadata_leaf[['site_md']] %>% 
-  mutate(type='leaf,plant,sapwood')
-  
-sfn_sites1 <- sfn_sites_plsw %>% 
- full_join(sfn_sites_pl) %>% 
-  full_join(sfn_sites_sw)  
-
-
-# Measurement type: plant, sapwood, leaf
-sfn_sites_type <- sfn_sites1 %>% 
-  mutate(
-    type=ifelse(si_code%in%sfn_sites_leaf$si_code,
-                'leaf,plant,sapwood',type),
-    typef=factor(type)
-  )
-
-
-# 5. TODO: Dataset length --------------------------------------
-
-
-  
-
-
-
-
- 
 
 

@@ -146,6 +146,10 @@ sfn_allsites_country<- sfn_allsites %>%
       coord_sf(xlim = c(10, 50), ylim = c(-10, -40), expand = FALSE)+
       geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
     
-    
+
+
+# 4. Save maps ------------------------------------------------------------
+
+save.image('maps_base.RData')        
     
  
