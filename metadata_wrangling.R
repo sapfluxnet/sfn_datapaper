@@ -98,4 +98,7 @@ dataset_trees_sp <- sfn_sites_type %>%
       typeplant=ifelse(str_detect(type,'plant'),'plant',NA))
 
 
+# 5. Gap-fill climate -----------------------------------------------------
+
+
 # TODO: Dataset length --------------------------------------

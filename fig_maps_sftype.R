@@ -17,7 +17,7 @@ source('metadata_wrangling.R')
 # 0. Choose map quality -----------------------------------------------------
 # 'high' quality for definitive fig, 'draft' is faster
 
-plot_quality <- 'draft'
+plot_quality <- 'high'
 
 if (plot_quality=='draft') {
   globforest <- globforest_rec_0_5
@@ -65,6 +65,9 @@ sfn_ntrees <- globforest  +
   guides(fill='none')+xlab(NULL)+ylab(NULL)
 
 
+
+sfn_sf_igbbp_sftype <- plot_grid(sfn_sftype,sfn_igbp,
+                         labels=c('a)', 'b)'), ncol=1, nrow=2)
 
 sfn_sftypes <- plot_grid(sfn_sftype,sfn_igbp,sfn_nspecies,sfn_ntrees, 
                                    labels=c('a', 'b','c','d'), ncol=2, nrow=2)
