@@ -2,11 +2,16 @@
 title: "Tables for SAPFLUXNET data paper"
 author: "R. Poyatos"
 date: "27/12/2019"
-output: word_document
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load('sfn_datapaper_data.RData')
 ```
 
 ## R Markdown
@@ -14,6 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r tabRef, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
 
 knitr::kable(sfn_sitespecies, caption = "Table caption here...", booktabs = TRUE)
+flextable::flextable(sp_genus_all)
 ```
 
 ## Including Plots
@@ -21,7 +27,7 @@ knitr::kable(sfn_sitespecies, caption = "Table caption here...", booktabs = TRUE
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+sfn_sitesmap
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

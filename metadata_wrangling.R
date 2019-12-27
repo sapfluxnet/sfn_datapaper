@@ -1,5 +1,6 @@
 library(sapfluxnetr)
 library(tidyverse)
+library(magrittr)
 
 # 1. Read metadata ---------------------------------------------------------------
 # From previously written cache file
@@ -101,3 +102,6 @@ dataset_trees_sp <- sfn_sites_type %>%
 
 
 # TODO: Dataset length --------------------------------------
+
+
+
