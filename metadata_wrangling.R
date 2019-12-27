@@ -13,7 +13,6 @@ sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.3/RData/leaf', .write_
 
 # Join all metadata regardless of having sap flow per sapwood or per plant
 
-
 sfn_allsites<- sfn_metadata_plant[['site_md']] %>% 
   full_join(dplyr::select(sfn_metadata_sapwood[['site_md']],-si_remarks))
 

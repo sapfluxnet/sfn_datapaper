@@ -50,8 +50,8 @@ sp_genus_all %<>%
   mutate(n = as.integer(n))
 
 
-flextable::flextable(sp_genus_all,
-                     col_keys=c('Genera','Number of trees'))
+flextable::flextable(sp_genus_all)
+                     
 
 
 # 2.1. All genera

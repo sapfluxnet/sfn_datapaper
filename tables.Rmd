@@ -1,0 +1,27 @@
+---
+title: "Tables for SAPFLUXNET data paper"
+author: "R. Poyatos"
+date: "27/12/2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r tabRef, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+
+knitr::kable(sfn_sitespecies, caption = "Table caption here...", booktabs = TRUE)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
