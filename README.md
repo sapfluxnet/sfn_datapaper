@@ -15,11 +15,22 @@ within the project folder:
 
 ### Scripts
 -  metadata_wrangling.R: reads from cache, performs summaries and aggregations
--  fig_maps_sites.R: map-based figures
--  fig_biome_genus_species.R: species and genera figures
+-  maps_sites.R: maps 
+-  genus_species.R: species and genera 
 
 ### Non-functional and other scripts
  - read_metadata.R: reads sfn metadata, re-run only if sfn data changes
  (e.g. new version), writes cache
  - sfndatapaper_main.R: not functional, an attempt to create main script
  - maps_base.R:  creates base maps for figures
+
+## Rendering
+
+### Current version
+
+Documents
+- tables
+
+## Other versions
+
+Tried a markdown template from copernicus, see https://www.earth-system-science-data.net/for_authors/manuscript_preparation.html

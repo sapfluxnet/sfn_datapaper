@@ -80,8 +80,7 @@
 
 \begin{document}
 
-\title{Template for preparing your manuscript submission to Copernicus journals
-using RMarkdown}
+\title{Template for preparing your manuscript submission to Copernicus journals using RMarkdown}
 
 
 \Author[1]{Daniel}{Nüst}
@@ -89,8 +88,7 @@ using RMarkdown}
 \Author[1]{Markus}{Konkol}
 
 
-\affil[1]{Institute for Geoinformatics, University of Münster, 48149 Münster,
-Germany}
+\affil[1]{Institute for Geoinformatics, University of Münster, 48149 Münster, Germany}
 \affil[2]{Psychoceramics, Wesleyan University, Middletown, CT, United State}
 
 %% The [] brackets identify the author with the corresponding affiliation. 1, 2, 3, etc. should be inserted.
@@ -121,29 +119,24 @@ Germany}
 
 
 \begin{abstract}
-The abstract goes here. It can also be on \emph{multiple lines}.
+The abstract goes here.
+It can also be on \emph{multiple lines}.
 \end{abstract}
 
 
-\copyrightstatement{The author's copyright for this publication is transferred to
-institution/company.}
+\copyrightstatement{The author's copyright for this publication is transferred to institution/company.}
 
 
 \introduction
 
-Introduction text goes here. You can change the name of the section if
-neccessary using
-\texttt{\textbackslash{}introduction{[}modified\ heading{]}}.
+Introduction text goes here.
+You can change the name of the section if neccessary using \texttt{\textbackslash{}introduction{[}modified\ heading{]}}.
 
-The following settings can or must be configured in the header of this
-file and are bespoke for Copernicus manuscripts:
+The following settings can or must be configured in the header of this file and are bespoke for Copernicus manuscripts:
 
 \begin{itemize}
 \item
-  The \texttt{journal} you are submitting to using the official
-  abbreviation. You can use the function
-  \texttt{rticles::copernicus\_journal\_abbreviations(name\ =\ \textquotesingle{}...\textquotesingle{})}
-  to search the existing journals.
+  The \texttt{journal} you are submitting to using the official abbreviation. You can use the function \texttt{rticles::copernicus\_journal\_abbreviations(name\ =\ \textquotesingle{}...\textquotesingle{})} to search the existing journals.
 \item
   Specific sections of the manuscript:
 
@@ -155,8 +148,7 @@ file and are bespoke for Copernicus manuscripts:
   \item
     \texttt{copyrightstatement} (optional)
   \item
-    \texttt{availability} (strongly recommended if any used), one of
-    \texttt{code}, \texttt{data}, or \texttt{codedata}
+    \texttt{availability} (strongly recommended if any used), one of \texttt{code}, \texttt{data}, or \texttt{codedata}
   \item
     \texttt{authorcontribution}
   \item
@@ -166,15 +158,10 @@ file and are bespoke for Copernicus manuscripts:
   \end{itemize}
 \end{itemize}
 
-See the defaults and examples from the skeleton and the official
-Copernicus documentation for details.
+See the defaults and examples from the skeleton and the official Copernicus documentation for details.
 
-\textbf{Important}: Always double-check with the official manuscript
-preparation guidelines at
-\url{https://publications.copernicus.org/for_authors/manuscript_preparation.html},
-especially the sections ``Technical instructions for LaTeX'' and
-``Manuscript composition''. Please contact Daniel Nüst,
-\texttt{daniel.nuest@uni-muenster.de}, with any problems.
+\textbf{Important}: Always double-check with the official manuscript preparation guidelines at \url{https://publications.copernicus.org/for_authors/manuscript_preparation.html}, especially the sections ``Technical instructions for LaTeX'' and ``Manuscript composition''.
+Please contact Daniel Nüst, \texttt{daniel.nuest@uni-muenster.de}, with any problems.
 
 \section{Content section one}
 
@@ -188,23 +175,17 @@ Subsubsection text here.
 
 \section{Content section with citations}
 
-See the
-\href{http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html}{R
-Markdown docs for bibliographies and citations}.
+See the \href{http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html}{R Markdown docs for bibliographies and citations}.
 
-Copernicus supports biblatex and a sample bibliography is in file
-\texttt{sample.bib}. Read \citep{Feynman1963118}, and
-\citep[see][]{Dirac1953888}.
+Copernicus supports biblatex and a sample bibliography is in file \texttt{sample.bib}.
+Read \citep{Feynman1963118}, and \citep[see][]{Dirac1953888}.
 
 \section{Content section with R code chunks}
 
-You should always use \texttt{echo\ =\ FALSE} on R Markdown code blocks
-as they add formatting and styling not desired by Copernicus. The hidden
-workflow results in 42.
+You should always use \texttt{echo\ =\ FALSE} on R Markdown code blocks as they add formatting and styling not desired by Copernicus.
+The hidden workflow results in 42.
 
-You can add verbatim code snippets without extra styles by using
-\texttt{\textasciigrave{}\textasciigrave{}\textasciigrave{}} without
-additional instructions.
+You can add verbatim code snippets without extra styles by using \texttt{\textasciigrave{}\textasciigrave{}\textasciigrave{}} without additional instructions.
 
 \begin{verbatim}
 sum <- 1 + 41
@@ -223,8 +204,7 @@ If you want to insert a list, you must
   between each list item
 \end{itemize}
 
-because the \texttt{\textbackslash{}tightlist} format used by R Markdown
-is not supported in the Copernicus template. Example:
+because the \texttt{\textbackslash{}tightlist} format used by R Markdown is not supported in the Copernicus template. Example:
 
 \begin{verbatim}
 - leave
@@ -238,15 +218,11 @@ is not supported in the Copernicus template. Example:
 
 \subsection{FIGURES}
 
-When figures and tables are placed at the end of the MS (article in
-one-column style), please add \clearpage between bibliography and first
-table and/or figure as well as between each table and/or figure.
+When figures and tables are placed at the end of the MS (article in one-column style), please add \clearpage between bibliography and first table and/or figure as well as between each table and/or figure.
 
 \subsubsection{ONE-COLUMN FIGURES}
 
-Include a 12cm width figure of Nikolaus Copernicus from
-\href{https://en.wikipedia.org/wiki/File:Nikolaus_Kopernikus.jpg}{Wikipedia}
-with caption using R Markdown.
+Include a 12cm width figure of Nikolaus Copernicus from \href{https://en.wikipedia.org/wiki/File:Nikolaus_Kopernikus.jpg}{Wikipedia} with caption using R Markdown.
 
 \begin{figure}
 \includegraphics[width=8.3cm]{Nikolaus_Kopernikus} \caption{one column figure}\label{fig:unnamed-chunk-2}
@@ -262,8 +238,7 @@ You can also include a larger figure.
 
 \subsection{TABLES}
 
-You can ad \LaTeX table in an R Markdown document to meet the template
-requirements.
+You can ad \LaTeX table in an R Markdown document to meet the template requirements.
 
 \subsubsection{ONE-COLUMN TABLE}
 
@@ -299,23 +274,15 @@ a & b & c \\
 
 \subsection{MATHEMATICAL EXPRESSIONS}
 
-All papers typeset by Copernicus Publications follow the math
-typesetting regulations given by the IUPAC Green Book (IUPAC:
-Quantities, Units and Symbols in Physical Chemistry, 2nd Edn., Blackwell
-Science, available at:
-http://old.iupac.org/publications/books/gbook/green\_book\_2ed.pdf,
-1993).
+All papers typeset by Copernicus Publications follow the math typesetting regulations given by the IUPAC Green Book (IUPAC: Quantities, Units and Symbols in Physical Chemistry, 2nd Edn., Blackwell Science, available at: http://old.iupac.org/publications/books/gbook/green\_book\_2ed.pdf, 1993).
 
-Physical quantities/variables are typeset in italic font (t for time, T
-for Temperature)
+Physical quantities/variables are typeset in italic font (t for time, T for Temperature)
 
-Indices which are not defined are typeset in italic font (x, y, z, a, b,
-c)
+Indices which are not defined are typeset in italic font (x, y, z, a, b, c)
 
 Items/objects which are defined are typeset in roman font (Car A, Car B)
 
-Descriptions/specifications which are defined by itself are typeset in
-roman font (abs, rel, ref, tot, net, ice)
+Descriptions/specifications which are defined by itself are typeset in roman font (abs, rel, ref, tot, net, ice)
 
 Abbreviations from 2 letters are typeset in roman font (RH, LAI)
 
@@ -323,9 +290,7 @@ Vectors are identified in bold italic font using \vec{x}
 
 Matrices are identified in bold roman font
 
-Multiplication signs are typeset using the LaTeX commands
-\texttt{\textbackslash{}times} (for vector products, grids, and
-exponential notations) or \texttt{\textbackslash{}cdot}
+Multiplication signs are typeset using the LaTeX commands \texttt{\textbackslash{}times} (for vector products, grids, and exponential notations) or \texttt{\textbackslash{}cdot}
 
 The character * should not be applied as mutliplication sign
 
@@ -333,8 +298,7 @@ The character * should not be applied as mutliplication sign
 
 \subsubsection{Single-row equation}
 
-Unnumbered equations (i.e.~using \texttt{\$\$} and getting inline
-preview in RStudio) are not supported by Copernicus.
+Unnumbered equations (i.e.~using \texttt{\$\$} and getting inline preview in RStudio) are not supported by Copernicus.
 
 \begin{equation}
 1 \times 1 \cdot 1 = 42
@@ -368,14 +332,8 @@ x & y & z\\
 
 \subsection{ALGORITHM}
 
-If you want to use algorithms, you can either enable the required
-packages in the header (the default, see \texttt{algorithms:\ true}), or
-make sure yourself that the \LaTeX packages \texttt{algorithms} and
-\texttt{algorithmicx} are installed so that \texttt{algorithm.sty}
-respectively \texttt{algorithmic.sty} can be loaded by the Copernicus
-template. Copernicus staff will remove all undesirable packages from
-your LaTeX source code, so please stick to using the header option,
-which only adds the two acceptable packages.
+If you want to use algorithms, you can either enable the required packages in the header (the default, see \texttt{algorithms:\ true}), or make sure yourself that the \LaTeX packages \texttt{algorithms} and \texttt{algorithmicx} are installed so that \texttt{algorithm.sty} respectively \texttt{algorithmic.sty} can be loaded by the Copernicus template.
+Copernicus staff will remove all undesirable packages from your LaTeX source code, so please stick to using the header option, which only adds the two acceptable packages.
 
 \begin{algorithm}
 \caption{Algorithm Caption}
@@ -394,22 +352,17 @@ which only adds the two acceptable packages.
 
 \subsection{CHEMICAL FORMULAS AND REACTIONS}
 
-For formulas embedded in the text, please use
-\texttt{\textbackslash{}chem\{\}}, e.g. \chem{A \rightarrow B}.
+For formulas embedded in the text, please use \texttt{\textbackslash{}chem\{\}}, e.g. \chem{A \rightarrow B}.
 
-The reaction environment creates labels including the letter R, i.e.
-(R1), (R2), etc.
+The reaction environment creates labels including the letter R, i.e. (R1), (R2), etc.
 
 \begin{itemize}
 \item
-  \texttt{\textbackslash{}rightarrow} should be used for normal
-  (one-way) chemical reactions
+  \texttt{\textbackslash{}rightarrow} should be used for normal (one-way) chemical reactions
 \item
-  \texttt{\textbackslash{}rightleftharpoons} should be used for
-  equilibria
+  \texttt{\textbackslash{}rightleftharpoons} should be used for equilibria
 \item
-  \texttt{\textbackslash{}leftrightarrow} should be used for resonance
-  structures
+  \texttt{\textbackslash{}leftrightarrow} should be used for resonance structures
 \end{itemize}
 
 \begin{reaction}
@@ -424,23 +377,17 @@ Publi \leftrightarrow cations
 
 \subsection{PHYSICAL UNITS}
 
-Please use \texttt{\textbackslash{}unit\{\}} (allows to save the
-math/\texttt{\$} environment) and apply the exponential notation, for
-example \(3.14\,\unit{km\,h^{-1}}\) (using LaTeX mode:
-\texttt{\textbackslash{}(\ 3.14\textbackslash{},\textbackslash{}unit\{...\}\ \textbackslash{})})
-or \unit{0.872\,m\,s^{-1}} (using only
-\texttt{\textbackslash{}unit\{0.872\textbackslash{},m\textbackslash{},s\^{}\{-1\}\}}).
+Please use \texttt{\textbackslash{}unit\{\}} (allows to save the math/\texttt{\$} environment) and apply the exponential notation, for example \(3.14\,\unit{km\,h^{-1}}\) (using LaTeX mode: \texttt{\textbackslash{}(\ 3.14\textbackslash{},\textbackslash{}unit\{...\}\ \textbackslash{})}) or \unit{0.872\,m\,s^{-1}} (using only \texttt{\textbackslash{}unit\{0.872\textbackslash{},m\textbackslash{},s\^{}\{-1\}\}}).
 
 \conclusions
 
-The conclusion goes here. You can modify the section name with
-\texttt{\textbackslash{}conclusions{[}modified\ heading\ if\ necessary{]}}.
+The conclusion goes here.
+You can modify the section name with \texttt{\textbackslash{}conclusions{[}modified\ heading\ if\ necessary{]}}.
 
 
 
 
-\codedataavailability{use this to add a statement when having data sets and software code
-available} %% use this section when having data sets and software code available
+\codedataavailability{use this to add a statement when having data sets and software code available} %% use this section when having data sets and software code available
 
 \sampleavailability{use this section when having geoscientific samples available} %% use this section when having geoscientific samples available
 
@@ -452,36 +399,25 @@ available} %% use this section when having data sets and software code available
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
 \section{Figures and tables in appendices}
-
-Regarding figures and tables in appendices, the following two options
-are possible depending on your general handling of figures and tables in
-the manuscript environment:
-
 \subsection{Option 1}
 
-If you sorted all figures and tables into the sections of the text,
-please also sort the appendix figures and appendix tables into the
-respective appendix sections. They will be correctly named
-automatically.
+If you sorted all figures and tables into the sections of the text, please also sort the appendix figures and appendix tables into the respective appendix sections.
+They will be correctly named automatically.
 
 \subsection{Option 2}
 
-If you put all figures after the reference list, please insert appendix
-tables and figures after the normal tables and figures.
+If you put all figures after the reference list, please insert appendix tables and figures after the normal tables and figures.
 
-To rename them correctly to A1, A2, etc., please add the following
-commands in front of them: \texttt{\textbackslash{}appendixfigures}
-needs to be added in front of appendix figures
-\texttt{\textbackslash{}appendixtables} needs to be added in front of
-appendix tables
+\texttt{\textbackslash{}appendixfigures} needs to be added in front of appendix figures
+\texttt{\textbackslash{}appendixtables} needs to be added in front of appendix tables
 
-Please add \texttt{\textbackslash{}clearpage} between each table and/or
-figure. Further guidelines on figures and tables can be found below.
+Please add \texttt{\textbackslash{}clearpage} between each table and/or figure. Further guidelines on figures and tables can be found below.
+Regarding figures and tables in appendices, the following two options are possible depending on your general handling of figures and tables in the manuscript environment:
+To rename them correctly to A1, A2, etc., please add the following commands in front of them:
 \noappendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\authorcontribution{Daniel wrote the package. Josiah thought about poterry. Markus filled in
-for a second author.} %% optional section
+\authorcontribution{Daniel wrote the package. Josiah thought about poterry. Markus filled in for a second author.} %% optional section
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \competinginterests{The authors declare no competing interests.} %% this section is mandatory even if you declare that no competing interests are present
