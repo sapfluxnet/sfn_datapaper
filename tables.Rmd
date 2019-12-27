@@ -24,17 +24,9 @@ load('sfn_datapaper_data.RData')
 qflextable(sp_genus_all) %>% 
   autofit() %>% 
   set_header_labels(sp_genus = "Genus", n="Number of trees") %>% 
-   bold( i = 1,  part = "header")
+   bold( i = 1,  part = "header") %>% 
+   set_caption('Table X. Number of trees per genus')
 
 ```
 \pagebreak
 
-## Figures
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-sfn_sitesmap
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

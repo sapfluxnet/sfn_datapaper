@@ -1,0 +1,34 @@
+---
+title: "Figures for SAPFLUXNET data paper"
+author: "R. Poyatos"
+date: "27/12/2019"
+output:
+  word_document: 
+    reference_docx: word-styles-reference-01.docx
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(flextable)
+library(pander)
+library(magrittr)
+```
+
+## Figures
+
+You can also embed plots, for example:
+
+```{r sitesmap, echo=FALSE, fig.height=10, fig.width=15, include=TRUE}
+sfn_sitesmap_numcodes_dr
+```
+\pagebreak
+
+```{r biomemap,fig.height=10, fig.width=15, echo=FALSE}
+biomes_plot
+```
+\pagebreak

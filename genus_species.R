@@ -25,10 +25,6 @@ biomes_plot <- sfn_allsites %>%
     
   )
 
-biomes_plot
-
-
-
 # 2. Genera ----------------------------------------------------------------
 
 
@@ -109,11 +105,7 @@ sp_sum_data <- sfn_sitespecies%>%
 sfn_sitespecies %>% 
   mutate(sp_basal_area_perc = as.integer(sp_basal_area_perc),
          sp_ntrees = as.integer(sp_ntrees)) %>% 
-  select(si_code,sp_name,sp_leaf_habit,sp_ntrees,sp_basal_area_perc) %>% 
-  flextable::flextable()
-
-
-flextable::flextable(sfn_sitespecies)
+  select(si_code,sp_name,sp_leaf_habit,sp_ntrees,sp_basal_area_perc) 
 
 
 # 30
@@ -146,7 +138,7 @@ numbersp_barplot_30 <- sfn_sitespecies%>%
 # Joint plot
 # save parameters: h=1000, w=1300
 
-plot_grid(sp_main_genus_data,numbersp_barplot_30, 
+genera_30species<- plot_grid(sp_main_genus_data,numbersp_barplot_30, 
           labels=c('a)', 'b)'), label_size= 16,
           ncol=1, nrow=2, align = "v", axis = "b")
 

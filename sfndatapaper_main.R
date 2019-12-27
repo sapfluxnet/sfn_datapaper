@@ -5,26 +5,30 @@ library(tidyverse)
 
 # source('read_metadata.R')
 
-# 1. Choose map quality -----------------------------------------------------
+# 2. Run sources ----------------------------------------------------------
+
+source('metadata_wrangling.R')
+
+# 0. Choose map quality -----------------------------------------------------
 # 'high' quality for definitive fig, 'draft' is faster
 
-plot_quality <- 'high'
+plot_quality <- 'draft'
 
 if (plot_quality=='draft') {
-  globforest <- globforest_rec_0_5
+  source('map_sites_draft.R')
   print('Draft quality')
 } else if (plot_quality=='high') {
-  globforest <- globforest_rec_0_1
+  source('map_sites.R')
   print('High quality')
 } else{
   print('Nothing done, choose quality')
 }
 
-# 2. Run sources ----------------------------------------------------------
 
-source('metadata_wrangling.R')
-source('map_sites.R')
+
+
 source('genus_species.R')
+
 
 
 # 3. Save data ------------------------------------------------------------
