@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(flextable)
 library(pander)
 library(magrittr)
+load('sfn_datapaper_data_draft.RData')
 ```
 
 ## Figures

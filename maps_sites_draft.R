@@ -10,6 +10,24 @@ load('maps_base.RData')
 
 # Draft versions ----------------------------------------------------------
 
+# a) Site labels 
+
+# b) Select countries to plot 
+
+countries_sfn <- unique(sapply(strsplit(sfn_allsites$si_code,"_"),"[[",1))
+countries_label <- c('ARG','BRA','COL','CRI','CHN','GUF','IDN','ISR','KOR','MDG','MEX','NZL','RUS','SEN','THA','UZB')
+countries_europe <- c('AUT','CHE','CZE','DEU','ESP','FIN','FRA','GBR','HUN','ITA','NLD','PRT','SWE')
+countries_america <- c('CAN','USA')
+countries_austral <- c('AUS')
+countries_africa <- c('MDG','ZAF')
+
+
+# c) Add numeric codes 
+
+sfn_allsites_country<- sfn_allsites %>% 
+  mutate(country=sapply(strsplit(si_code,"_"),"[[",1),
+         num_code = as.integer(factor(si_code)))
+
 
 # 3. Map, numeric codes, ggrepel not aligned ------------------------------------------------------
 

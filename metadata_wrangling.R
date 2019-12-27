@@ -78,9 +78,14 @@ sfn_sites_type <- sfn_sites1 %>%
     type=ifelse(si_code%in%sfn_sites_leaf$si_code,
                 'leaf,plant,sapwood',type),
     typef=factor(type)
-  )
+  ) 
 
-
+# For alluvial plot
+sfn_plants_type<- sfn_sites_type %>% 
+  dplyr::select(si_code,typef) %>% 
+  full_join(sfn_allplants) %>% 
+  select(si_code,pl_sens_meth,typef) %>% 
+  group_by(pl_sens_meth,typef) %>% tally()
 
 # 4. Percentage basal area ------------------------------------------------
 

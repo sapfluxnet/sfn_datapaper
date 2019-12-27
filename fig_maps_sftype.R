@@ -4,46 +4,19 @@ library(ggrepel)
 library(tidyverse)
 library(cowplot)
 
-# 0. Run requirements  ----------------------------------
-
-# If changes applied re-run source, ~ 10 min
-# source('maps_base.R')
-
-load('maps_base.RData')
-
-# Quick to run
-source('metadata_wrangling.R')
-
-# 0. Choose map quality -----------------------------------------------------
-# 'high' quality for definitive fig, 'draft' is faster
-
-plot_quality <- 'high'
-
-if (plot_quality=='draft') {
-  globforest <- globforest_rec_0_5
-  print('Draft quality')
-} else if (plot_quality=='high') {
-  globforest <- globforest_rec_0_1
-  print('High quality')
-} else{
-  print('Nothing done, choose quality')
-}
-
-
-
 # 4. Conditioned maps -----------------------------------------------------
 
 # TODO: set the symbol colour black
 # world
 
 # igbp
-sfn_igbp <- globforest  +
+sfn_igbp <- globforest_rec_0_5  +
   geom_point(data=sfn_allsites,
              aes(x=si_long,y=si_lat,col=si_igbp))+
   
   guides(fill='none')+xlab(NULL)+ylab(NULL)
 # type
-sfn_sftype<- globforest  +
+sfn_sftype<- globforest_rec_0_5  +
   geom_point(data=sfn_sites_type,
              aes(x=si_long,y=si_lat,col=type))+
   
@@ -51,7 +24,7 @@ sfn_sftype<- globforest  +
 
 # n species
 
-sfn_nspecies <- globforest  +
+sfn_nspecies <- globforest_rec_0_5  +
   geom_point(data=sfn_sites_nspecies,
              aes(x=si_long,y=si_lat,col=nspecies))+
   
@@ -77,3 +50,14 @@ sfn_sftypes <- plot_grid(sfn_sftype,sfn_igbp,sfn_nspecies,sfn_ntrees,
 
 # Combination of alluvial and histogram for methods x sftype x group (gymno/angio)?
 # https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
+
+
+method_type <- ggplot(sfn_plants_type,
+       aes(y = n, axis1 = pl_sens_meth, axis2 = typef)) +
+  geom_alluvium(aes(fill = typef), width = 1/12)+
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", infer.label = TRUE) 
+
+
+
+

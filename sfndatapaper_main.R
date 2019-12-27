@@ -15,22 +15,18 @@ source('metadata_wrangling.R')
 plot_quality <- 'draft'
 
 if (plot_quality=='draft') {
-  source('map_sites_draft.R')
+  source('maps_sites_draft.R')
+  source('genus_species.R')
+  save.image('sfn_datapaper_data_draft.RData')
   print('Draft quality')
 } else if (plot_quality=='high') {
   source('map_sites.R')
+  source('genus_species.R')
+  save.image('sfn_datapaper_data.RData')
   print('High quality')
 } else{
   print('Nothing done, choose quality')
 }
 
-
-
-
-source('genus_species.R')
-
-
-
 # 3. Save data ------------------------------------------------------------
 
-save.image('sfn_datapaper_data.RData')
