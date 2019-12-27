@@ -3,7 +3,8 @@ title: "Tables for SAPFLUXNET data paper"
 author: "R. Poyatos"
 date: "27/12/2019"
 output:
-  word_document: default
+  word_document: 
+    reference_docx: word-styles-reference-01.docx
   html_document:
     df_print: paged
   pdf_document: default
@@ -11,18 +12,24 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(flextable)
+library(pander)
+library(magrittr)
 load('sfn_datapaper_data.RData')
 ```
 
-## R Markdown
+## Tables
 
 ```{r tabRef, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+qflextable(sp_genus_all) %>% 
+  autofit() %>% 
+  set_header_labels(sp_genus = "Genus", n="Number of trees") %>% 
+   bold( i = 1,  part = "header")
 
-knitr::kable(sfn_sitespecies, caption = "Table caption here...", booktabs = TRUE)
-flextable::flextable(sp_genus_all)
 ```
+\pagebreak
 
-## Including Plots
+## Figures
 
 You can also embed plots, for example:
 
