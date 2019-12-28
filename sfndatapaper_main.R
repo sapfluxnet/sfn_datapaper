@@ -16,7 +16,9 @@ plot_quality <- 'draft'
 
 if (plot_quality=='draft') {
   source('maps_sites_draft.R')
+  prin('Maps ok')
   source('genus_species.R')
+  print('Genus species ok')
   save.image('sfn_datapaper_data_draft.RData')
   print('Draft quality')
 } else if (plot_quality=='high') {

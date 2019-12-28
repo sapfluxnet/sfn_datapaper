@@ -3,6 +3,7 @@ library(ggspatial)
 library(ggrepel)
 library(tidyverse)
 library(cowplot)
+library(ggalluvial)
 
 # 4. Conditioned maps -----------------------------------------------------
 
@@ -52,11 +53,20 @@ sfn_sftypes <- plot_grid(sfn_sftype,sfn_igbp,sfn_nspecies,sfn_ntrees,
 # https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
 
 
-method_type <- ggplot(sfn_plants_type,
+ggplot(sfn_plants_type,
        aes(y = n, axis1 = pl_sens_meth, axis2 = typef)) +
   geom_alluvium(aes(fill = typef), width = 1/12)+
-  geom_stratum(width = 1/12, fill = "black", color = "grey") +
-  geom_label(stat = "stratum", infer.label = TRUE) 
+  geom_stratum(width = 1/12, alpha = .5) +
+  geom_label(stat = "stratum", infer.label = TRUE) +
+  scale_x_discrete(limits = c("Sap flow method", "Measurement level"), 
+                   expand = c(.05, .05)) +
+  #scale_fill_brewer(type = "qual", palette = "Set1")+
+  scale_fill_viridis_d()+
+  ylab('Number of trees')+
+  theme_minimal()+
+  theme(legend.position = "none", axis.title=element_text(size=16),
+        axis.text = element_text(size=16))
+  
 
 
 

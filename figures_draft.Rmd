@@ -3,12 +3,12 @@ title: "Figures for SAPFLUXNET data paper"
 author: "R. Poyatos"
 date: "27/12/2019"
 output:
-  pdf_document: 
-    fig_caption: yes
-  html_document:
-    df_print: paged
   word_document: 
     reference_docx: word-styles-reference-01.docx
+  html_document:
+    df_print: paged
+  pdf_document: 
+    fig_caption: yes
 ---
 
 
@@ -25,11 +25,40 @@ load('sfn_datapaper_data_draft.RData')
 
 ## Figures
 
-### Main text
+### Figure 1. 
+- Data workflow
 
-This version of the figures use a low quality version of the base maps because it's faster to run this way.
-Inaccuracies in the map result from rasterisation.
+### Figure 2
+- This version of the figures uses a low quality version of the base maps because 
+it's faster to run this way. Inaccuracies in the map result from rasterisation.
+- I include two versions of the figure with the maps, one with numeric codes and 
+another without them. Need to improve the layout and/or tweak the parameters controlling 
+the position of the labels to get an optimal figure.
+- TODO: use paler colour for forest area, see if I can display IGBP code (EBF, ENF, etc)
 
+### Figure 3
+- This figure is OK.
+
+### Figure 4
+- I chose to show genera with >50 trees and species with >30 trees, arbitrarily...
+
+### Figure 5
+- Need to reduce the overlap between the labels of sap flow methods.
+
+### Figure 6. Site and plant level attributes
+-TODO
+
+### Figure 7. Dataset length
+- TODO: need to get starting dates from R objects or from tidy versions, 
+combining plant and sapwood
+
+## Figure 8. Temporal patterns
+- TODO: elaborate some fingerprint plots? by species?
+
+## Figure 9. Validity?
+- Show some correspondence between SF and MODIS ET?
+
+## Figure 10. Scaling
 \pagebreak
 
 ```{r sitesmap, echo=FALSE, cache=TRUE, fig.height=12, fig.width=15}
@@ -65,10 +94,21 @@ in the database.
 \pagebreak
 
 ```{r method_type,fig.height=10, fig.width=15, echo=FALSE}
+
 ggplot(sfn_plants_type,
        aes(y = n, axis1 = pl_sens_meth, axis2 = typef)) +
   geom_alluvium(aes(fill = typef), width = 1/12)+
-  geom_stratum(width = 1/12, fill = "black", color = "grey") +
-  geom_label(stat = "stratum", infer.label = TRUE) 
+  geom_stratum(width = 1/12, alpha = .5) +
+  geom_label(stat = "stratum", infer.label = TRUE) +
+  scale_x_discrete(limits = c("Sap flow method", "Measurement level"), 
+                   expand = c(.05, .05)) +
+  #scale_fill_brewer(type = "qual", palette = "Set1")+
+  scale_fill_viridis_d()+
+  ylab('Number of trees')+
+  theme_minimal()+
+  theme(legend.position = "none", axis.title=element_text(size=16),
+        axis.text = element_text(size=16))
+  
 ```
 
+Figure 4. Distribution of trees in SAPFLUXNET according to sap flow method and measurement level.

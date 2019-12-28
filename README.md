@@ -13,6 +13,11 @@ within the project folder:
 
 ## Structure
 
+Text is being written in google docs.
+Figures: run figures_draft.Rmd, quick version of the figures using a draft version
+for maps. 
+
+
 ### Scripts
 -  metadata_wrangling.R: reads from cache, performs summaries and aggregations
 -  maps_sites.R: maps 
@@ -21,10 +26,12 @@ within the project folder:
 ### Non-functional and other scripts
  - read_metadata.R: reads sfn metadata, re-run only if sfn data changes
  (e.g. new version), writes cache
- - sfndatapaper_main.R: not functional, an attempt to create main script
  - maps_base.R:  creates base maps for figures
 
 ## Rendering
+
+
+
 
 ### Current version
 
