@@ -5,6 +5,7 @@ path.plant <- file.path('data/0.1.3/RData/plant')
 
 sfn_sites_in_folder(path.plant)
 
+plan('sequential')
 # Test using Can Balasc data
 esp_can <- read_sfn_data('ESP_CAN',folder=path.plant)
 esp_val_sor <- read_sfn_data('ESP_VAL_SOR',folder=path.plant)
@@ -12,6 +13,7 @@ esp_val_sor <- read_sfn_data('ESP_VAL_SOR',folder=path.plant)
 # Function to get number of trees with measurements per day
 # To consider a day with measurements uses a threshold of number
 # of timesteps
+
 
 get_ntrees_day<- function(sfn_data_obj,n_threshold=0){
   sfn_data_obj %>% 
@@ -31,15 +33,33 @@ get_ntrees_day<- function(sfn_data_obj,n_threshold=0){
 plant_sites <- read_sfn_data(sfn_sites_in_folder(path.plant),folder=path.plant)
 
 # setting the plan
-plan('sequential')
+
 
 # get n_trees for all datasets
 plant_sites<-map(.x=plant_sites, .f=get_ntrees_day)
   
 # transform to data frame
+# TODO: add date of initiation and end of dataset for easier plotting of labels
+
 plant_sites %>% 
   map_dfr(~as_tibble(.)) %>% 
-  mutate(TIMESTAMP2=lubridate::date(TIMESTAMP))-> plant_sites_df
+  mutate(TIMESTAMP2=lubridate::date(TIMESTAMP),
+         n_trees_class = case_when(
+           n_trees<4 ~ '< 4',
+           n_trees>4 & n_trees<11 ~'4-10',
+           n_trees>10 & n_trees<21 ~'11-20',
+           n_trees>20 & n_trees<31 ~'21-30',
+           n_trees>30 & n_trees<41 ~'31-40',
+           n_trees>40 & n_trees<51 ~'41-50',
+           TRUE ~ '> 50'
+         ),
+         country=sapply(strsplit(si_code,"_"),"[[",1),
+                num_code = as.integer(factor(si_code)))-> plant_sites_df
+
+
+plant_sites_df$n_trees_class_f<- factor(plant_sites_df$n_trees_class, 
+       levels=c('< 4','4-10','11-20','21-30','31-40','41-50','> 50'))
+
 
 # View(plant_sites_df)
 
@@ -52,3 +72,27 @@ ggplot(plant_sites_df, aes(TIMESTAMP2, si_code)) +
   theme(axis.text.y=element_text(size=6), axis.text.x=element_text(size=16),axis.title.y=element_text(size=16))+
   labs(y='SAPFLUXNET Datasets (plant level)',x="")
 
+
+  annotation <- data.frame(
+    x = as.Date("2005-01-01"),
+    y=unique(plant_sites_df$num_code),
+    label=unique(plant_sites_df$si_code)
+  )
+  
+  ggplot(plant_sites_df, aes(TIMESTAMP2, num_code,label=si_code)) +
+    geom_raster(aes(fill = n_trees_class_f))+
+    scale_y_continuous(breaks=seq(1,193,by=4))+
+    scale_fill_viridis_d(direction=-1)+
+    theme_classic()+
+    theme(panel.background=element_rect(fill='lightgray',colour=NULL))+
+    ggrepel::geom_text_repel(data=annotation[c(101,102,103,104,105,141,173),], 
+              aes(x=x, y=y, label=label),  
+              segment.color = 'black',
+              color="black", 
+              size=3 )
+  
+  
+   
+
+
+  
