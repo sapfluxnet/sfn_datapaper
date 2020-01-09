@@ -1,7 +1,7 @@
 ---
 title: "Tables for SAPFLUXNET data paper"
 author: "R. Poyatos"
-date: "27/12/2019"
+date: "9th January 2020"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -14,7 +14,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(flextable)
 library(pander)
-library(magrittr)
 load('sfn_datapaper_data_draft.RData')
 ```
 ## Supplementary 
@@ -85,10 +84,16 @@ bind_rows(
 library(dplyr)
 data.frame(sp_genus_all[1:33,],
           sp_genus_all[34:66,],
-          add_row(sp_genus_all[67:98,]))%>% 
+          add_row(sp_genus_all[67:98,],sp_genus=NA,n=''))%>% 
   qflextable() %>% 
   autofit(add_w=0,add_h=0) %>%
-  set_header_labels(values=rep(c('Genus','N'),3)) %>% 
+  set_header_labels(
+    sp_genus= 'Genus',
+    n = 'N',
+    sp_genus.1= 'Genus',
+    n.1 = 'N',
+    sp_genus.2= 'Genus',
+    n.2 = 'N') %>% 
    bold( i = 1,  part = "header") %>% 
    set_caption('Table X. Number of trees per genus')
 
