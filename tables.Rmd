@@ -5,9 +5,9 @@ date: "27/12/2019"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,13 +20,74 @@ load('sfn_datapaper_data_draft.RData')
 
 ## Tables
 
-```{r tabRef, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
-qflextable(sp_genus_all) %>% 
-  autofit() %>% 
-  set_header_labels(sp_genus = "Genus", n="Number of trees") %>% 
+```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+library(dplyr)
+data.frame(sp_genus_all[1:33,],
+          sp_genus_all[34:66,],
+          add_row(sp_genus_all[67:98,]))%>% 
+  qflextable() %>% 
+  autofit(add_w=0,add_h=0) %>%
+  set_header_labels(values=rep(c('Genus','N'),3)) %>% 
    bold( i = 1,  part = "header") %>% 
    set_caption('Table X. Number of trees per genus')
 
 ```
 \pagebreak
 
+```{r tab_metadatavars, echo=FALSE, results='asis'}
+suppressMessages(library(dplyr))
+library(magrittr)
+site_md_table <- sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'site_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'site_md') %>%
+      names()
+  ) %>%
+  select(variable, everything())
+stand_md_table <- sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'stand_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'stand_md') %>%
+      names()
+  ) %>%
+  select(variable, everything())
+species_md_table <- sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'species_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'species_md') %>%
+      names()
+  ) %>%
+  select(variable, everything())
+plant_md_table <- sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'plant_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'plant_md') %>%
+      names()
+  ) %>%
+  select(variable, everything())
+env_md_table <- sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'env_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'env_md') %>%
+      names()
+  ) %>%
+  select(variable, everything())
+bind_rows(
+  site_md_table, stand_md_table, species_md_table, plant_md_table, env_md_table
+) %>% 
+  qflextable() %>%
+   bold( i = 1,  part = "header") %>%
+   set_caption('Table X. Metadata variables list') %>% 
+  width(width=c(1.8,2.25,1.2,1.2)) %>%
+  height(height=.9)
+```
