@@ -121,7 +121,5 @@ data.frame(sp_genus_all[1:33,],
 ```
 \pagebreak
 
-```{r tab_ntrees_sp, echo=FALSE, results='asis'}
-print('Table: number of trees per species')
-```
+## Table: number of trees per species
 

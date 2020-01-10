@@ -1,5 +1,8 @@
 # loading future package
 library(future)
+library(sapfluxnetr)
+library(purrr)
+library(tidyverse)
 
 path.plant <- file.path('data/0.1.3/RData/plant')
 
@@ -54,14 +57,28 @@ plant_sites %>%
            TRUE ~ '> 50'
          ),
          country=sapply(strsplit(si_code,"_"),"[[",1),
-                num_code = as.integer(factor(si_code)))-> plant_sites_df
-
-
+                num_code = as.integer(factor(si_code))) %>% 
+  arrange(si_code,TIMESTAMP) %>% 
+  group_by(si_code) %>% 
+  mutate( ini_date = TIMESTAMP[min(which(!is.na(n_trees) & !is.na(n_trees)))],
+          end_date = TIMESTAMP[max(which(!is.na(n_trees) & !is.na(n_trees)))],
+          duration = lubridate::interval(ini_date,end_date)/86400/365)-> plant_sites_df
 plant_sites_df$n_trees_class_f<- factor(plant_sites_df$n_trees_class, 
        levels=c('< 4','4-10','11-20','21-30','31-40','41-50','> 50'))
 
 
-# View(plant_sites_df)
+# 
+# plant_sites_df %>% 
+#   arrange(si_code,TIMESTAMP) %>% 
+#   group_by(si_code) %>% 
+#   mutate( ini_date = TIMESTAMP[min(which(!is.na(n_trees) & !is.na(n_trees)))],
+#           end_date = TIMESTAMP[max(which(!is.na(n_trees) & !is.na(n_trees)))],
+#           duration = lubridate::interval(ini_date,end_date)/86400/365) %>% 
+#           View()
+# 
+
+
+# Figure showing dataset duration, period, n_trees (log_scale)
 
 ggplot(plant_sites_df, aes(TIMESTAMP2, si_code)) +
   geom_raster(aes(fill = n_trees))+
@@ -73,6 +90,10 @@ ggplot(plant_sites_df, aes(TIMESTAMP2, si_code)) +
   labs(y='SAPFLUXNET Datasets (plant level)',x="")
 
 
+  
+  # Figure showing dataset duration, period, n_trees (categorised)
+  # Annotation test
+  
   annotation <- data.frame(
     x = as.Date("2005-01-01"),
     y=unique(plant_sites_df$num_code),
@@ -92,7 +113,27 @@ ggplot(plant_sites_df, aes(TIMESTAMP2, si_code)) +
               size=3 )
   
   
+  # Figure showing dataset duration and n_trees
    
+  data_duration <- ggplot(plant_sites_df, aes( y=duration,x=reorder(num_code,duration),fill = n_trees_class_f)) +
+    geom_col()+
+    coord_flip()+
+    scale_fill_viridis_d(direction=-1)+
+    theme(legend.position=c(.6,.3))+
+    labs(x='')
+
+data_period <- ggplot(plant_sites_df, aes( y=TIMESTAMP2,x=reorder(num_code,duration))) +
+                        geom_tile(fill = 'darkgray')+
+                        coord_flip()+
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+guides(fill='none')+labs(x="")
+
+cowplot::plot_grid(data_duration, data_period,labels=c('(a)','(b)'),rel_widths=c(1,0.4))
 
 
-  
+
+# TODO: add sapwood data, solve duration? add labels? ---------------------
+
+
