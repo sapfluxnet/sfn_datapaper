@@ -20,6 +20,26 @@ load('sfn_datapaper_data_draft.RData')
 
 \pagebreak
 
+```{r fig_QC, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure X. Overview of the data QC process'}
+
+knitr::include_graphics('resources/QC_summary2.svg')
+```
+
+\pagebreak
+
+```{r table_QC1, echo=FALSE,results='asis'}
+library(magrittr)
+library(flextable)
+readxl::read_xlsx('resources/table_QC1_checks.xlsx',1) %>% 
+   qflextable() %>%  
+  bold( i = 1,  part = "header") %>%
+   set_caption('Table X. QC1 data checks') %>% 
+  width(width=c(1.8,5)) %>%
+  height(height=.7)
+```
+\pagebreak
+
+
 
 ```{r tab_metadatavars, echo=FALSE, results='asis'}
 suppressMessages(library(dplyr))
@@ -80,6 +100,7 @@ bind_rows(
 ```
 \pagebreak
 
+
 ```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
 library(dplyr)
 data.frame(sp_genus_all[1:33,],
@@ -98,3 +119,9 @@ data.frame(sp_genus_all[1:33,],
    set_caption('Table X. Number of trees per genus')
 
 ```
+\pagebreak
+
+```{r tab_ntrees_sp, echo=FALSE, results='asis'}
+print('Table: number of trees per species')
+```
+
