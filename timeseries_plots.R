@@ -17,10 +17,20 @@ esp_val_sor <- read_sfn_data('ESP_VAL_SOR',folder=path.sapwood)
 foo <- read_sfn_data('CRI_TAM_TOW',folder=path.sapwood)
 
 cowplot::plot_grid(
-sfn_finger_species(foo,years=2015),
-sfn_finger_species(esp_can),ncol=1,labels=c('a)','b)'),rel_heights = c(1,0.7))
+sfn_finger_species(esp_can),
+sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
+                   species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra')),
+
+sfn_finger_species(foo,years=2015,species=c('Pouteria sp.','Inga sp.',
+                                            'Eschweillera sp.','Mortoniodendron anisophyllum')),
+ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 
 
+sfn_finger_species(esp_can)           
+                   
+
+esp_can %>% get_species_md() %>% pull(sp_name) %>% unique()
+                   esp_can %>% get_plant_md() %>% pull(pl_species) %>% unique()
 # fingerprint plot --------------------------------------------------------
 
 # TODO:
@@ -53,7 +63,9 @@ sfn_finger<- function(sfn_data_obj,years=c(2011,2012)){
 
 # sfn per species
 
-sfn_finger_species<- function(sfn_data_obj,years=1990:2020){
+sfn_finger_species<- function(sfn_data_obj,
+                              years=1990:2020,
+                              species= get_species_md(sfn_data_obj) %>% pull(sp_name) %>% unique()){
   
   sfn_data_obj %>% 
     get_sapf_data() %>% 
@@ -68,7 +80,7 @@ sfn_finger_species<- function(sfn_data_obj,years=1990:2020){
     mutate(year=lubridate::year(TIMESTAMP),
            doy = lubridate::yday(TIMESTAMP),
            hour = lubridate::hour(TIMESTAMP)) %>% 
-    dplyr::filter(year%in%years) %>% 
+    dplyr::filter(year%in%years, pl_species%in%species) %>% 
     group_by(pl_species,year,doy,hour) %>% 
     mutate(sf_species=mean(sf,na.rm=TRUE)) %>%
     distinct(pl_species,doy,hour,.keep_all = TRUE) %>%
