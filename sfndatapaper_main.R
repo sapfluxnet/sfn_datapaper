@@ -21,6 +21,7 @@ if (plot_quality=='draft') {
   print('Genus species ok')
   save.image('sfn_datapaper_data_draft.RData')
   print('Draft quality')
+
 } else if (plot_quality=='high') {
   source('map_sites.R')
   source('genus_species.R')

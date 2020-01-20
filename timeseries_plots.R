@@ -3,83 +3,23 @@ library(purrr)
 library(tidyverse)
 library(FREddyPro)
 
+# Data paths
 
 path.plant <- file.path('data/0.1.3/RData/plant')
 path.sapwood <- file.path('data/0.1.3/RData/sapwood')
 
-
-## Close any previously open graphic devices
-graphics.off()
-
-## Load the data
-data(fluxes)
-
-## Clean the fluxes
-fluxes=cleanFluxes(fluxes,sdCor=TRUE,sdTimes=3,timesList=3,distCor=TRUE,
-                   thresholdList=list(H=c(-100,1000),LE=c(-100,1000)))
-
-## Plot the fingerprint plot
-plotFingerprint(fluxes$co2_flux,fluxes$yday,fluxes$hour,step=1,main='CO'[2]~' flux',
-                key.title=title(main="umol m"^2~"s"^-1~"",adj=0.2))
-
-
 # Test using Can Balasc data
+sfn_sites_in_folder(path.sapwood)
+
 esp_can <- read_sfn_data('ESP_CAN',folder=path.sapwood)
 esp_val_sor <- read_sfn_data('ESP_VAL_SOR',folder=path.sapwood)
 
-plotFingerprint(var, doy, hour, step = 2, xlab = "Hour",
-                ylab="Day or Year", ...)
+foo <- read_sfn_data('CRI_TAM_TOW',folder=path.sapwood)
 
+cowplot::plot_grid(
+sfn_finger_species(foo,years=2015),
+sfn_finger_species(esp_can),ncol=1,labels=c('a)','b)'),rel_heights = c(1,0.7))
 
-
-esp_can %>% 
-  get_sapf_data() %>% 
-  mutate(year=lubridate::year(TIMESTAMP),
-         doy = lubridate::yday(TIMESTAMP),
-         hour = lubridate::hour(TIMESTAMP)+lubridate::minute(TIMESTAMP)/60) %>% 
-  plotFingerprint(var=.$ESP_CAN_Qpu_Js_1,doy=.$doy,hour=.$hour)
-         
-
-
-esp_can %>% 
-  get_sapf_data() %>% 
-  mutate(year=lubridate::year(TIMESTAMP),
-         doy = lubridate::yday(TIMESTAMP),
-         hour = lubridate::hour(TIMESTAMP)+lubridate::minute(TIMESTAMP)/60) %>% 
-  ggTimeSeries::ggplot_calendar_heatmap(dtDateValue = .,cDateColumnName = 'TIMESTAMP',cValueColumnName ='ESP_CAN_Qpu_Js_1' )
-
-
-
-esp_can %>% 
-  get_sapf_data() %>% 
-  mutate(year=lubridate::year(TIMESTAMP),
-         doy = lubridate::yday(TIMESTAMP),
-         hour = lubridate::hour(TIMESTAMP)) %>% 
-  ggplot(data=.,aes(x=hour,y=doy,fill=ESP_CAN_Qpu_Js_1))+
-  geom_tile(color= "white",size=0.1) + 
-  viridis::scale_fill_viridis(name="sf",option ="C")+
-  facet_grid(~year)
-
-esp_can %>% 
-  get_sapf_data() %>% 
-  mutate(year=lubridate::year(TIMESTAMP),
-         doy = lubridate::yday(TIMESTAMP),
-         hour = lubridate::hour(TIMESTAMP)) %>% 
-  ggplot(data=.,aes(x=hour,y=doy,fill=ESP_CAN_Pha_Js_9))+
-  geom_tile(color= "white",size=0.1) + 
-  viridis::scale_fill_viridis(name="sf",option ="C")+
-  facet_grid(~year)
-
-
-esp_can %>% 
-  get_env_data() %>% 
-  mutate(year=lubridate::year(TIMESTAMP),
-         doy = lubridate::yday(TIMESTAMP),
-         hour = lubridate::hour(TIMESTAMP)) %>% 
-  ggplot(data=.,aes(x=hour,y=doy,fill=swc_shallow))+
-  geom_tile(color= "white",size=0.1) + 
-  viridis::scale_fill_viridis(name="sf",option ="C")+
-  facet_grid(~year)
 
 # fingerprint plot --------------------------------------------------------
 
@@ -96,19 +36,77 @@ sfn_finger<- function(sfn_data_obj,years=c(2011,2012)){
     get_plant_md() -> plmdata
   
   sfdata %>% 
-    full_join(select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
+    full_join(dplyr::select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
     mutate(year=lubridate::year(TIMESTAMP),
            doy = lubridate::yday(TIMESTAMP),
            hour = lubridate::hour(TIMESTAMP)) %>%
 
   ggplot(.,aes(x=hour,y=doy,fill=sf))+
-    geom_tile(color= "white",size=0.1) + 
+    geom_raster(interpolate=TRUE)+
+   # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(name="sf",option ="C")+
     facet_grid(year~pl_species)
   
 }
 
-sfn_finger(esp_can)
+
+
+# sfn per species
+
+sfn_finger_species<- function(sfn_data_obj,years=1990:2020){
+  
+  sfn_data_obj %>% 
+    get_sapf_data() %>% 
+    gather(-TIMESTAMP,key='tree',value='sf')->sfdata
+  
+  sfn_data_obj %>%  
+    get_plant_md() -> plmdata
+  
+  sfdata %>% 
+    full_join(dplyr::select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
+    group_by(pl_species) %>% 
+    mutate(year=lubridate::year(TIMESTAMP),
+           doy = lubridate::yday(TIMESTAMP),
+           hour = lubridate::hour(TIMESTAMP)) %>% 
+    dplyr::filter(year%in%years) %>% 
+    group_by(pl_species,year,doy,hour) %>% 
+    mutate(sf_species=mean(sf,na.rm=TRUE)) %>%
+    distinct(pl_species,doy,hour,.keep_all = TRUE) %>%
+    
+    ggplot(.,aes(x=hour,y=doy,fill=sf_species))+
+    geom_raster(interpolate=TRUE)+
+    # geom_tile(color= "white",size=0.01) + 
+    viridis::scale_fill_viridis(name="sf",option ="C")+
+    facet_grid(year~pl_species)
+  
+}
+
+
+
+sfn_finger_species(bra_san)
+
+
+
+esp_can%>% 
+  get_sapf_data() %>% 
+  gather(-TIMESTAMP,key='tree',value='sf')->sfdata
+
+
+esp_can %>%  
+  get_plant_md() -> plmdata
+
+sfdata %>% 
+  full_join(dplyr::select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
+  mutate(year=lubridate::year(TIMESTAMP),
+         doy = lubridate::yday(TIMESTAMP),
+         hour = lubridate::hour(TIMESTAMP)) %>% 
+  group_by(pl_species,doy,hour) %>% 
+  mutate(sf_species=mean(sf,na.rm=TRUE)) %>%
+  distinct(pl_species,doy,hour,.keep_all = TRUE)->foo
+
+View(foo)
+
+
 
 esp_can  %>% 
   get_sapf_data() %>% 
@@ -119,3 +117,51 @@ esp_can  %>%
 
 foo %>% 
   full_join(select(faa,pl_code,pl_species),by=c('tree'='pl_code'))
+
+
+
+
+# ## Close any previously open graphic devices
+# graphics.off()
+# 
+# ## Load the data
+# data(fluxes)
+# 
+# ## Clean the fluxes
+# fluxes=cleanFluxes(fluxes,sdCor=TRUE,sdTimes=3,timesList=3,distCor=TRUE,
+#                    thresholdList=list(H=c(-100,1000),LE=c(-100,1000)))
+# 
+# ## Plot the fingerprint plot
+# plotFingerprint(fluxes$co2_flux,fluxes$yday,fluxes$hour,step=1,main='CO'[2]~' flux',
+#                 key.title=title(main="umol m"^2~"s"^-1~"",adj=0.2))
+
+# esp_can %>% 
+#   get_sapf_data() %>% 
+#   mutate(year=lubridate::year(TIMESTAMP),
+#          doy = lubridate::yday(TIMESTAMP),
+#          hour = lubridate::hour(TIMESTAMP)) %>% 
+#   ggplot(data=.,aes(x=hour,y=doy,fill=ESP_CAN_Qpu_Js_1))+
+#   geom_tile(color= "white",size=0.1) + 
+#   viridis::scale_fill_viridis(name="sf",option ="C")+
+#   facet_grid(~year)
+# 
+# esp_can %>% 
+#   get_sapf_data() %>% 
+#   mutate(year=lubridate::year(TIMESTAMP),
+#          doy = lubridate::yday(TIMESTAMP),
+#          hour = lubridate::hour(TIMESTAMP)) %>% 
+#   ggplot(data=.,aes(x=hour,y=doy,fill=ESP_CAN_Pha_Js_9))+
+#   geom_tile(color= "white",size=0.1) + 
+#   viridis::scale_fill_viridis(name="sf",option ="C")+
+#   facet_grid(~year)
+# 
+# 
+# esp_can %>% 
+#   get_env_data() %>% 
+#   mutate(year=lubridate::year(TIMESTAMP),
+#          doy = lubridate::yday(TIMESTAMP),
+#          hour = lubridate::hour(TIMESTAMP)) %>% 
+#   ggplot(data=.,aes(x=hour,y=doy,fill=swc_shallow))+
+#   geom_tile(color= "white",size=0.1) + 
+#   viridis::scale_fill_viridis(name="sf",option ="C")+
+#   facet_grid(~year)
