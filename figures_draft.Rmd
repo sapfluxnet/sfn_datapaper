@@ -36,44 +36,41 @@ another without them. Need to improve the layout and/or tweak the parameters con
 the position of the labels to get an optimal figure.
 - TODO: use paler colour for forest area, see if I can display IGBP code (EBF, ENF, etc)
 
-### Figure 3
+### Figure 3. Biomes.
 - This figure is OK.
 
-### Figure 4
+### Figure 4. Taxonomy.
 - I chose to show genera with >50 trees and species with >30 trees, arbitrarily...
+- TODO: show number of tree days as well??
 
-### Figure 5
-- Need to reduce the overlap between the labels of sap flow methods.
+### Figure 5. Sap flow methods and level.
+- Need to reduce the overlap between the labels of sap flow methods. 
+- Taxonize species and show another column Gymno, Angio
 
 ### Figure 6. Site and plant level attributes
--TODO
+- TODO: get from Víctor's code.
 
-### Figure 7. Dataset length
-- TODO: need to get starting dates from R objects or from tidy versions, 
-combining plant and sapwood
+### Figure 7. Datasets duration and period
+- TODO: improve with Víctor.
 
-## Figure 8. Temporal patterns
-- TODO: elaborate some fingerprint plots? by species?
+### Figure 8. Temporal patterns
+- Improvements...
 
-## Figure 9. Validity?
-- Show some correspondence between SF and MODIS ET?
-
-## Figure 10. Scaling
 \pagebreak
 
-```{r sitesmap, echo=FALSE, cache=TRUE, fig.height=12, fig.width=15}
+```{r sitesmap, echo=FALSE, cache=TRUE, fig.height=18, fig.width=15}
 sfn_sitesmap_numcodes_dr
 ```
 
-Figure 1. Geographical distribution of SAPFLUXNET datasets showing dataset #.
+Figure 2. Geographical distribution of SAPFLUXNET datasets showing dataset #.
 
 \pagebreak
 
-```{r sitesmap_nocodes, echo=FALSE, cache=TRUE, fig.height=12, fig.width=15}
+```{r sitesmap_nocodes, echo=FALSE, cache=TRUE, fig.height=18, fig.width=15}
 sfn_sitesmap_nocodes_dr
 ```
 
-Figure 1. Geographical distribution of SAPFLUXNET datasets.
+Figure 2. Geographical distribution of SAPFLUXNET datasets.
 
 \pagebreak
 
@@ -81,19 +78,19 @@ Figure 1. Geographical distribution of SAPFLUXNET datasets.
 ```{r biomemap,fig.height=10, fig.width=15, echo=FALSE}
 biomes_plot
 ```
-Figure 2. Bioclimatic distribution of SAPFLUXNET datasets in the Whittaker biome space.
+Figure 3. Bioclimatic distribution of SAPFLUXNET datasets in the Whittaker biome space.
 
 \pagebreak
 
 ```{r genera_species,fig.height=10, fig.width=15, echo=FALSE}
 genera_30species
 ```
-Figure 3. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees 
+Figure 4. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees 
 in the database.
 
 \pagebreak
 
-```{r method_type,fig.height=10, fig.width=15, echo=FALSE}
+```{r method_type,fig.height=18, fig.width=15, echo=FALSE}
 
 ggplot(sfn_plants_type,
        aes(y = n, axis1 = pl_sens_meth, axis2 = typef)) +
@@ -111,4 +108,82 @@ ggplot(sfn_plants_type,
   
 ```
 
-Figure 4. Distribution of trees in SAPFLUXNET according to sap flow method and measurement level.
+Figure 5. Distribution of trees in SAPFLUXNET according to sap flow method and measurement level.
+
+\pagebreak
+
+Figure 6. Plant and stand attributes
+
+\pagebreak
+
+```{r dataset_duration, echo=FALSE, cache=TRUE, message=FALSE, fig.height=18, fig.width=15 }
+library(sapfluxnetr)
+library(purrr)
+library(tidyverse)
+library(ggrepel)
+
+# Load data
+
+load('dataset_duration_data.RData')
+
+# Figure showing dataset duration and n_trees
+  data_duration_plot <- ggplot(datasets_duration, aes( y=duration,x=reorder(num_code,duration),fill = n_trees_class_f)) +
+    geom_col()+
+    coord_flip()+
+    scale_fill_viridis_d(direction=-1)+
+    theme(legend.position=c(.6,.3))+
+    labs(x='')
+
+  # Figure showing data periods
+data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,duration))) +
+                        geom_tile(fill = 'darkgray')+
+                        coord_flip()+
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+guides(fill='none')+labs(x="")
+
+# Figure composition
+cowplot::plot_grid(data_duration_plot, data_period_plot,labels=c('(a)','(b)'),rel_widths=c(1,0.4))
+
+
+```
+
+Figure 7. Datasets duration and period
+
+\pagebreak
+
+```{r fingerprint_plots, echo=FALSE, message=FALSE, cache=TRUE, fig.height=18, fig.width=15}
+
+library(sapfluxnetr)
+library(purrr)
+library(tidyverse)
+
+# Functions
+# sfn per species
+source('R/sfn_datapaper_functions.R')
+
+# Data path
+path.sapwood <- file.path('data/0.1.3/RData/sapwood')
+
+# Plot
+cowplot::plot_grid(
+sfn_finger_species(read_sfn_data('ESP_CAN',folder=path.sapwood)),
+sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
+                   species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra')),
+
+sfn_finger_species(read_sfn_data('CRI_TAM_TOW',folder=path.sapwood),years=2015,
+                   species=c('Pouteria sp.','Inga sp.',
+                                            'Eschweillera sp.','Mortoniodendron anisophyllum')),
+ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
+
+```
+
+Figure 8. Temporal patterns.
+
+\pagebreak
+
+Figure 9. Scaling
+
+
+

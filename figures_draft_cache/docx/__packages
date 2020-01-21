@@ -2,3 +2,15 @@ base
 flextable
 pander
 magrittr
+ggplot2
+ggalluvial
+sapfluxnetr
+purrr
+tidyverse
+tibble
+tidyr
+readr
+dplyr
+stringr
+forcats
+ggrepel
