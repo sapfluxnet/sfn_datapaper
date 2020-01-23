@@ -21,7 +21,8 @@ sfn_finger_species(esp_can),
 sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
                    species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra')),
 
-sfn_finger_species(foo,years=2015,species=c('Pouteria sp.','Inga sp.',
+sfn_finger_species(read_sfn_data('CRI_TAM_TOW',folder=path.sapwood),years=2015,
+                   species=c('Pouteria sp.','Inga sp.',
                                             'Eschweillera sp.','Mortoniodendron anisophyllum')),
 ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 
