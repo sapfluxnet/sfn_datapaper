@@ -26,7 +26,7 @@ load('sfn_datapaper_data_draft.RData')
 ## Figures
 
 ### Figure 1. 
-- Data workflow
+- Data workflow. Víctor is on it...
 
 ### Figure 2
 - This version of the figures uses a low quality version of the base maps because 
@@ -38,23 +38,27 @@ the position of the labels to get an optimal figure.
 
 ### Figure 3. Biomes.
 - This figure is OK.
+- TODO: explore the possibility that Fig. 2 is (a) world map, (b) biome plot and that figure (3)
+is more regionally detailed, showing PFT.
 
 ### Figure 4. Taxonomy.
 - I chose to show genera with >50 trees and species with >30 trees, arbitrarily...
-- TODO: show number of tree days as well??
+- a) add number of species at the tip
+- b) add number of sites at the tip
+- Add a third panel ranking species by tree·days?
 
 ### Figure 5. Sap flow methods and level.
 - Need to reduce the overlap between the labels of sap flow methods. 
 - Taxonize species and show another column Gymno, Angio
 
 ### Figure 6. Site and plant level attributes
-- TODO: get from Víctor's code.
+- TODO: add titles to labels a) stand, b) plant
 
 ### Figure 7. Datasets duration and period
 - TODO: improve with Víctor.
 
 ### Figure 8. Temporal patterns
-- Improvements...
+- TODO: add titles to labels: a) ESP_CAN, Mediterranean, b), c
 
 \pagebreak
 
@@ -112,11 +116,69 @@ Figure 5. Distribution of trees in SAPFLUXNET according to sap flow method and m
 
 \pagebreak
 
+```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
+library(tidyverse)
+# Stand attributes --------------------------------------------------------
+
+sfn_allstands %>%
+  dplyr::select(si_code, st_age, st_height, st_density,
+                        st_basal_area, st_lai, st_soil_depth) %>%
+  pivot_longer(names_to="Var",values_to= "Value", cols=st_age:st_soil_depth)-> sfn_allstands_long
+
+sfn_allstands_long$Varf <- factor(sfn_allstands_long$Var,
+                                 levels=c('st_age','st_height','st_density','st_basal_area','st_lai','st_soil_depth'),
+                                 labels=c('Age~(years)','Height~(m)','Stem~density~(stems~ha^{"-1"})',
+                                          'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(m)'))
+
+sfn_allstands_long %>% 
+  ggplot(.,aes(x = Var, y = Value)) +
+  geom_violin(fill = '#FDE3A7', alpha = 0.3) +
+  geom_point(colour='black',alpha=0.5,
+             position = position_jitter(width = 0.2, height = 0))+
+  facet_wrap(~Varf,scales='free',labeller=label_parsed)+
+  guides(fill = FALSE) +
+  labs(x=NULL,y=NULL)+
+  theme_light()+
+  theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
+        strip.background = element_rect(fill='white',colour='darkgray'),
+        strip.text=element_text(size=20,colour='black',face='bold')) -> stand_violins
+
+
+
+#  Plant attributes -------------------------------------------------------
+
+sfn_allplants %>% 
+  dplyr::select(pl_code,pl_dbh,pl_height,pl_sapw_area,pl_sapw_depth,pl_leaf_area) %>% 
+  pivot_longer(names_to="Var", values_to="Value",cols=pl_dbh:pl_leaf_area)-> sfn_allplants_long
+
+sfn_allplants_long$Varf <- factor(sfn_allplants_long$Var,
+                                  levels=c('pl_dbh','pl_height','pl_sapw_area','pl_sapw_depth','pl_leaf_area'),
+                                  labels=c('DBH~(cm)','Height~(m)','Sapwood~area~(cm^2)','Sapwood~depth~(cm)','Leaf~area(m^2)'))
+
+
+sfn_allplants_long%>% 
+  ggplot(.,aes(x = Var, y = Value)) +
+  geom_violin(fill = '#FDE3A7', alpha = 0.3) +
+  geom_point(colour='black',alpha=0.5,
+             position = position_jitter(width = 0.2, height = 0))+
+  facet_wrap(~Varf,scales='free',labeller=label_parsed)+
+  guides(fill = FALSE) +
+  labs(x=NULL,y=NULL)+
+  theme_light()+
+  theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
+        strip.background = element_rect(fill='white',colour='darkgray'),
+        strip.text=element_text(size=20,colour='black',face='bold')) -> plant_violins
+
+cowplot::plot_grid(stand_violins, plant_violins,labels=c('(a)','(b)'),rel_widths=c(1,1),nrow=2)
+
+```
+
+
 Figure 6. Plant and stand attributes
 
 \pagebreak
 
-```{r dataset_duration, echo=FALSE, cache=TRUE, message=FALSE, fig.height=18, fig.width=15 }
+```{r dataset_duration, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE, fig.height=18, fig.width=15 }
 library(sapfluxnetr)
 library(purrr)
 library(tidyverse)
@@ -126,24 +188,46 @@ library(ggrepel)
 
 load('dataset_duration_data.RData')
 
-# Figure showing dataset duration and n_trees
-  data_duration_plot <- ggplot(datasets_duration, aes( y=duration,x=reorder(num_code,duration),fill = n_trees_class_f)) +
-    geom_col()+
+  # Figure showing dataset duration and n_trees
+   
+  # Palette for dataset duration plot
+  treeclass_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(7))
+  
+  data_duration_plot<- 
+    datasets_duration %>% 
+    ggplot(., 
+           aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
+    geom_tile()+
     coord_flip()+
-    scale_fill_viridis_d(direction=-1)+
-    theme(legend.position=c(.6,.3))+
-    labs(x='')
-
-  # Figure showing data periods
-data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,duration))) +
-                        geom_tile(fill = 'darkgray')+
+    scale_fill_manual(values = treeclass_pal)+
+    labs(x='',y='Number of days',fill='Number of trees')+
+    theme_light()+
+      theme(legend.position=c(.3,.2),
+            axis.title.x=element_text(size=14),axis.text.x=element_text(size=12),
+            axis.text.y=element_blank())+
+            
+      
+    geom_label_repel(data=duration_annotation %>% 
+                filter(rank%in%1:30),aes(x=reorder(num_code,n),y=0.9*n,label=si_code),inherit.aes=FALSE,
+                ylim=c(3800,6000),direction='y',segment.color='darkgrey',force=0.65,size=3.4,label.size=0.03,
+                
+                # WARNING:If size is set to 3, the final plot only shows some, not all, labels ??
+                
+                nudge_x=duration_annotation %>% filter(rank%in%1:30) %>% arrange(desc(n)) %>% pull(num_code)-50)
+    
+  
+data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,n))) +
+                        geom_tile(fill = treeclass_pal[7])+
                         coord_flip()+
+  theme_light()+
   theme(axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank())+
-guides(fill='none')+labs(x="")
+guides(fill='none')+labs(x="",y='Year')+
+  theme(axis.title.x=element_text(size=14),axis.text.x=element_text(size=12))
 
 # Figure composition
+
 cowplot::plot_grid(data_duration_plot, data_period_plot,labels=c('(a)','(b)'),rel_widths=c(1,0.4))
 
 
@@ -153,7 +237,7 @@ Figure 7. Datasets duration and period
 
 \pagebreak
 
-```{r fingerprint_plots, echo=FALSE, message=FALSE, cache=TRUE, fig.height=18, fig.width=15}
+```{r fingerprint_plots, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.height=18, fig.width=15}
 
 library(sapfluxnetr)
 library(purrr)
