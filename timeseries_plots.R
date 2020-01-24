@@ -17,7 +17,7 @@ esp_val_sor <- read_sfn_data('ESP_VAL_SOR',folder=path.sapwood)
 foo <- read_sfn_data('CRI_TAM_TOW',folder=path.sapwood)
 
 cowplot::plot_grid(
-sfn_finger_species(esp_can),
+sfn_finger_species(read_sfn_data('ESP_CAN',folder=path.sapwood)),
 sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
                    species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra')),
 
@@ -27,7 +27,7 @@ sfn_finger_species(read_sfn_data('CRI_TAM_TOW',folder=path.sapwood),years=2015,
 ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 
 
-sfn_finger_species(esp_can)           
+sfn_finger_species(years=2015,read_sfn_data('CRI_TAM_TOW',folder=path.sapwood))       
                    
 
 esp_can %>% get_species_md() %>% pull(sp_name) %>% unique()

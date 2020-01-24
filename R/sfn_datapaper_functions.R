@@ -47,7 +47,7 @@ sfn_finger_species<- function(sfn_data_obj,
     distinct(pl_species,doy,hour,.keep_all = TRUE) %>%
     
     ggplot(.,aes(x=hour,y=doy,fill=sf_species))+
-    geom_raster(interpolate=TRUE)+
+    geom_raster(interpolate=FALSE)+
     # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(name="sf",option ="C")+
     facet_grid(year~pl_species)

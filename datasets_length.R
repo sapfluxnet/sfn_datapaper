@@ -32,6 +32,25 @@ get_ntrees_day<- function(sfn_data_obj,n_threshold=0){
     
 }
 
+
+get_ntrees_day2<- function(sfn_data_obj,n_threshold=0){
+  sfn_data_obj %>% 
+    sfn_metrics(period="1 day",
+                .funs = list(~sum(!is.na(.))),
+                solar=FALSE,
+                interval='general') %>% magrittr::extract2('sapf') %>% 
+    dplyr::select(-TIMESTAMP_coll) %>% 
+    mutate(n_trees =rowSums(.[-1]>n_threshold),
+           si_code=get_si_code(sfn_data_obj)) %>%
+    dplyr::select(si_code,TIMESTAMP,n_trees) 
+  
+}
+
+
+
+
+
+
 # read all plant sites
 
 plant_sites <- read_sfn_data(sfn_sites_in_folder(path.plant),folder=path.plant)
@@ -59,7 +78,8 @@ plant_sites_duration %>%
   map_dfr(~as_tibble(.)) %>% 
   mutate(TIMESTAMP2=lubridate::date(TIMESTAMP),
          n_trees_class = case_when(
-           n_trees<4 ~ '< 4',
+           n_trees==0 ~ 'no data',
+           n_trees>0 & n_trees<4 ~ '< 4',
            n_trees>4 & n_trees<11 ~'4-10',
            n_trees>10 & n_trees<21 ~'11-20',
            n_trees>20 & n_trees<31 ~'21-30',
@@ -71,9 +91,11 @@ plant_sites_duration %>%
                 num_code = as.integer(factor(si_code))) %>% 
   arrange(si_code,TIMESTAMP) %>% 
   group_by(si_code) %>% 
+  add_tally() %>% 
   mutate( ini_date = TIMESTAMP[min(which(!is.na(n_trees) & !is.na(n_trees)))],
           end_date = TIMESTAMP[max(which(!is.na(n_trees) & !is.na(n_trees)))],
-          duration = lubridate::interval(ini_date,end_date)/86400/365)-> plant_sites_df
+          index_days = seq_along(n),
+          duration = lubridate::interval(ini_date,end_date)/86400/365) -> plant_sites_df
 
 
 
@@ -81,7 +103,8 @@ sapwood_sites_duration %>%
 map_dfr(~as_tibble(.)) %>% 
   mutate(TIMESTAMP2=lubridate::date(TIMESTAMP),
          n_trees_class = case_when(
-           n_trees<4 ~ '< 4',
+           n_trees==0 ~ 'no data',
+           n_trees>0 & n_trees<4 ~ '< 4',
            n_trees>4 & n_trees<11 ~'4-10',
            n_trees>10 & n_trees<21 ~'11-20',
            n_trees>20 & n_trees<31 ~'21-30',
@@ -93,9 +116,11 @@ map_dfr(~as_tibble(.)) %>%
          num_code = as.integer(factor(si_code))) %>% 
   arrange(si_code,TIMESTAMP) %>% 
   group_by(si_code) %>% 
+  add_tally() %>% 
   mutate( ini_date = TIMESTAMP[min(which(!is.na(n_trees) & !is.na(n_trees)))],
           end_date = TIMESTAMP[max(which(!is.na(n_trees) & !is.na(n_trees)))],
-          duration = lubridate::interval(ini_date,end_date)/86400/365)-> sapwood_sites_df
+          index_days = seq_along(n),
+          duration = lubridate::interval(ini_date,end_date)/86400/365) -> sapwood_sites_df
 
 
 
@@ -103,7 +128,11 @@ plant_sites_df %>%
   bind_rows(sapwood_sites_df) %>% 
   arrange(si_code)-> datasets_duration
 datasets_duration$n_trees_class_f<- factor(datasets_duration$n_trees_class, 
-                                          levels=c('< 4','4-10','11-20','21-30','31-40','41-50','> 50'))
+                                          levels=c('no data','< 4','4-10','11-20','21-30','31-40','41-50','> 50'))
+
+
+View(plant_sites_duration[['ESP_VAL_SOR']])
+
 
 
 # 
@@ -140,6 +169,7 @@ ggplot(datasets_duration, aes(TIMESTAMP2, si_code)) +
   )
   
   
+
   
   datasets_duration %>% 
     distinct(si_code,num_code,duration) %>% 
@@ -152,18 +182,58 @@ ggplot(datasets_duration, aes(TIMESTAMP2, si_code)) +
     theme_classic()+
     theme(panel.background=element_rect(fill='lightgray',colour=NULL))+labs(x='')
   
+  
+  datasets_duration %>% 
+    filter(si_code=='CAN_TUR_P74') %>% View()
+  
+  
+  
   # Figure showing dataset duration and n_trees
    
-  data_duration_plot <- ggplot(datasets_duration, aes( y=duration,x=reorder(num_code,duration),fill = n_trees_class_f)) +
-    geom_col()+
+  
+  treeclass_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(7))
+  
+  data_duration_plot <- 
+    datasets_duration %>% 
+    ggplot(., 
+           aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
+    geom_tile()+
+    coord_flip()+
+    scale_fill_manual(values = treeclass_pal)+
+    theme(legend.position=c(.6,.3))+
+    labs(x='')
+  
+  
+  data_duration_plot_long <- 
+    datasets_duration %>% 
+    filter(n>=1000) %>% 
+    ggplot(., 
+           aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
+    geom_tile()+
+    coord_flip()+
+    scale_fill_manual(values = treeclass_pal)+
+    theme(legend.position=c(.6,.3))+
+    labs(x='')
+  
+  
+  data_duration_plot_short <- 
+    datasets_duration %>% 
+    filter(n<1000) %>% 
+    ggplot(., 
+           aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
+    geom_tile()+
     coord_flip()+
     scale_fill_viridis_d(direction=-1)+
     theme(legend.position=c(.6,.3))+
     labs(x='')
+  
+  
+  
 
   
-data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,duration))) +
-                        geom_tile(fill = 'darkgray')+
+  
+data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,n))) +
+                        geom_tile(fill = treeclass_pal[7])+
                         coord_flip()+
   theme(axis.title.y=element_blank(),
         axis.text.y=element_blank(),
