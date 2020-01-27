@@ -5,6 +5,12 @@ library(tidyverse)
 # devtools::install_github("ropenscilabs/datastorr")
 # devtools::install_github("wcornwell/taxonlookup")
 
+
+# TODO: -------------------------------------------------------------------
+# integrate code of genus sp in md file and delete R file?
+# separate data and maps
+
+
 # 0. Data needed to obtain figures, tables and results --------------------
 
 # source('read_metadata.R')
