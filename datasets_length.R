@@ -97,7 +97,12 @@ datasets_duration %>%
   mutate(rank=dplyr::row_number(desc(duration)),
          label_pos=0.8*n) -> duration_annotation
 
-# 4. Plots ----------------------------------------------------------------
+# 4. Save data ---------------------
+
+save.image('dataset_duration_data.RData')
+
+
+# 5. Plots ----------------------------------------------------------------
 
   # Figure showing dataset duration and n_trees
    
@@ -141,6 +146,4 @@ fooplot<- cowplot::plot_grid(data_duration_plot, data_period_plot,labels=c('(a)'
 
 ggsave(filename='duration.png',plot=fooplot,units='cm',height=18,width=27)
 
-# TODO: add sapwood data, solve duration? add labels? ---------------------
 
-save.image('dataset_duration_data.RData')

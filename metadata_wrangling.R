@@ -1,6 +1,10 @@
 library(sapfluxnetr)
 library(tidyverse)
 library(magrittr)
+library(taxonlookup)
+
+# devtools::install_github("ropenscilabs/datastorr")
+# devtools::install_github("wcornwell/taxonlookup")
 
 # 1. Read metadata ---------------------------------------------------------------
 # From previously written cache file
@@ -23,18 +27,6 @@ sfn_allstands<- sfn_metadata_plant[['stand_md']] %>%
 sfn_sitespecies<- sfn_metadata_plant[['species_md']] %>% 
   full_join(sfn_metadata_sapwood[['species_md']]) 
 
-# Calculate number of trees and species
-
-sfn_sites_nspecies <- sfn_sitespecies %>% 
-  group_by(si_code) %>% 
-  summarise(nspecies=length(sp_name),
-            ntrees=sum(sp_ntrees)) %>% 
-  left_join(sfn_allsites %>% dplyr::select(si_code,si_lat,si_long))
-
-# Number of species
-sfn_species<- sfn_sitespecies %>% 
-  distinct(sp_name)
-
 sfn_allplants<- sfn_metadata_plant[['plant_md']] %>% 
   full_join(sfn_metadata_sapwood[['plant_md']]) %>% 
   distinct(pl_code,.keep_all = TRUE)
@@ -42,6 +34,34 @@ sfn_allplants<- sfn_metadata_plant[['plant_md']] %>%
 sfn_env <- sfn_metadata_plant[['env_md']] %>% 
   full_join(sfn_metadata_sapwood[['env_md']])
 
+# Fix errors and taxonize
+
+sfn_sitespecies %>% 
+  mutate(sp_name = case_when(
+    sp_name == 'Eschweillera sp.' ~'Eschweilera sp.',
+    sp_name == 'Vacapoua americana' ~ 'Vouacapoua americana',
+    sp_name == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
+    TRUE ~ sp_name)) ->  sfn_sitespecies_fix
+
+sfn_sitespecies_fix %>% 
+pull(sp_name) %>%
+  unique() %>%
+  taxonlookup::lookup_table(missing_action = 'NA', by_species = TRUE) %>%
+  rownames_to_column('sp_name') %>%
+  left_join(sfn_sitespecies_fix, ., by = 'sp_name') -> sfn_sitespecies_tax
+
+
+# Calculate number of trees and species
+
+sfn_sites_nspecies <- sfn_sitespecies_fix %>% 
+  group_by(si_code) %>% 
+  summarise(nspecies=length(sp_name),
+            ntrees=sum(sp_ntrees)) %>% 
+  left_join(sfn_allsites %>% dplyr::select(si_code,si_lat,si_long))
+
+# Number of species
+sfn_species<- sfn_sitespecies_tax %>% 
+  distinct(sp_name)
 
 # 3. Measurement type -------------------------------------------------
 # plant, sapwood, leaf
@@ -109,4 +129,12 @@ dataset_trees_sp <- sfn_sites_type %>%
 # 6. Fix taxons, taxonize --------------------------------------
 
 
+# Plant taxonizer
+sfn_allplants %>%
+  pull(pl_species) %>%
+  unique() %>%
+  lookup_table(missing_action = 'NA', by_species = TRUE) %>%
+  rownames_to_column('pl_species') %>%
+  left_join(sfn_allplants, ., by = 'pl_species') -> sfn_allplants_tax %>%
+  
 

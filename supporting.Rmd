@@ -10,12 +10,31 @@ output:
     df_print: paged
 ---
 
+## Contents
+
+### Figure S1. 
+QC overview, showing file management, identifying automatic and manual steps and 
+indicating status file updates.
+### Table S1. Quality control of metadata in the QC1 stage.
+### Figure S2. Structure of sfn_data objects.
+### Table S2. Metadata variables of SAPFLUXNET datasets.
+### Table S3. Quality control of metadata in the QC2 stage.
+## Figure S3. 
+Example of the interactive application for outlier and and out of range detection in
+the QC2 stage.
+## Table. Datasets
+## Table. Number of trees per genus
+## Table. Number of trees per species
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(flextable)
 library(pander)
 load('sfn_datapaper_data_draft.RData')
 ```
+
+\pagebreak
+
 ## Supplementary 
 
 \pagebreak
@@ -39,6 +58,13 @@ readxl::read_xlsx('resources/table_QC1_checks.xlsx',1) %>%
 ```
 \pagebreak
 
+```{r fig_sfn_data, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure X. Overview of the data QC process'}
+
+knitr::include_graphics('resources/schematics.svg')
+```
+
+
+\pagebreak
 
 
 ```{r tab_metadatavars, echo=FALSE, results='asis'}
@@ -100,7 +126,12 @@ bind_rows(
 ```
 \pagebreak
 
+```{r fig_outliers_app, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure SX. Outliers app'}
 
+knitr::include_graphics('resources/out_app.png')
+```
+
+\pagebreak
 ```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
 library(dplyr)
 data.frame(sp_genus_all[1:33,],

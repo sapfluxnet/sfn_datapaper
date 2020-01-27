@@ -1,6 +1,8 @@
 library(sapfluxnetr)
 library(tidyverse)
 
+
+
 # 0. Data needed to obtain figures, tables and results --------------------
 
 # source('read_metadata.R')
