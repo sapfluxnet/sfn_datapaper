@@ -7,38 +7,7 @@ path.plant <- file.path('data/0.1.3/RData/plant')
 path.sapwood <- file.path('data/0.1.3/RData/sapwood')
 
 # 1. Functions ------------------------------------------------------------
-
-# Function to get number of trees with measurements per day
-# To consider a day with measurements uses a threshold of number
-# of timesteps
-
-
-get_ntrees_day<- function(sfn_data_obj,n_threshold=0){
-  sfn_data_obj %>% 
-    sfn_metrics(period="1 day",
-                .funs = list(~sum(!is.na(.))),
-                solar=FALSE,
-                interval='general') %>% magrittr::extract2('sapf') %>% 
-    dplyr::select(-TIMESTAMP_coll) %>% 
-    mutate(n_trees =rowSums(.[-1]>n_threshold),
-           si_code=get_si_code(sfn_data_obj)) %>%
-    dplyr::select(si_code,TIMESTAMP,n_trees) 
-    
-}
-
-
-get_ntrees_day2<- function(sfn_data_obj,n_threshold=0){
-  sfn_data_obj %>% 
-    sfn_metrics(period="1 day",
-                .funs = list(~sum(!is.na(.))),
-                solar=FALSE,
-                interval='general') %>% magrittr::extract2('sapf') %>% 
-    dplyr::select(-TIMESTAMP_coll) %>% 
-    mutate(n_trees =rowSums(.[-1]>n_threshold),
-           si_code=get_si_code(sfn_data_obj)) %>%
-    dplyr::select(si_code,TIMESTAMP,n_trees) 
-  
-}
+source('R/sfn_datapaper_functions.R')
 
 # 2. Read sfn objects and run functions (time, memory) --------------------
 
@@ -119,8 +88,6 @@ plant_sites_df %>%
 # create categorical variable for ntrees
 datasets_duration$n_trees_class_f<- factor(datasets_duration$n_trees_class, 
                                           levels=c('0','< 4','4-10','11-20','21-30','31-40','41-50','> 50'))
-
-
 # Annotation data
 
 datasets_duration %>% 
@@ -130,9 +97,7 @@ datasets_duration %>%
   mutate(rank=dplyr::row_number(desc(duration)),
          label_pos=0.8*n) -> duration_annotation
 
-
 # 4. Plots ----------------------------------------------------------------
-
 
   # Figure showing dataset duration and n_trees
    

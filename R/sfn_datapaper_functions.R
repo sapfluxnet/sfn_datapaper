@@ -22,6 +22,33 @@ get_ntrees_day<- function(sfn_data_obj,n_threshold=0){
 }
 
 
+# TODO:
+# average per species or select trees?
+
+sfn_finger<- function(sfn_data_obj,years=c(2011,2012)){
+  
+  sfn_data_obj %>% 
+    get_sapf_data() %>% 
+    gather(-TIMESTAMP,key='tree',value='sf')->sfdata
+  
+  sfn_data_obj %>%  
+    get_plant_md() -> plmdata
+  
+  sfdata %>% 
+    full_join(dplyr::select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
+    mutate(year=lubridate::year(TIMESTAMP),
+           doy = lubridate::yday(TIMESTAMP),
+           hour = lubridate::hour(TIMESTAMP)) %>%
+    
+    ggplot(.,aes(x=hour,y=doy,fill=sf))+
+    geom_raster(interpolate=TRUE)+
+    # geom_tile(color= "white",size=0.01) + 
+    viridis::scale_fill_viridis(name="sf",option ="C")+
+    facet_grid(year~pl_species)
+  
+}
+
+
 # sfn per species
 
 sfn_finger_species<- function(sfn_data_obj,
@@ -47,10 +74,11 @@ sfn_finger_species<- function(sfn_data_obj,
     distinct(pl_species,doy,hour,.keep_all = TRUE) %>%
     
     ggplot(.,aes(x=hour,y=doy,fill=sf_species))+
-    geom_raster(interpolate=FALSE)+
+    geom_raster(interpolate=TRUE)+
     # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(name="sf",option ="C")+
     facet_grid(year~pl_species)
   
 }
+
 

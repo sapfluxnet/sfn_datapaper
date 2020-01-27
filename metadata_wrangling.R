@@ -106,7 +106,7 @@ dataset_trees_sp <- sfn_sites_type %>%
 # 5. Gap-fill climate -----------------------------------------------------
 
 
-# TODO: Dataset length --------------------------------------
+# 6. Fix taxons, taxonize --------------------------------------
 
 
 
