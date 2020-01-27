@@ -3,8 +3,6 @@ library(tidyverse)
 library(magrittr)
 library(taxonlookup)
 
-# devtools::install_github("ropenscilabs/datastorr")
-# devtools::install_github("wcornwell/taxonlookup")
 
 # 1. Read metadata ---------------------------------------------------------------
 # From previously written cache file
@@ -12,7 +10,6 @@ library(taxonlookup)
 sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.3/RData/plant', .write_cache = FALSE)
 sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.3/RData/sapwood', .write_cache = FALSE)
 sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.3/RData/leaf', .write_cache = FALSE)
-
 
 # 2. Aggregate all datasets -----------------------------------------------
 
@@ -35,20 +32,47 @@ sfn_env <- sfn_metadata_plant[['env_md']] %>%
   full_join(sfn_metadata_sapwood[['env_md']])
 
 # Fix errors and taxonize
-
+# Species level
 sfn_sitespecies %>% 
   mutate(sp_name = case_when(
     sp_name == 'Eschweillera sp.' ~'Eschweilera sp.',
     sp_name == 'Vacapoua americana' ~ 'Vouacapoua americana',
     sp_name == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
+    sp_name == 'Cryptocaria spp.' ~ 'Cryptocarya sp.',
     TRUE ~ sp_name)) ->  sfn_sitespecies_fix
+
 
 sfn_sitespecies_fix %>% 
 pull(sp_name) %>%
   unique() %>%
   taxonlookup::lookup_table(missing_action = 'NA', by_species = TRUE) %>%
   rownames_to_column('sp_name') %>%
-  left_join(sfn_sitespecies_fix, ., by = 'sp_name') -> sfn_sitespecies_tax
+  left_join(sfn_sitespecies_fix, ., by = 'sp_name') -> sfn_sitespecies_tax 
+
+sfn_sitespecies_tax[sfn_sitespecies_fix2$sp_name == 'Myrtaceae sp.',
+                     c('sp_name','genus','order','family','group')] <-
+  c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
+
+# Plant level
+sfn_allplants %>% 
+  mutate(pl_species = case_when(
+    pl_species == 'Eschweillera sp.' ~'Eschweilera sp.',
+    pl_species == 'Vacapoua americana' ~ 'Vouacapoua americana',
+    pl_species == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
+    pl_species == 'Cryptocaria spp.' ~ 'Cryptocarya sp.',
+    TRUE ~ pl_species)) ->  sfn_allplants_fix
+
+
+sfn_allplants_fix %>% 
+pull(pl_species) %>%
+  unique() %>%
+  taxonlookup::lookup_table(missing_action = 'NA', by_species = TRUE) %>%
+  rownames_to_column('pl_species') %>%
+  left_join(sfn_allplants_fix, ., by = 'pl_species') -> sfn_allplants_tax
+
+sfn_allplants_tax[sfn_allplants_tax$pl_species == 'Myrtaceae sp.',
+                    c('pl_species','genus','order','family','group')] <-
+  c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
 
 
 # Calculate number of trees and species
@@ -60,8 +84,26 @@ sfn_sites_nspecies <- sfn_sitespecies_fix %>%
   left_join(sfn_allsites %>% dplyr::select(si_code,si_lat,si_long))
 
 # Number of species
+
+sfn_sitespecies_tax %>% 
+  group_by(family) %>% 
+  tally()
+
+sfn_sitespecies_tax %>% 
+  group_by(genus) %>% 
+  tally()
+
+
+sfn_sitespecies_tax %>% 
+  group_by(sp_name) %>% 
+  tally()
+
 sfn_species<- sfn_sitespecies_tax %>% 
   distinct(sp_name)
+
+sfn_sitespecies_tax %>% 
+  group_by(family,genus,sp_name) %>% 
+  tally() %>%  View()
 
 # 3. Measurement type -------------------------------------------------
 # plant, sapwood, leaf
@@ -87,13 +129,13 @@ sfn_sites_sw <- dplyr::select(sfn_metadata_sapwood[['site_md']],-si_remarks) %>%
 sfn_sites_leaf <- sfn_metadata_leaf[['site_md']] %>% 
   mutate(type='leaf,plant,sapwood')
 
-sfn_sites1 <- sfn_sites_plsw %>% 
+sfn_sites_alllevels <- sfn_sites_plsw %>% 
   full_join(sfn_sites_pl) %>% 
   full_join(sfn_sites_sw)  
 
 
 # Measurement type: plant, sapwood, leaf
-sfn_sites_type <- sfn_sites1 %>% 
+sfn_sites_type <- sfn_sites_alllevels %>% 
   mutate(
     type=ifelse(si_code%in%sfn_sites_leaf$si_code,
                 'leaf,plant,sapwood',type),
@@ -103,9 +145,9 @@ sfn_sites_type <- sfn_sites1 %>%
 # For alluvial plot
 sfn_plants_type<- sfn_sites_type %>% 
   dplyr::select(si_code,typef) %>% 
-  full_join(sfn_allplants) %>% 
-  select(si_code,pl_sens_meth,typef) %>% 
-  group_by(pl_sens_meth,typef) %>% tally()
+  full_join( sfn_allplants_tax) %>% 
+  select(si_code,pl_sens_meth,typef,group) %>% 
+  group_by(pl_sens_meth,typef,group) %>% tally()
 
 # 4. Percentage basal area ------------------------------------------------
 
@@ -126,15 +168,10 @@ dataset_trees_sp <- sfn_sites_type %>%
 # 5. Gap-fill climate -----------------------------------------------------
 
 
-# 6. Fix taxons, taxonize --------------------------------------
+# 6. Scaling data ---------------------------------------------------------
 
 
-# Plant taxonizer
-sfn_allplants %>%
-  pull(pl_species) %>%
-  unique() %>%
-  lookup_table(missing_action = 'NA', by_species = TRUE) %>%
-  rownames_to_column('pl_species') %>%
-  left_join(sfn_allplants, ., by = 'pl_species') -> sfn_allplants_tax %>%
-  
 
+# Crap --------------------------------------------------------------------
+
+save.image('sfn_datapaper_data.RData')

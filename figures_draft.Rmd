@@ -15,12 +15,15 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sapfluxnetr)
 library(flextable)
 library(pander)
 library(magrittr)
 library(ggplot2)
 library(ggalluvial)
-load('sfn_datapaper_data_draft.RData')
+library(ggrepel)
+load('sfn_datapaper_data.RData')
 ```
 
 ## Figures
@@ -79,8 +82,45 @@ Figure 2. Geographical distribution of SAPFLUXNET datasets.
 \pagebreak
 
 
-```{r biomemap,fig.height=10, fig.width=15, echo=FALSE}
-biomes_plot
+```{r biomemap,fig.height=18, fig.width=15, echo=FALSE}
+library(ggbiome)
+
+# 1. Biome plot -----------------------------------------------------------
+
+# TODO: preliminary filtering out climatic NAs
+# Use CHELSA to gf 
+
+biomes_plot <- sfn_allsites %>%
+  dplyr::arrange(si_biome) %>%
+  dplyr::filter(!is.na(si_map) | !is.na(si_map)) %>% 
+  ggbiome::vis_location_biome(si_lat='si_lat',
+                              si_long='si_long',si_mat='si_mat',si_map='si_map') +
+  
+  theme(
+    panel.grid = element_blank(),
+    axis.ticks = element_blank(),
+    title= element_text(size=30),
+    axis.title=element_text(size=30),
+    axis.text=element_text(size=30),
+    legend.title = element_blank(),
+    legend.text = element_text(size =24),
+    legend.key.size = unit(1.5, 'line'),
+    legend.position = c(0.7,0.2)
+    
+  )
+
+
+igbp_plot<-sfn_allsites %>% 
+  group_by(si_igbp) %>% 
+  tally() %>% 
+  ggplot(.,aes(y=n,x=reorder(si_igbp,desc(n))))+
+  geom_bar(stat='identity')+
+  xlab('Vegetation type')+ylab('Number of datasets')+
+  theme_light()+
+  theme(axis.title=element_text(size=16),axis.text=element_text(size=16))
+
+cowplot::plot_grid(biomes_plot,igbp_plot,nrow=2,labels=c('a)','b)'),label_size=16)
+
 ```
 Figure 3. Bioclimatic distribution of SAPFLUXNET datasets in the Whittaker biome space.
 
@@ -97,11 +137,11 @@ in the database.
 ```{r method_type,fig.height=18, fig.width=15, echo=FALSE}
 
 ggplot(sfn_plants_type,
-       aes(y = n, axis1 = pl_sens_meth, axis2 = typef)) +
-  geom_alluvium(aes(fill = typef), width = 1/12)+
+       aes(y = n, axis2 = pl_sens_meth, axis3= typef,axis1=group)) +
+  geom_alluvium(aes(fill = group), width = 1/12)+
   geom_stratum(width = 1/12, alpha = .5) +
-  geom_label(stat = "stratum", infer.label = TRUE) +
-  scale_x_discrete(limits = c("Sap flow method", "Measurement level"), 
+  geom_label_repel(stat = "stratum", infer.label = TRUE) +
+  scale_x_discrete(limits = c("Group","Sap flow method", "Measurement level"), 
                    expand = c(.05, .05)) +
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+

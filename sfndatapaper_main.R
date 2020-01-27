@@ -2,6 +2,8 @@ library(sapfluxnetr)
 library(tidyverse)
 
 
+# devtools::install_github("ropenscilabs/datastorr")
+# devtools::install_github("wcornwell/taxonlookup")
 
 # 0. Data needed to obtain figures, tables and results --------------------
 
