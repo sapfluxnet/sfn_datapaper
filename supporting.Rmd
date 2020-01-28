@@ -3,9 +3,9 @@ title: "Tables for SAPFLUXNET data paper"
 author: "R. Poyatos"
 date: "9th January 2020"
 output:
+  pdf_document: default
   word_document: 
     reference_docx: word-styles-reference-01.docx
-  pdf_document: default
   html_document:
     df_print: paged
 ---
@@ -30,6 +30,9 @@ the QC2 stage.
 knitr::opts_chunk$set(echo = TRUE)
 library(flextable)
 library(pander)
+library(magrittr)
+library(readxl)
+library(tidyverse)
 source('metadata_wrangling.R')
 ```
 
@@ -47,8 +50,7 @@ knitr::include_graphics('resources/QC_summary2.svg')
 \pagebreak
 
 ```{r table_QC1, echo=FALSE,results='asis'}
-library(magrittr)
-library(flextable)
+
 readxl::read_xlsx('resources/table_QC1_checks.xlsx',1) %>% 
    qflextable() %>%  
   bold( i = 1,  part = "header") %>%
@@ -68,8 +70,7 @@ knitr::include_graphics('resources/schematics.svg')
 
 
 ```{r tab_metadatavars, echo=FALSE, results='asis'}
-suppressMessages(library(dplyr))
-library(magrittr)
+
 site_md_table <- sapfluxnetr:::.metadata_architecture() %>%
   magrittr::extract2(., 'site_md') %>%
   purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
@@ -152,6 +153,7 @@ data.frame(sfn_species_ntrees_reduced[1:58,],
     species.2='species',
     n_trees.2= 'N trees') %>% 
   flextable::bold( i = 1,  part = "header") %>% 
+  fontsize(size=10,part='body') %>% 
   flextable::set_caption('Table X. Number of trees per species')
 
 ```
@@ -160,7 +162,7 @@ data.frame(sfn_species_ntrees_reduced[1:58,],
 
 \pagebreak
 ```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
-library(dplyr)
+
 data.frame(sfn_genus_ntrees[1:32,],
           sfn_genus_ntrees[33:64,],
          add_row(sfn_genus_ntrees[65:95,],genus_f=NA,n_trees=''))%>% 
@@ -174,6 +176,7 @@ data.frame(sfn_genus_ntrees[1:32,],
     genus_f.2= 'Genus',
     n_trees.2 = 'N trees') %>% 
    bold( i = 1,  part = "header") %>% 
+  fontsize(size=10,part='body') %>% 
    set_caption('Table X. Number of trees per genus')
 
 ```
@@ -193,6 +196,7 @@ data.frame(sfn_nspecies_dataset[1:58,],
     sp_name.2='species',
     n_sites.2= 'N datasets') %>% 
   flextable::bold( i = 1,  part = "header") %>% 
+  fontsize(size=10,part='body') %>% 
   flextable::set_caption('Table X. Number of datasets per species')
 
 ```
