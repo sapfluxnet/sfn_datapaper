@@ -19,18 +19,18 @@ indicating status file updates.
 ### Figure S2. Structure of sfn_data objects.
 ### Table S2. Metadata variables of SAPFLUXNET datasets.
 ### Table S3. Quality control of metadata in the QC2 stage.
-## Figure S3. 
+### Figure S3. 
 Example of the interactive application for outlier and and out of range detection in
 the QC2 stage.
-## Table. Datasets
-## Table. Number of trees per genus
-## Table. Number of trees per species
+### Table. Datasets
+### Table. Number of trees per genus
+### Table. Number of trees per species
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(flextable)
 library(pander)
-load('sfn_datapaper_data_draft.RData')
+source('metadata_wrangling.R')
 ```
 
 \pagebreak
@@ -132,25 +132,69 @@ knitr::include_graphics('resources/out_app.png')
 ```
 
 \pagebreak
+
+```{r tab_ntrees_species, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+
+sfn_species_ntrees %>% 
+  select(species,n_trees) -> sfn_species_ntrees_reduced
+
+data.frame(sfn_species_ntrees_reduced[1:58,],
+          sfn_species_ntrees_reduced[59:116,],
+           sfn_species_ntrees_reduced[117:174,])%>% 
+
+  flextable::qflextable() %>% 
+  flextable::autofit(add_w=0,add_h=0) %>%
+  flextable::set_header_labels(
+    species='species',
+    n_trees= 'N trees',
+    species.1='species',
+    n_trees.1= 'N trees',
+    species.2='species',
+    n_trees.2= 'N trees') %>% 
+  flextable::bold( i = 1,  part = "header") %>% 
+  flextable::set_caption('Table X. Number of trees per species')
+
+```
+
+
+
+\pagebreak
 ```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
 library(dplyr)
-data.frame(sp_genus_all[1:33,],
-          sp_genus_all[34:66,],
-          add_row(sp_genus_all[67:98,],sp_genus=NA,n=''))%>% 
+data.frame(sfn_genus_ntrees[1:32,],
+          sfn_genus_ntrees[33:64,],
+         add_row(sfn_genus_ntrees[65:95,],genus_f=NA,n_trees=''))%>% 
   qflextable() %>% 
   autofit(add_w=0,add_h=0) %>%
   set_header_labels(
-    sp_genus= 'Genus',
-    n = 'N',
-    sp_genus.1= 'Genus',
-    n.1 = 'N',
-    sp_genus.2= 'Genus',
-    n.2 = 'N') %>% 
+    genus_f= 'Genus',
+    n_trees = 'N trees',
+    genus_f.1= 'Genus',
+    n_trees.1 = 'N trees',
+    genus_f.2= 'Genus',
+    n_trees.2 = 'N trees') %>% 
    bold( i = 1,  part = "header") %>% 
    set_caption('Table X. Number of trees per genus')
 
 ```
 \pagebreak
 
-## Table: number of trees per species
+```{r tab_nspecies_dataset, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+data.frame(sfn_nspecies_dataset[1:58,],
+           sfn_nspecies_dataset[59:116,],
+           sfn_nspecies_dataset[117:174,])%>% 
+  flextable::qflextable() %>% 
+  flextable::autofit(add_w=0,add_h=0) %>%
+  flextable::set_header_labels(
+    sp_name='species',
+    n_sites= 'N datasets',
+    sp_name.1='species',
+    n_sites.1= 'N datasets',
+    sp_name.2='species',
+    n_sites.2= 'N datasets') %>% 
+  flextable::bold( i = 1,  part = "header") %>% 
+  flextable::set_caption('Table X. Number of datasets per species')
+
+```
+\pagebreak
 

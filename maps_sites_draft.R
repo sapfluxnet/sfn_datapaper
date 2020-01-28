@@ -31,39 +31,37 @@ sfn_allsites_country<- sfn_allsites %>%
 
 # 3. Map, numeric codes, ggrepel not aligned ------------------------------------------------------
 
-# d) Create maps 
-
 # world
 sfnsites_world_dr <- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
   geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_label), 
                   aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_x = -0.35,direction = "y",hjust = 1,
+                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
                   box.padding = unit(0.1, 'lines'), force = 0.5)+geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
 
 # europe
 sfnsites_europe_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
   geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_europe), 
                   aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_y = -0.35,direction = "y",hjust = 1,
+                  segment.alpha=0.5,  nudge_y = -0.35,direction = "both",
                   box.padding = unit(0.1, 'lines'), force = 0.5)+
   coord_sf(xlim = c(-20, 40), ylim = c(32, 67), expand = FALSE)+
   geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
 
 # america
 sfnsites_america_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
   geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_america), 
                   aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_x = -0.35,direction = "y",hjust = 1,
+                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
                   box.padding = unit(0.1, 'lines'), force = 0.5)+
   coord_sf(xlim = c(-130, -60), ylim = c(30, 55), expand = FALSE)+
   geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
 
 # austral
 sfnsites_austral_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
   geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_austral), 
                   aes(si_long, si_lat, label = num_code), size = 3,
                   segment.alpha=0.5,  nudge_x = -0.35,
@@ -73,7 +71,7 @@ sfnsites_austral_dr<- globforest_rec_0_5  +
 
 # africa
 sfnsites_africa_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
   geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_africa), aes(si_long, si_lat, label = num_code), size = 3,
                   box.padding = unit(0.1, 'lines'), force = 0.5)+
   coord_sf(xlim = c(10, 50), ylim = c(-10, -40), expand = FALSE)+
@@ -83,67 +81,11 @@ sfnsites_africa_dr<- globforest_rec_0_5  +
 
 # e) Build figure 
 
-sfn_sitesmap_numcodes_dr <- plot_grid(
-  # row 1
-  plot_grid(sfnsites_world_dr, labels='(a)'),
-  # row 2
-  plot_grid(sfnsites_europe_dr, sfnsites_america_dr,labels=c('(b)','(c)'),rel_widths=c(1,1)),
-  # row3
-  plot_grid(sfnsites_austral_dr, sfnsites_africa_dr, labels=c('(d)','(e)')), 
-  #
-  labels=c('', '',''), ncol=1)
-
-# save_plot('./output/figs/sfn_sitesmap.tiff', sfn_sitesmap)
-# save_plot('./output/figs/sfn_sitesmap.eps', sfn_sitesmap)
-
-
-
-# 2. Map, no codes ---------------------------------------------
-
-# d) Create maps 
-
-# world
-sfnsites_world_nc_dr <- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
-  guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# europe
-sfnsites_europe_nc_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
-  coord_sf(xlim = c(-20, 40), ylim = c(32, 67), expand = FALSE)+
-  guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# america
-sfnsites_america_nc_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
-  coord_sf(xlim = c(-130, -60), ylim = c(30, 55), expand = FALSE)+
-  guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# austral
-sfnsites_austral_nc_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
-  coord_sf(xlim = c(110, 162), ylim = c(-10, -50), expand = FALSE)+
-  guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# africa
-sfnsites_africa_nc_dr<- globforest_rec_0_5  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='yellow')+
-  coord_sf(xlim = c(10, 50), ylim = c(-10, -40), expand = FALSE)+
-  guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-
-
-# e) Build figure 
-
-sfn_sitesmap_nocodes_dr <- plot_grid(
-  # row 1
-  plot_grid(sfnsites_world_nc_dr, labels='(a)'),
-  # row 2
-  plot_grid(sfnsites_europe_nc_dr, sfnsites_america_nc_dr,labels=c('(b)','(c)'),rel_widths=c(1,1)),
-  # row3
-  plot_grid(sfnsites_austral_nc_dr, sfnsites_africa_nc_dr, labels=c('(d)','(e)')), 
-  #
-  labels=c('', '',''), ncol=1)
+plot_grid(
+  plot_grid(sfnsites_world_dr,ncol=1,nrow=1,labels=c('a)')),
+  plot_grid(sfnsites_europe_dr,sfnsites_austral_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('b)','c)')),
+  plot_grid(sfnsites_america_dr,sfnsites_africa_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('d)','e)')),
+  nrow=3,rel_heights=c(1,1,0.7))
 
 
 

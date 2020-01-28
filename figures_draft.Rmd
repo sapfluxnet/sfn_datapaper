@@ -11,8 +11,6 @@ output:
     fig_caption: yes
 ---
 
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -25,10 +23,14 @@ library(ggplot2)
 library(ggalluvial)
 library(ggrepel)
 library(ggbiome)
+library(cowplot)
+library(ggspatial)
+library(raster)
 
+source('R/sfn_datapaper_functions.R')
 source('metadata_wrangling.R')
-load('sfn_datapaper_data.RData')
-load('dataset_duration_data.RData')
+load('maps_base.RData')
+
 ```
 
 ## Figures
@@ -68,24 +70,20 @@ is more regionally detailed, showing PFT.
 
 \pagebreak
 
-```{r sitesmap, echo=FALSE, cache=TRUE, fig.height=18, fig.width=15}
-sfn_sitesmap_numcodes_dr
+```{r data_workflow, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.height=18, fig.width=15}
+knitr::include_graphics('resources/QC_summary2.svg')
 ```
 
-Figure 2. Geographical distribution of SAPFLUXNET datasets showing dataset #.
+Figure 1. Data workflow.
 
 \pagebreak
 
-```{r sitesmap_nocodes, echo=FALSE, cache=TRUE, fig.height=18, fig.width=15}
-sfn_sitesmap_nocodes_dr
-```
-
-Figure 2. Geographical distribution of SAPFLUXNET datasets.
-
-\pagebreak
-
-
-```{r biomemap,fig.height=18, fig.width=15, echo=FALSE}
+```{r sitesmap, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.height=15, fig.width=15}
+sitesmap_global <- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  guides(fill='none')+xlab(NULL)+ylab(NULL)+
+  theme_light()+
+  theme(axis.title=element_text(size=18),axis.text=element_text(size=18))
 
 # TODO: preliminary filtering out climatic NAs
 # Use CHELSA to gf 
@@ -99,16 +97,15 @@ biomes_plot <- sfn_allsites %>%
   theme(
     panel.grid = element_blank(),
     axis.ticks = element_blank(),
-    title= element_text(size=30),
-    axis.title=element_text(size=30),
-    axis.text=element_text(size=30),
+    title= element_text(size=20),
+    axis.title=element_text(size=20),
+    axis.text=element_text(size=20),
     legend.title = element_blank(),
-    legend.text = element_text(size =24),
+    legend.text = element_text(size =16),
     legend.key.size = unit(1.5, 'line'),
     legend.position = c(0.7,0.2)
     
   )
-
 
 igbp_plot<-sfn_allsites %>% 
   group_by(si_igbp) %>% 
@@ -117,12 +114,104 @@ igbp_plot<-sfn_allsites %>%
   geom_bar(stat='identity')+
   xlab('Vegetation type')+ylab('Number of datasets')+
   theme_light()+
-  theme(axis.title=element_text(size=16),axis.text=element_text(size=16))
+  theme(axis.title=element_text(size=18),axis.text=element_text(size=18))
 
-cowplot::plot_grid(biomes_plot,igbp_plot,nrow=2,labels=c('a)','b)'),label_size=16)
+# Build figure 
+cowplot::plot_grid(
+  # row 1
+  cowplot::plot_grid(sitesmap_global, labels='(a)'),
+  # row 2
+  cowplot::plot_grid(biomes_plot, igbp_plot,labels=c('(b)','(c)'),rel_widths=c(0.6,0.4)),
+  ncol=1, label_size=16, rel_heights=c(0.6,0.4))
 
 ```
-Figure 3. Bioclimatic distribution of SAPFLUXNET datasets in the Whittaker biome space.
+
+Figure 2. Geographical distribution of SAPFLUXNET datasets.
+
+\pagebreak
+
+
+```{r regional_maps,fig.height=18, fig.width=15, cache=TRUE,echo=FALSE, message=FALSE, warning=FALSE,}
+
+# a) Site labels 
+
+# b) Select countries to plot 
+
+countries_sfn <- unique(sapply(strsplit(sfn_allsites$si_code,"_"),"[[",1))
+countries_label <- c('ARG','BRA','COL','CRI','CHN','GUF','IDN','ISR','KOR','MDG','MEX','NZL','RUS','SEN','THA','UZB')
+countries_europe <- c('AUT','CHE','CZE','DEU','ESP','FIN','FRA','GBR','HUN','ITA','NLD','PRT','SWE')
+countries_america <- c('CAN','USA')
+countries_austral <- c('AUS')
+countries_africa <- c('MDG','ZAF')
+
+
+# c) Add numeric codes 
+
+sfn_allsites_country<- sfn_allsites %>% 
+  mutate(country=sapply(strsplit(si_code,"_"),"[[",1),
+         num_code = as.integer(factor(si_code)))
+
+
+# 3. Map, numeric codes, ggrepel not aligned ------------------------------------------------------
+
+# world
+sfnsites_world_dr <- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_label), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# europe
+sfnsites_europe_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_europe), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_y = -0.35,direction = "both",
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(-20, 40), ylim = c(32, 67), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# america
+sfnsites_america_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_america), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(-130, -60), ylim = c(30, 55), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# austral
+sfnsites_austral_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_austral), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_x = -0.35,
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(110, 162), ylim = c(-10, -50), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# africa
+sfnsites_africa_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_africa), aes(si_long, si_lat, label = num_code), size = 3,
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(10, 50), ylim = c(-10, -40), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+
+
+# e) Build figure 
+
+plot_grid(
+  plot_grid(sfnsites_world_dr,ncol=1,nrow=1,labels=c('a)')),
+  plot_grid(sfnsites_europe_dr,sfnsites_austral_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('b)','c)')),
+  plot_grid(sfnsites_america_dr,sfnsites_africa_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('d)','e)')),
+  nrow=3,rel_heights=c(1,1,0.7))
+
+```
+Figure 3. Detailed geographic distribution.
 
 \pagebreak
 
@@ -204,7 +293,7 @@ Figure 5. Distribution of trees in SAPFLUXNET according to sap flow method and m
 \pagebreak
 
 ```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
-library(tidyverse)
+
 # Stand attributes --------------------------------------------------------
 
 sfn_allstands %>%
@@ -229,8 +318,6 @@ sfn_allstands_long %>%
   theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
         strip.background = element_rect(fill='white',colour='darkgray'),
         strip.text=element_text(size=20,colour='black',face='bold')) -> stand_violins
-
-
 
 #  Plant attributes -------------------------------------------------------
 
@@ -319,14 +406,6 @@ Figure 7. Datasets duration and period
 \pagebreak
 
 ```{r fingerprint_plots, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.height=18, fig.width=15}
-
-library(sapfluxnetr)
-library(purrr)
-library(tidyverse)
-
-# Functions
-# sfn per species
-source('R/sfn_datapaper_functions.R')
 
 # Data path
 path.sapwood <- file.path('data/0.1.3/RData/sapwood')
