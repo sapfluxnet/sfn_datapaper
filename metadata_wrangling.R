@@ -31,7 +31,8 @@ sfn_allplants<- sfn_metadata_plant[['plant_md']] %>%
 sfn_env <- sfn_metadata_plant[['env_md']] %>% 
   full_join(sfn_metadata_sapwood[['env_md']])
 
-# Fix errors and taxonize
+# 3. Fix errors and taxonize ----------------------------------------------
+
 # Species level
 sfn_sitespecies %>% 
   mutate(sp_name = case_when(
@@ -41,7 +42,6 @@ sfn_sitespecies %>%
     sp_name == 'Cryptocaria spp.' ~ 'Cryptocarya sp.',
     TRUE ~ sp_name)) ->  sfn_sitespecies_fix
 
-
 sfn_sitespecies_fix %>% 
 pull(sp_name) %>%
   unique() %>%
@@ -49,7 +49,7 @@ pull(sp_name) %>%
   rownames_to_column('sp_name') %>%
   left_join(sfn_sitespecies_fix, ., by = 'sp_name') -> sfn_sitespecies_tax 
 
-sfn_sitespecies_tax[sfn_sitespecies_fix2$sp_name == 'Myrtaceae sp.',
+sfn_sitespecies_tax[sfn_sitespecies_tax $sp_name == 'Myrtaceae sp.',
                      c('sp_name','genus','order','family','group')] <-
   c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
 
@@ -62,7 +62,6 @@ sfn_allplants %>%
     pl_species == 'Cryptocaria spp.' ~ 'Cryptocarya sp.',
     TRUE ~ pl_species)) ->  sfn_allplants_fix
 
-
 sfn_allplants_fix %>% 
 pull(pl_species) %>%
   unique() %>%
@@ -72,38 +71,66 @@ pull(pl_species) %>%
 
 sfn_allplants_tax[sfn_allplants_tax$pl_species == 'Myrtaceae sp.',
                     c('pl_species','genus','order','family','group')] <-
-  c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
+  tibble(pl_species=rep('Unknown',6),genus=rep('Unknown',6),
+         family=rep('Myrtaceae',6),order=rep('Myrtales',6),group=rep('Angiosperms',6))
 
 
-# Calculate number of trees and species
+# 4. Number of trees (per dataset, species, etc.) -------------------------
 
+# number of trees and species per dataset, with coordinates
 sfn_sites_nspecies <- sfn_sitespecies_fix %>% 
   group_by(si_code) %>% 
   summarise(nspecies=length(sp_name),
             ntrees=sum(sp_ntrees)) %>% 
   left_join(sfn_allsites %>% dplyr::select(si_code,si_lat,si_long))
 
-# Number of species
-
-sfn_sitespecies_tax %>% 
-  group_by(family) %>% 
-  tally()
-
-sfn_sitespecies_tax %>% 
-  group_by(genus) %>% 
-  tally()
-
-
-sfn_sitespecies_tax %>% 
+# Number of datasets per species
+sfn_nspecies_dataset <- sfn_sitespecies_tax %>% 
   group_by(sp_name) %>% 
+  tally() %>% 
+  rename(n_sites=n) %>% 
+  arrange(desc(n_sites)) 
+
+
+# Number of species, taxonomic detail
+sfn_nspecies_taxdetail<- sfn_sitespecies_tax %>% 
+  distinct(sp_name,.keep_all=TRUE) %>% 
+  dplyr::select(group, order, family,sp_name) 
+
+sfn_nspecies_taxdetail %>% 
+  group_by(group) %>% 
   tally()
 
-sfn_species<- sfn_sitespecies_tax %>% 
-  distinct(sp_name)
 
-sfn_sitespecies_tax %>% 
-  group_by(family,genus,sp_name) %>% 
-  tally() %>%  View()
+# Number of trees per species
+sfn_species_ntrees<- sfn_allplants_tax %>% 
+  group_by(pl_species) %>% 
+  mutate(n_trees=n()) %>% 
+  distinct(pl_species,.keep_all = TRUE) %>% 
+  mutate(species = case_when(
+    pl_species=='Unknown' & genus == 'Unknown'~ paste0(family,' fam.'),
+    TRUE ~ pl_species)) %>% 
+  ungroup() %>% 
+  dplyr::select(group,species,n_trees) %>% 
+  arrange(desc(n_trees)) 
+
+
+sfn_groups_ntrees<- sfn_allplants_tax %>% 
+  group_by(group) %>% 
+  tally()
+
+# Number of trees per genus
+
+sfn_genus_ntrees<- sfn_allplants_tax %>% 
+  group_by(genus) %>% 
+  mutate(n_trees=n()) %>% 
+  distinct(genus,.keep_all = TRUE) %>% 
+  mutate(genus_f = case_when(
+    genus == 'Unknown'~ paste0(family,' fam.'),
+    TRUE ~ genus)) %>% 
+  ungroup() %>% 
+  dplyr::select(genus_f,n_trees) %>% 
+  arrange(desc(n_trees)) 
 
 # 3. Measurement type -------------------------------------------------
 # plant, sapwood, leaf
@@ -142,12 +169,27 @@ sfn_sites_type <- sfn_sites_alllevels %>%
     typef=factor(type)
   ) 
 
+
+# Measurement method
+
+sfn_method_ntrees <- sfn_allplants_tax %>% 
+  group_by(pl_sens_meth) %>% 
+  summarise(n_trees = n()) %>% 
+  mutate(perc_trees = n_trees/sum(n_trees)*100) %>% 
+  dplyr::select(pl_sens_meth,n_trees,perc_trees) %>% 
+  arrange(desc(perc_trees))
+
+
 # For alluvial plot
 sfn_plants_type<- sfn_sites_type %>% 
   dplyr::select(si_code,typef) %>% 
   full_join( sfn_allplants_tax) %>% 
-  select(si_code,pl_sens_meth,typef,group) %>% 
+  dplyr::select(si_code,pl_sens_meth,typef,group) %>% 
   group_by(pl_sens_meth,typef,group) %>% tally()
+
+sfn_plants_type %>% 
+  group_by(typef) %>% 
+  summarise(n_trees=sum(n))
 
 # 4. Percentage basal area ------------------------------------------------
 
@@ -169,7 +211,6 @@ dataset_trees_sp <- sfn_sites_type %>%
 
 
 # 6. Scaling data ---------------------------------------------------------
-
 
 
 # Crap --------------------------------------------------------------------

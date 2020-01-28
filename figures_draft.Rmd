@@ -17,13 +17,18 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(sapfluxnetr)
+library(purrr)
 library(flextable)
 library(pander)
 library(magrittr)
 library(ggplot2)
 library(ggalluvial)
 library(ggrepel)
+library(ggbiome)
+
+source('metadata_wrangling.R')
 load('sfn_datapaper_data.RData')
+load('dataset_duration_data.RData')
 ```
 
 ## Figures
@@ -51,9 +56,7 @@ is more regionally detailed, showing PFT.
 - Add a third panel ranking species by tree·days?
 
 ### Figure 5. Sap flow methods and level.
-- Need to reduce the overlap between the labels of sap flow methods. 
-- Taxonize species and show another column Gymno, Angio
-
+- OK
 ### Figure 6. Site and plant level attributes
 - TODO: add titles to labels a) stand, b) plant
 
@@ -83,9 +86,6 @@ Figure 2. Geographical distribution of SAPFLUXNET datasets.
 
 
 ```{r biomemap,fig.height=18, fig.width=15, echo=FALSE}
-library(ggbiome)
-
-# 1. Biome plot -----------------------------------------------------------
 
 # TODO: preliminary filtering out climatic NAs
 # Use CHELSA to gf 
@@ -127,10 +127,57 @@ Figure 3. Bioclimatic distribution of SAPFLUXNET datasets in the Whittaker biome
 \pagebreak
 
 ```{r genera_species,fig.height=10, fig.width=15, echo=FALSE}
-genera_30species
+
+ntrees_species_top<- sfn_sitespecies_tax %>%
+  group_by(genus,si_code) %>%
+  mutate(n_si = sum(sp_ntrees)) %>% 
+  group_by(genus) %>% 
+  mutate(n_all = sum(sp_ntrees)) %>% 
+  filter(n_all>50) %>% 
+  ggplot(aes(x = reorder(genus, n_all, sum), y = n_si, fill = si_code)) +
+ geom_bar(stat = 'identity') +
+  viridis::scale_fill_viridis(discrete = TRUE) +
+  labs(x = '', y = 'Number of trees',
+       title = 'Genera with > 50 trees') +
+  coord_flip() +
+  theme_bw() +
+  theme(
+    title= element_text(size=16),
+    axis.title=element_text(size=16),
+    axis.text=element_text(size=16),
+    axis.text.y=element_text(face='italic'),
+    legend.title = element_blank(),
+    legend.position = 'none'
+  )
+
+
+ntrees_genus_top <- sfn_sitespecies_tax%>%
+  filter(!is.na(sp_ntrees)) %>% 
+  group_by(sp_name, si_code) %>%
+  summarise(n = sum(sp_ntrees)) %>%
+  group_by(sp_name) %>% 
+  mutate(n_all=sum(n)) %>% 
+  filter(n_all>30) %>% 
+  ggplot(aes(x = reorder(sp_name, n, sum), y = n, fill = si_code)) +
+  geom_bar(stat = 'identity')+
+  viridis::scale_fill_viridis(discrete = TRUE) +
+  labs(x = '', y = 'Number of trees', 
+       title = 'Species with >30 trees') +
+  coord_flip() +
+  theme_bw() +
+  theme(
+    title= element_text(size=16),
+    axis.title=element_text(size=16),
+    axis.text=element_text(size=16),
+    axis.text.y=element_text(face='italic'),
+    legend.title = element_blank(),
+    legend.position = 'none'
+  )
+
+cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
+                   label_size= 16,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
 ```
-Figure 4. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees 
-in the database.
+Figure 4. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees in the database.
 
 \pagebreak
 
@@ -219,13 +266,7 @@ Figure 6. Plant and stand attributes
 \pagebreak
 
 ```{r dataset_duration, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE, fig.height=18, fig.width=15 }
-library(sapfluxnetr)
-library(purrr)
-library(tidyverse)
-library(ggrepel)
-
 # Load data
-
 load('dataset_duration_data.RData')
 
   # Figure showing dataset duration and n_trees
