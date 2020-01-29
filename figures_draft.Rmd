@@ -9,6 +9,8 @@ output:
     df_print: paged
   pdf_document: 
     fig_caption: yes
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -70,8 +72,8 @@ is more regionally detailed, showing PFT.
 
 \pagebreak
 
-```{r data_workflow, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.height=18, fig.width=15}
-knitr::include_graphics('resources/QC_summary2.svg')
+```{r data_workflow, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
+knitr::include_graphics('resources/QC_process.svg')
 ```
 
 Figure 1. Data workflow.
@@ -217,17 +219,42 @@ Figure 3. Detailed geographic distribution.
 
 ```{r genera_species,fig.height=10, fig.width=15, echo=FALSE}
 
-ntrees_species_top<- sfn_sitespecies_tax %>%
+sfn_sitespecies_tax %>%
   group_by(genus,si_code) %>%
-  mutate(n_si = sum(sp_ntrees)) %>% 
+  summarise(n_si = sum(sp_ntrees)) %>% 
   group_by(genus) %>% 
-  mutate(n_all = sum(sp_ntrees)) %>% 
-  filter(n_all>50) %>% 
-  ggplot(aes(x = reorder(genus, n_all, sum), y = n_si, fill = si_code)) +
- geom_bar(stat = 'identity') +
+  mutate(
+    n_all = sum(n_si),
+    vjust = n_si/sum(n_si),
+    fill_dummy = if_else(n_si > 14, si_code, 'zz_other')
+  ) %>%
+  filter(n_all>50) %>%
+  arrange(desc(n_si)) %>%
+  mutate(
+    accumulated = cumsum(n_si),
+    segment_start = accumulated - (n_si/2)
+  ) -> ntrees_species_top_data
+
+ntrees_species_top_data %>%
+  # only show label for those sites in each genus with 15 trees or more
+  filter(n_si > 14) -> ntrees_species_top_data_labels
+
+ntrees_species_top <- ntrees_species_top_data %>% 
+  ggplot(aes(x = reorder(genus, n_all), y = n_si, fill = reorder(fill_dummy, n_si))) +
+  geom_bar(stat = 'identity', show.legend = FALSE) +
+  geom_text(
+    aes(label = si_code, y = segment_start),
+    data = ntrees_species_top_data_labels,
+    # direction = 'both', min.segment.length = 0.3,
+    # arrow = arrow(length = unit(0.01, 'npc'), type = 'open'),
+    # hjust = 0.75,
+    # vjust = 1.5,
+    angle = 270, size = 2, position = 'identity'
+  ) +
   viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of trees',
-       title = 'Genera with > 50 trees') +
+       title = 'Genera with > 50 trees',
+       subtitle = '(label only showed for sites with >15 trees per genera)') +
   coord_flip() +
   theme_bw() +
   theme(
