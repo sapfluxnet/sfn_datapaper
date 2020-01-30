@@ -9,3 +9,4 @@ maps/*
 *.xlsx
 *.xml
 *.tfw
+.~lock*
