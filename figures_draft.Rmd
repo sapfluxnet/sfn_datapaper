@@ -215,56 +215,271 @@ Figure 3. Detailed geographic distribution.
 
 \pagebreak
 
-```{r genera_species,fig.height=10, fig.width=15, echo=FALSE}
+```{r genera_species,fig.height=15, fig.width=12, echo=FALSE}
 
 ntrees_species_top<- sfn_sitespecies_tax %>%
   group_by(genus,si_code) %>%
   mutate(n_si = sum(sp_ntrees)) %>% 
   group_by(genus) %>% 
-  mutate(n_all = sum(sp_ntrees)) %>% 
-  filter(n_all>50) %>% 
-  ggplot(aes(x = reorder(genus, n_all, sum), y = n_si, fill = si_code)) +
- geom_bar(stat = 'identity') +
-  viridis::scale_fill_viridis(discrete = TRUE) +
+  mutate(
+    n_all = sum(n_si),
+    vjust = n_si/sum(n_si),
+    fill_dummy = if_else(n_si > 14, si_code, 'zz_other')
+  ) %>%
+  filter(n_all>50) %>%
+  arrange(desc(n_si)) %>%
+  mutate(
+    accumulated = cumsum(n_si),
+    segment_start = accumulated - (n_si/2)
+  ) -> ntrees_species_top_data
+
+ntrees_species_top_data %>%
+  # only show label for those sites in each genus with 15 trees or more
+  filter(n_si > 14) -> ntrees_species_top_data_labels
+
+ntrees_species_top <- ntrees_species_top_data %>% 
+  ggplot(aes(x = reorder(genus, n_all), y = n_si, fill = reorder(fill_dummy, n_si))) +
+  geom_bar(stat = 'identity', show.legend = FALSE) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Pinus'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 2.2,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Quercus'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 320 + ntrees_species_top_data_labels %>% filter(genus == 'Quercus') %>% pull(segment_start),
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Acer'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 190,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Picea'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 420,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Eucalyptus'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 210,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Fagus'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 280,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Populus'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 100,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Abies'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 60,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
+    data = ntrees_species_top_data_labels %>% filter(genus == 'Acacia'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5,
+    nudge_y = 75,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  scale_fill_manual(values = c('grey', viridis::viridis(30))) +
+  scale_y_continuous(expand = expand_scale(c(0,0), c(0,100))) +
+  scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
+  # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of trees',
        title = 'Genera with > 50 trees') +
-  coord_flip() +
+  # coord_flip() +
   theme_bw() +
   theme(
-    title= element_text(size=16),
-    axis.title=element_text(size=16),
-    axis.text=element_text(size=16),
-    axis.text.y=element_text(face='italic'),
+    title= element_text(size = 14),
+    axis.title=element_text(size = 14),
+    axis.text=element_text(size = 14),
+    axis.text.x=element_text(face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
   )
 
-
-ntrees_genus_top <- sfn_sitespecies_tax%>%
+# species plot
+sfn_sitespecies_tax%>%
   filter(!is.na(sp_ntrees)) %>% 
   group_by(sp_name, si_code) %>%
   summarise(n = sum(sp_ntrees)) %>%
   group_by(sp_name) %>% 
-  mutate(n_all=sum(n)) %>% 
-  filter(n_all>30) %>% 
-  ggplot(aes(x = reorder(sp_name, n, sum), y = n, fill = si_code)) +
-  geom_bar(stat = 'identity')+
-  viridis::scale_fill_viridis(discrete = TRUE) +
+  mutate(
+    n_all=sum(n),
+    vjust = n/sum(n),
+    fill_dummy = if_else(n > 14, si_code, 'zz_other')
+  ) %>% 
+  filter(n_all>50) %>%
+  arrange(desc(n)) %>%
+  mutate(
+    accumulated = cumsum(n),
+    segment_start = accumulated - (n/2)
+  ) -> ntrees_genus_top_data
+
+ntrees_genus_top_data %>%
+  # only show label for those sites in each genus with 15 trees or more
+  filter(n > 14) -> ntrees_genus_top_data_labels
+
+
+ntrees_genus_top <- ntrees_genus_top_data %>% 
+  ggplot(aes(x = reorder(sp_name, n_all), y = n, fill = reorder(fill_dummy, n))) +
+  geom_bar(stat = 'identity', show.legend = FALSE) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus sylvestris'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 2.2,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Picea abies'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = 190,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer saccharum'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = c(125, 50),
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus taeda'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = 75,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Populus tremuloides'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = 75,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus koraiensis'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = c(140, 100, 60),
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus strobus'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = 75,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer rubrum'),
+    # position = 'identity',
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = 60,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  scale_fill_manual(values = c('grey', viridis::viridis(19))) +
+  scale_y_continuous(expand = expand_scale(c(0,0), c(0,100))) +
+  scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
+  # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of trees', 
-       title = 'Species with >30 trees') +
-  coord_flip() +
+       title = 'Species with >50 trees') +
+  # coord_flip() +
   theme_bw() +
   theme(
-    title= element_text(size=16),
-    axis.title=element_text(size=16),
-    axis.text=element_text(size=16),
-    axis.text.y=element_text(face='italic'),
+    title= element_text(size = 14),
+    axis.title=element_text(size = 14),
+    axis.text=element_text(size = 14),
+    axis.text.x=element_text(face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
   )
 
 cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
-                   label_size= 16,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
+                   label_size= 14,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
 ```
 Figure 4. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees in the database.
 
