@@ -656,35 +656,79 @@ plant_violins <-
   sfn_allplants_long %>% 
   ggplot(aes(x = Var, y = Value, fill = group)) +
   geom_split_violin(alpha = 0.5) +
+  # data points angios
   geom_point(
     aes(x = 0.75),
     data = sfn_allplants_long %>%
       filter(group == 'Angiosperms'),
     colour = viridis::viridis(1), alpha=0.2,
-    position = position_jitter(width = 0.1, height = 0, seed = 25)
+    position = position_jitter(width = 0.1, height = 0, seed = 25),
+    show.legend = FALSE
   ) +
+  # median point angios
+  geom_errorbarh(
+    data = sfn_allplants_long %>%
+        filter(group == 'Angiosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(xmin = 0.95, xmax = 1.05, y = median, fill = NA, height = 0),
+    colour = 'white', size = 0.8,
+    position = position_nudge(x = -0.03)
+  ) +
+  geom_point(
+    data = sfn_allplants_long %>%
+        filter(group == 'Angiosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(x = Var, y = median),
+    colour = 'white', size = 3, shape = 23, fill = viridis::viridis(1),
+    position = position_nudge(x = -0.03)
+  ) +
+  # data points gymnos
   geom_point(
     aes(x = 1.25),
     data = sfn_allplants_long %>%
       filter(group == 'Gymnosperms'),
     colour = viridis::viridis(1, direction = -1), alpha=0.2,
-    position = position_jitter(width = 0.1, height = 0, seed = 25)
+    position = position_jitter(width = 0.1, height = 0, seed = 25),
+    show.legend = FALSE
+  ) +
+  # median point gymnos
+  geom_errorbarh(
+    data = sfn_allplants_long %>%
+        filter(group == 'Gymnosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(xmin = 0.95, xmax = 1.05, y = median, fill = NA, height = 0),
+    colour = 'black', size = 0.8,
+    position = position_nudge(x = 0.03)
+  ) +
+  geom_point(
+    data = sfn_allplants_long %>%
+        filter(group == 'Gymnosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(x = Var, y = median),
+    colour = 'black', size = 3,
+    shape = 23, fill = viridis::viridis(1, direction = -1),
+    position = position_nudge(x = 0.03)
   ) +
   facet_wrap(~Varf,scales='free',labeller=label_parsed) +
   scale_fill_viridis_d() +
   labs(x=NULL,y=NULL)+
-  theme_light()+
+  theme_light() +
+  guides(fill = guide_legend(title = 'Functional group')) +
   theme(
     axis.text.x = element_blank(), axis.text.y = element_text(size = 16),
     strip.background = element_rect(fill = 'white', colour='darkgray'),
     strip.text = element_text(size = 16, colour = 'black', face = 'bold'),
     legend.position = c(0.85, 0.25), legend.text = element_text(size = 14),
-    legend.title = element_text(size = 14)
+    legend.title = element_text(size = 15, face = 'bold')
   )
 
 cowplot::plot_grid(
   NULL, plant_violins, NULL, stand_violins,
-  labels = c('Plant attributes', NA,  'Stand attributes', NA),
+  labels = c('(a) Plant attributes', NA,  '(b) Stand attributes', NA),
   rel_widths = c(1,1,1,1), nrow = 4, rel_heights = c(0.1, 1, 0.1, 1),
   label_size = 16
 )
@@ -700,32 +744,31 @@ Figure 6. Plant and stand attributes
 # Load data
 load('dataset_duration_data.RData')
 
-  # Figure showing dataset duration and n_trees
-   
-  # Palette for dataset duration plot
-  treeclass_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(7))
-  
-  data_duration_plot<- 
-    datasets_duration %>% 
-    ggplot(., 
-           aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
-    geom_tile()+
-    coord_flip()+
-    scale_fill_manual(values = treeclass_pal)+
-    labs(x='',y='Number of days',fill='Number of trees')+
-    theme_light()+
-      theme(legend.position=c(.3,.2),
-            axis.title.x=element_text(size=14),axis.text.x=element_text(size=12),
-            axis.text.y=element_blank())+
-            
-      
-    geom_label_repel(data=duration_annotation %>% 
-                filter(rank%in%1:30),aes(x=reorder(num_code,n),y=0.9*n,label=si_code),inherit.aes=FALSE,
-                ylim=c(3800,6000),direction='y',segment.color='darkgrey',force=0.65,size=3.4,label.size=0.03,
-                
-                # WARNING:If size is set to 3, the final plot only shows some, not all, labels ??
-                
-                nudge_x=duration_annotation %>% filter(rank%in%1:30) %>% arrange(desc(n)) %>% pull(num_code)-50)
+# Figure showing dataset duration and n_trees
+# Palette for dataset duration plot
+treeclass_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(7))
+
+data_duration_plot <-
+  datasets_duration %>% 
+  ggplot(., aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
+  geom_tile() +
+  coord_flip()+
+  scale_fill_manual(values = treeclass_pal)+
+  labs(x='',y='Number of days',fill='Number of trees')+
+  theme_light()+
+  theme(legend.position=c(.3,.2),
+        axis.title.x=element_text(size=14),axis.text.x=element_text(size=12),
+        axis.text.y=element_blank())+
+  geom_label_repel(data=duration_annotation %>% 
+                     filter(rank%in%1:30),
+                   aes(x=reorder(num_code,n),y=0.9*n,label=si_code),inherit.aes=FALSE,
+                   ylim=c(3800,6000),direction='y',segment.color='darkgrey',force=0.65,
+                   size=3.4,label.size=0.03,
+                   # WARNING:If size is set to 3, the final plot only shows some, not all, labels ??
+                   nudge_x = duration_annotation %>%
+                     filter(rank%in%1:30) %>%
+                     arrange(desc(n)) %>%
+                     pull(num_code)-50)
     
   
 data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,n))) +
