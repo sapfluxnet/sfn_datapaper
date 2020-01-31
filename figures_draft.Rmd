@@ -292,6 +292,81 @@ Figure 5. Distribution of trees in SAPFLUXNET according to sap flow method and m
 
 \pagebreak
 
+
+```{r table_calib, echo=FALSE}
+sfn_allplants_tax %>% 
+  group_by(pl_sens_meth) %>% 
+  summarise(
+    n_cal=sum(pl_sens_calib,na.rm=TRUE),
+    n_noncal=sum(!pl_sens_calib,na.rm=TRUE),
+    n_notprov=sum(is.na(pl_sens_calib),na.rm=TRUE),
+    perc_calib = round(n_cal/(n_noncal+n_notprov)*100,1)) %>% 
+  flextable() %>% 
+  set_header_labels(
+    pl_sens_meth='Method',
+    n_cal='Calibrated',
+    n_noncal='Non-calibrated',
+    n_notprov='Not provided',
+    perc_calib='% calibrated'
+  ) %>% 
+   set_caption('Table 1. Number of sap flow times series in SAPFLUXNET with species-specific calibrated data') %>% 
+  autofit()
+
+```
+
+\pagebreak
+
+```{r spatial_integration, echo=FALSE}
+
+# Spatial integration of sap flow
+left_join(
+  #table  1 calibrations
+  sfn_allplants_tax %>% 
+    group_by(pl_sens_meth,pl_radial_int) %>% 
+    tally()  %>% 
+    pivot_wider(names_from='pl_radial_int',
+                values_from='n',
+                values_fill=list(n=0)) %>% 
+    rename('Not provided'='NA'), # next table
+ #table 2 integration
+ sfn_allplants_tax %>% 
+   group_by(pl_sens_meth,pl_azimut_int) %>% 
+   tally()  %>% 
+   pivot_wider(names_from='pl_azimut_int',
+               values_from='n',
+               values_fill=list(n=0)),
+ by='pl_sens_meth') %>% 
+  rename('Method' ='pl_sens_meth','N.provided'='NA') %>% 
+  flextable(col_keys=c(
+    'Method','Measured','Sensor-integrated','Corrected, measured radial variation',
+    'No radial correction','Not provided',
+     'measured','sensor_integrated','Corrected, measured azimuthal variation',
+    'No azimuthal correction','N.provided')) %>% 
+  set_header_labels(
+    'measured'='Measured',
+    'sensor_integrated'='Sensor-integrated',
+    'N.provided'='Not provided'
+  ) %>% 
+  add_header_row(values=c('','Radial correction','Azimuthal correction'),colwidths=c(1,5,5)) %>% 
+  align(i=1:8,align='right') %>% 
+  bold(i=1,part='header') %>% 
+  fontsize(size=10) %>% 
+    fontsize(size=10,part='header') %>% 
+  height(i=2,height=1,part='header') %>% 
+  width(j=1,width=0.65) %>% 
+  width(j=2:11,width=0.75) %>% 
+  empty_blanks() %>% 
+   set_caption('Table 2. Number of trees using different radial and azimuthal integration approaches, for 
+               the different sap flow methods')
+
+
+
+```
+
+
+
+\pagebreak
+
 ```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
 
 # Stand attributes --------------------------------------------------------
