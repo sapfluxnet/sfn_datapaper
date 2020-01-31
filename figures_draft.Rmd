@@ -35,38 +35,38 @@ load('maps_base.RData')
 
 ## Figures
 
-### Figure 1. 
-- Data workflow. Víctor is on it...
+### Figure 1. Data workflow
 
-### Figure 2
-- This version of the figures uses a low quality version of the base maps because 
-it's faster to run this way. Inaccuracies in the map result from rasterisation.
-- I include two versions of the figure with the maps, one with numeric codes and 
-another without them. Need to improve the layout and/or tweak the parameters controlling 
-the position of the labels to get an optimal figure.
-- TODO: use paler colour for forest area, see if I can display IGBP code (EBF, ENF, etc)
+### Figure 2. Geographic, bioclimatic and veg type coverage
+- a) world map, b) biome plot, c) pft distribution
+- TODO: world map is also shown in fig 3. Maybe go back to original idea of showing first 
+the geographical distribution (now fig 3), then in another figure show biome and pft distribution.
 
-### Figure 3. Biomes.
-- This figure is OK.
-- TODO: explore the possibility that Fig. 2 is (a) world map, (b) biome plot and that figure (3)
-is more regionally detailed, showing PFT.
+### Figure 3. Detailed geographic distribution.
+- The idea of this was to get rid of the global map, so it would not repeat somehow fig. 2. See comment
+on fig. 2 ...
 
 ### Figure 4. Taxonomy.
-- I chose to show genera with >50 trees and species with >30 trees, arbitrarily...
-- a) add number of species at the tip
-- b) add number of sites at the tip
-- Add a third panel ranking species by tree·days?
+- Major improvements by Víctor
 
-### Figure 5. Sap flow methods and level.
-- OK
+### Figure 5. Sap flow methods and measurement level.
+
+### Table 1. Calibrations
+
+### Table 2. Whole-plant integration of sap flow data.
+
 ### Figure 6. Site and plant level attributes
-- TODO: add titles to labels a) stand, b) plant
+- TODO: add titles to labels a) stand, b) plant, gymno/angio.
 
 ### Figure 7. Datasets duration and period
-- TODO: improve with Víctor.
+- Major improvements by Víctor
 
 ### Figure 8. Temporal patterns
 - TODO: add titles to labels: a) ESP_CAN, Mediterranean, b), c
+
+### Figure 9. Environmental variables
+
+### Figure 10. Scaling.
 
 \pagebreak
 
@@ -502,7 +502,80 @@ Figure 8. Temporal patterns.
 
 \pagebreak
 
-Figure 9. Scaling
+Figure 9. Environmental variables
+
+```{r  environ_vars, echo=FALSE,   fig.width=15}
+
+# Env variables  
+  sfn_env %>%
+  dplyr::select(si_code, env_netrad, env_ppfd_in, env_precip, env_rh, env_sw_in,
+         env_ta, env_vpd, env_ws) %>%
+  gather(Variable, Value, starts_with('env_')) %>% 
+  mutate(n = 1) %>%
+  ggplot(aes(x = Value, fill = si_code)) +
+  geom_bar(aes(stat = 'count', position = 'stack')) +
+  facet_grid(~Variable) +
+  scale_x_discrete(breaks = c('Above canopy', 'Within canopy', 'Clearing',
+                              'Off-site', 'Not provided')) +
+  viridis::scale_fill_viridis(discrete = TRUE) +
+  labs(x = '', y = 'Number of sites', title = 'Environmental variables') +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = 'none',
+    axis.text.x = element_text(angle = 90)
+    # axis.text.y = element_text(angle = 30)
+  ) -> env_freq_plot
+  
+
+# Soil 
+sfn_env %>%
+  dplyr::select(si_code, env_swc_shallow_depth,env_swc_deep_depth) %>%
+  pivot_longer(cols=starts_with('env_'), 
+               names_to='depth',
+               values_to='swc',
+               names_prefix = "env_swc_") %>%
+  mutate(n=1,
+         depth_cat=case_when(
+            swc=='Not provided'~'Not provided',
+           swc>0 & swc<=15 ~'0-15 cm',
+           swc>15 & swc<=30 ~'16-30 cm',
+           swc>30 & swc<=70~'31-70 cm',
+           swc>70 & swc<=100~'71-100 cm',
+           swc >100 ~ '>100 cm'),
+         depth_f=factor(depth_cat,
+                        levels(c('Not provided','0-15 cm','16-30 cm',
+                                 '31-70 cm','71-100 cm','>100 cm')))) ->sfn_swc_freq
+
+sfn_swc_freq$depth_meas<- factor(sfn_swc_freq$depth,levels=c('shallow_depth','deep_depth'))
+
+soil_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(4))
+
+sfn_swc_freq%>%
+  filter(depth_cat!='Not provided') %>% 
+   ggplot(aes(x=depth_meas,fill=depth_cat))+
+  geom_bar(stat='count',position='stack')+
+  scale_fill_manual(values=soil_pal)+
+  labs(x = '', y = 'Number of sites', title = 'Soil water content') +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = 'none',
+    axis.text.x = element_text(angle = 90)
+    # axis.text.y = element_text(angle = 30)
+  )-> swc_freq_plot
 
 
+
+cowplot::plot_grid(env_freq_plot,swc_freq_plot,
+                   label_size= 16,labels=c('a)', 'b)'),rel_widths = c(1,0.3),
+                   ncol=2, nrow=1, align = "h", axis = "b")
+
+
+```
+
+
+
+
+\pagebreak
 
