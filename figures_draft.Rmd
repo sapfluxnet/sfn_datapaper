@@ -243,7 +243,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Pinus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 2.2,
@@ -253,7 +252,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Quercus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -264,7 +262,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Acer'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -275,7 +272,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Picea'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -286,7 +282,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Eucalyptus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -297,7 +292,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Fagus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -308,7 +302,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Populus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -319,7 +312,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Abies'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -330,7 +322,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Acacia'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -384,7 +375,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus sylvestris'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 2.2,
@@ -394,7 +384,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Picea abies'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 190,
@@ -404,7 +393,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer saccharum'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = c(125, 50),
@@ -414,7 +402,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus taeda'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 75,
@@ -424,7 +411,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Populus tremuloides'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 75,
@@ -434,7 +420,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus koraiensis'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = c(140, 100, 60),
@@ -444,7 +429,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus strobus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 75,
@@ -454,7 +438,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer rubrum'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 60,
@@ -584,56 +567,127 @@ left_join(
 
 ```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
 
+##########################################################################################
+#
+# Split violin plot code taken from here:
+# https://stackoverflow.com/questions/35717353/split-violin-plot-with-ggplot2
+#
+GeomSplitViolin <- ggproto("GeomSplitViolin", GeomViolin, 
+                           draw_group = function(self, data, ..., draw_quantiles = NULL) {
+  data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
+  grp <- data[1, "group"]
+  newdata <- plyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
+  newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
+  newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
+
+  if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
+    stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
+      1))
+    quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
+    aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
+    aesthetics$alpha <- rep(1, nrow(quantiles))
+    both <- cbind(quantiles, aesthetics)
+    quantile_grob <- GeomPath$draw_panel(both, ...)
+    ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
+  }
+  else {
+    ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
+  }
+})
+
+geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", position = "identity", ..., 
+                              draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, 
+                              show.legend = NA, inherit.aes = TRUE) {
+  layer(data = data, mapping = mapping, stat = stat, geom = GeomSplitViolin, 
+        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
+        params = list(trim = trim, scale = scale, draw_quantiles = draw_quantiles, na.rm = na.rm, ...))
+}
+##########################################################################################
+
 # Stand attributes --------------------------------------------------------
 
-sfn_allstands %>%
-  dplyr::select(si_code, st_age, st_height, st_density,
-                        st_basal_area, st_lai, st_soil_depth) %>%
-  pivot_longer(names_to="Var",values_to= "Value", cols=st_age:st_soil_depth)-> sfn_allstands_long
+sfn_allstands_long <- 
+  sfn_allstands %>%
+  dplyr::select(
+    si_code, st_age, st_height, st_density, st_basal_area, st_lai, st_soil_depth
+  ) %>%
+  pivot_longer(names_to = "Var", values_to = "Value", cols=st_age:st_soil_depth) %>%
+  mutate(
+    Varf = forcats::as_factor(Var) %>% forcats::fct_relabel(
+      ~ c(
+        'Age~(years)','Height~(m)','Stem~density~(stems~ha^{"-1"})',
+        'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(m)'
+      )
+    )
+  )
 
-sfn_allstands_long$Varf <- factor(sfn_allstands_long$Var,
-                                 levels=c('st_age','st_height','st_density','st_basal_area','st_lai','st_soil_depth'),
-                                 labels=c('Age~(years)','Height~(m)','Stem~density~(stems~ha^{"-1"})',
-                                          'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(m)'))
-
-sfn_allstands_long %>% 
+stand_violins <-
+  sfn_allstands_long %>% 
   ggplot(.,aes(x = Var, y = Value)) +
-  geom_violin(fill = '#FDE3A7', alpha = 0.3) +
-  geom_point(colour='black',alpha=0.5,
-             position = position_jitter(width = 0.2, height = 0))+
-  facet_wrap(~Varf,scales='free',labeller=label_parsed)+
+  geom_violin(fill = viridis::viridis(1, begin = 0.5), alpha = 0.3) +
+  geom_point(colour = viridis::viridis(1, begin = 0.5),alpha = 0.5,
+             position = position_jitter(width = 0.2, height = 0)) +
+  facet_wrap(~Varf,scales = 'free', labeller = label_parsed) +
   guides(fill = FALSE) +
-  labs(x=NULL,y=NULL)+
-  theme_light()+
-  theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
-        strip.background = element_rect(fill='white',colour='darkgray'),
-        strip.text=element_text(size=20,colour='black',face='bold')) -> stand_violins
+  labs(x = NULL, y = NULL) +
+  theme_light() +
+  theme(axis.text.x = element_blank(),axis.text.y = element_text(size = 16),
+        strip.background = element_rect(fill = 'white', colour = 'darkgray'),
+        strip.text = element_text(size = 16, colour = 'black', face = 'bold'))
 
 #  Plant attributes -------------------------------------------------------
 
-sfn_allplants %>% 
-  dplyr::select(pl_code,pl_dbh,pl_height,pl_sapw_area,pl_sapw_depth,pl_leaf_area) %>% 
-  pivot_longer(names_to="Var", values_to="Value",cols=pl_dbh:pl_leaf_area)-> sfn_allplants_long
+sfn_allplants_long <-
+  sfn_allplants_tax %>%
+  dplyr::select(
+    pl_code, pl_dbh, pl_height, pl_sapw_area, pl_sapw_depth, pl_leaf_area, group
+  ) %>% 
+  pivot_longer(names_to = "Var", values_to = "Value", cols = pl_dbh:pl_leaf_area) %>% 
+  mutate(
+    Varf = forcats::as_factor(Var) %>% forcats::fct_relabel(
+      ~ c(
+        'DBH~(cm)', 'Height~(m)', 'Sapwood~area~(cm^2)',
+        'Sapwood~depth~(cm)', 'Leaf~area(m^2)'
+      )
+    )
+  )
 
-sfn_allplants_long$Varf <- factor(sfn_allplants_long$Var,
-                                  levels=c('pl_dbh','pl_height','pl_sapw_area','pl_sapw_depth','pl_leaf_area'),
-                                  labels=c('DBH~(cm)','Height~(m)','Sapwood~area~(cm^2)','Sapwood~depth~(cm)','Leaf~area(m^2)'))
-
-
-sfn_allplants_long%>% 
-  ggplot(.,aes(x = Var, y = Value)) +
-  geom_violin(fill = '#FDE3A7', alpha = 0.3) +
-  geom_point(colour='black',alpha=0.5,
-             position = position_jitter(width = 0.2, height = 0))+
-  facet_wrap(~Varf,scales='free',labeller=label_parsed)+
-  guides(fill = FALSE) +
+plant_violins <-
+  sfn_allplants_long %>% 
+  ggplot(aes(x = Var, y = Value, fill = group)) +
+  geom_split_violin(alpha = 0.5) +
+  geom_point(
+    aes(x = 0.75),
+    data = sfn_allplants_long %>%
+      filter(group == 'Angiosperms'),
+    colour = viridis::viridis(1), alpha=0.2,
+    position = position_jitter(width = 0.1, height = 0, seed = 25)
+  ) +
+  geom_point(
+    aes(x = 1.25),
+    data = sfn_allplants_long %>%
+      filter(group == 'Gymnosperms'),
+    colour = viridis::viridis(1, direction = -1), alpha=0.2,
+    position = position_jitter(width = 0.1, height = 0, seed = 25)
+  ) +
+  facet_wrap(~Varf,scales='free',labeller=label_parsed) +
+  scale_fill_viridis_d() +
   labs(x=NULL,y=NULL)+
   theme_light()+
-  theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
-        strip.background = element_rect(fill='white',colour='darkgray'),
-        strip.text=element_text(size=20,colour='black',face='bold')) -> plant_violins
+  theme(
+    axis.text.x = element_blank(), axis.text.y = element_text(size = 16),
+    strip.background = element_rect(fill = 'white', colour='darkgray'),
+    strip.text = element_text(size = 16, colour = 'black', face = 'bold'),
+    legend.position = c(0.85, 0.25), legend.text = element_text(size = 14),
+    legend.title = element_text(size = 14)
+  )
 
-cowplot::plot_grid(stand_violins, plant_violins,labels=c('(a)','(b)'),rel_widths=c(1,1),nrow=2)
+cowplot::plot_grid(
+  NULL, plant_violins, NULL, stand_violins,
+  labels = c('Plant attributes', NA,  'Stand attributes', NA),
+  rel_widths = c(1,1,1,1), nrow = 4, rel_heights = c(0.1, 1, 0.1, 1),
+  label_size = 16
+)
 
 ```
 
