@@ -847,6 +847,40 @@ Figure 8. Temporal patterns.
 Figure 9. Environmental variables
 
 ```{r  environ_vars, echo=FALSE,   fig.width=15}
+# Venn diagrams
+venn_data <- 
+  sfn_env %>%
+  dplyr::select(
+    si_code, env_netrad, env_ppfd_in, env_precip, env_rh, env_sw_in,
+    env_ta, env_vpd, env_ws, env_swc_deep_depth , env_swc_shallow_depth
+  ) %>%
+  gather(Variable, Value, starts_with('env_')) %>% 
+  mutate(n = 1) %>%
+  filter(Value != 'Not provided')
+
+venn_list <- list(
+  radiation = venn_data %>%
+    filter(Variable %in% c('env_netrad', 'env_ppfd_in', 'env_sw_in')) %>%
+    pull(si_code) %>%
+    unique(),
+  ws = venn_data %>%
+    filter(Variable == 'env_ws') %>%
+    pull(si_code),
+  vpd = venn_data %>%
+    filter(Variable == 'env_vpd') %>%
+    pull(si_code),
+  swc = venn_data %>%
+    filter(Variable %in% c('env_swc_shallow_depth', 'env_swc_deep_depth')) %>%
+    pull(si_code)
+)
+
+venn_plot <- VennDiagram::venn.diagram(
+  x = venn_list,
+  filename = 'resources/venn_test.tiff',
+  col = 'transparent',
+  fill = c("cornflowerblue", "green", "yellow", "darkorchid1"),
+  alpha = 0.5
+)
 
 # Env variables  
   sfn_env %>%
@@ -854,6 +888,7 @@ Figure 9. Environmental variables
          env_ta, env_vpd, env_ws) %>%
   gather(Variable, Value, starts_with('env_')) %>% 
   mutate(n = 1) %>%
+  # filter(Value != 'Not provided')
   ggplot(aes(x = Value, fill = si_code)) +
   geom_bar(aes(stat = 'count', position = 'stack')) +
   facet_grid(~Variable) +
@@ -909,14 +944,17 @@ sfn_swc_freq%>%
 
 
 
-cowplot::plot_grid(env_freq_plot,swc_freq_plot,
+cowplot::plot_grid(env_freq_plot,swc_freq_plot, 
                    label_size= 16,labels=c('a)', 'b)'),rel_widths = c(1,0.3),
-                   ncol=2, nrow=1, align = "h", axis = "b")
+                   ncol=2, nrow=2, align = "h", axis = "b")
 
 
 ```
 
 
+```{r venn}
+knitr::include_graphics('resources/venn_test.tiff')
+```
 
 
 \pagebreak

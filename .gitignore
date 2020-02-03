@@ -16,3 +16,4 @@ maps/*
 figures_draft_cache/*
 figures_draft_files/*
 sfn_datapaper_data.RData
+resources/*.log
