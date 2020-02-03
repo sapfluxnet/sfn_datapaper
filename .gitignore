@@ -9,4 +9,10 @@ maps/*
 *.xlsx
 *.xml
 *.tfw
+# binaries confilicting
 .~lock*
+*.docx
+*.svg
+figures_draft_cache/*
+figures_draft_files/*
+sfn_datapaper_data.RData

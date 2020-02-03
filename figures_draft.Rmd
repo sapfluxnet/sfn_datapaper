@@ -740,51 +740,81 @@ Figure 6. Plant and stand attributes
 
 \pagebreak
 
-```{r dataset_duration, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE, fig.height=18, fig.width=15 }
+```{r dataset_duration, echo=FALSE, fig.height=18, fig.width=15, message=FALSE, warning=FALSE, cache=TRUE}
 # Load data
 load('dataset_duration_data.RData')
 
 # Figure showing dataset duration and n_trees
 # Palette for dataset duration plot
-treeclass_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(7))
+treeclass_pal<- c(viridis::viridis_pal(direction = 1, begin = 0.1)(7))
+
+datasets_duration %>%
+      dplyr::filter(n_trees > 0) %>%
+      dplyr::mutate(index_days = seq_along(n)) %>%
+      dplyr::select(si_code, index_days) %>%
+      dplyr::summarise(max_days = max(index_days)) %>%
+      dplyr::arrange(desc(max_days)) %>%
+      dplyr::slice(1:30) -> datasets_duration_top30
 
 data_duration_plot <-
-  datasets_duration %>% 
-  ggplot(., aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
+  datasets_duration %>%
+  filter(n_trees > 0) %>%
+  mutate(index_days = seq_along(n)) %>%
+  ggplot(
+    aes(x = index_days, y = reorder(si_code, index_days, max), fill = n_trees_class_f)
+  ) +
   geom_tile() +
-  coord_flip()+
-  scale_fill_manual(values = treeclass_pal)+
-  labs(x='',y='Number of days',fill='Number of trees')+
-  theme_light()+
-  theme(legend.position=c(.3,.2),
-        axis.title.x=element_text(size=14),axis.text.x=element_text(size=12),
-        axis.text.y=element_blank())+
-  geom_label_repel(data=duration_annotation %>% 
-                     filter(rank%in%1:30),
-                   aes(x=reorder(num_code,n),y=0.9*n,label=si_code),inherit.aes=FALSE,
-                   ylim=c(3800,6000),direction='y',segment.color='darkgrey',force=0.65,
-                   size=3.4,label.size=0.03,
-                   # WARNING:If size is set to 3, the final plot only shows some, not all, labels ??
-                   nudge_x = duration_annotation %>%
-                     filter(rank%in%1:30) %>%
-                     arrange(desc(n)) %>%
-                     pull(num_code)-50)
+  geom_label_repel(
+    data = datasets_duration_top30,
+    aes(x = max_days, y = reorder(si_code, max_days), label = si_code),
+    inherit.aes = FALSE,
+    hjust = 0,
+    direction = 'y',
+    # xlim = c(2000, NA),
+    nudge_x = c(
+      4000 - datasets_duration_top30$max_days[1:25],
+      2500 - datasets_duration_top30$max_days[26:30]
+    ),
+    nudge_y = c(
+      (202 - seq(198, 2, length.out = 30))[1:25] * -1,
+      (202 - seq(198, 2, length.out = 30))[21:25] * -1
+    ),
+    force = 0,
+    seed = 25
+  ) +
+  scale_fill_manual(values = treeclass_pal) +
+  scale_x_continuous(expand = expand_scale(c(0,0), c(0, 20))) +
+  labs(y = '', x = 'Number of days', fill = 'Number of trees') +
+  theme_light() +
+  theme(
+    axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(),
+    legend.position = c(.2, .2), legend.text = element_text(size = 14),
+    legend.title = element_text(size = 15, face = 'bold')
+  )
     
   
-data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,n))) +
-                        geom_tile(fill = treeclass_pal[7])+
-                        coord_flip()+
-  theme_light()+
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())+
-guides(fill='none')+labs(x="",y='Year')+
-  theme(axis.title.x=element_text(size=14),axis.text.x=element_text(size=12))
+data_period_plot <-
+  datasets_duration %>%
+  filter(n_trees > 0) %>%
+  mutate(index_days = seq_along(n)) %>%
+  ggplot(aes(x = TIMESTAMP2, y = reorder(si_code, index_days, max))) +
+  geom_tile(fill = treeclass_pal[1]) +
+  theme_light() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  guides(fill = 'none') +
+  labs(x = "",y = 'Year') +
+  theme(axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12))
 
 # Figure composition
 
-cowplot::plot_grid(data_duration_plot, data_period_plot,labels=c('(a)','(b)'),rel_widths=c(1,0.4))
-
+duration_plot_composed <- cowplot::plot_grid(
+  data_duration_plot, data_period_plot,
+  labels = c('(a)','(b)'), rel_widths = c(1,0.4)
+)
+duration_plot_composed
 
 ```
 
