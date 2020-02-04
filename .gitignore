@@ -13,7 +13,7 @@ maps/*
 # binaries conflicting
 .~lock*
 *.docx
-*.svg
+test.svg
 figures_draft_cache/*
 figures_draft_files/*
 sfn_datapaper_data.RData
