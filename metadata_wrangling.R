@@ -202,6 +202,7 @@ dataset_trees_sp <- sfn_sites_type %>%
       group_by(si_code) %>%
       mutate(total_ntrees = sum(sp_ntrees,na.rm=TRUE),
              nspecies = n_distinct(sp_name),
+             # NOTE: This sum will be zero (0) when all are NAs
              percab_measured = sum(sp_basal_area_perc,na.rm=TRUE)),
     by='si_code'
   ) %>% 
