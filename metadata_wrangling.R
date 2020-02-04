@@ -132,8 +132,8 @@ sfn_genus_ntrees<- sfn_allplants_tax %>%
   dplyr::select(genus_f,n_trees) %>% 
   arrange(desc(n_trees)) 
 
-# 3. Measurement type -------------------------------------------------
-# plant, sapwood, leaf
+# 3. Methodologies -------------------------------------------------
+# Levels: plant, sapwood, leaf
 
 sfn_sites_plsw <- sfn_metadata_plant[['site_md']] %>% 
   semi_join( dplyr::select(
@@ -190,6 +190,8 @@ sfn_plants_type<- sfn_sites_type %>%
 sfn_plants_type %>% 
   group_by(typef) %>% 
   summarise(n_trees=sum(n))
+
+
 
 # 4. Percentage basal area ------------------------------------------------
 

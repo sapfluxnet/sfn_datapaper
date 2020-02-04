@@ -28,6 +28,7 @@ library(ggbiome)
 library(cowplot)
 library(ggspatial)
 library(raster)
+library(VennDiagram)
 
 source('R/sfn_datapaper_functions.R')
 source('metadata_wrangling.R')
@@ -37,38 +38,38 @@ load('maps_base.RData')
 
 ## Figures
 
-### Figure 1. 
-- Data workflow. Víctor is on it...
+### Figure 1. Data workflow
 
-### Figure 2
-- This version of the figures uses a low quality version of the base maps because 
-it's faster to run this way. Inaccuracies in the map result from rasterisation.
-- I include two versions of the figure with the maps, one with numeric codes and 
-another without them. Need to improve the layout and/or tweak the parameters controlling 
-the position of the labels to get an optimal figure.
-- TODO: use paler colour for forest area, see if I can display IGBP code (EBF, ENF, etc)
+### Figure 2. Geographic, bioclimatic and veg type coverage
+- a) world map, b) biome plot, c) pft distribution
+- TODO: world map is also shown in fig 3. Maybe go back to original idea of showing first 
+the geographical distribution (now fig 3), then in another figure show biome and pft distribution.
 
-### Figure 3. Biomes.
-- This figure is OK.
-- TODO: explore the possibility that Fig. 2 is (a) world map, (b) biome plot and that figure (3)
-is more regionally detailed, showing PFT.
+### Figure 3. Detailed geographic distribution.
+- The idea of this was to get rid of the global map, so it would not repeat somehow fig. 2. See comment
+on fig. 2 ...
 
 ### Figure 4. Taxonomy.
-- I chose to show genera with >50 trees and species with >30 trees, arbitrarily...
-- a) add number of species at the tip
-- b) add number of sites at the tip
-- Add a third panel ranking species by tree·days?
+- Major improvements by Víctor
 
-### Figure 5. Sap flow methods and level.
-- OK
+### Figure 5. Sap flow methods and measurement level.
+
+### Table 1. Calibrations
+
+### Table 2. Whole-plant integration of sap flow data.
+
 ### Figure 6. Site and plant level attributes
-- TODO: add titles to labels a) stand, b) plant
+- TODO: add titles to labels a) stand, b) plant, gymno/angio.
 
 ### Figure 7. Datasets duration and period
-- TODO: improve with Víctor.
+- Major improvements by Víctor
 
 ### Figure 8. Temporal patterns
 - TODO: add titles to labels: a) ESP_CAN, Mediterranean, b), c
+
+### Figure 9. Environmental variables
+
+### Figure 10. Scaling.
 
 \pagebreak
 
@@ -266,7 +267,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Acer'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -277,7 +277,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Picea'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -288,7 +287,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Eucalyptus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -299,7 +297,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Fagus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -310,7 +307,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Populus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -321,7 +317,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Abies'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -332,7 +327,6 @@ ntrees_species_top <- ntrees_species_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Acacia'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5,
@@ -386,7 +380,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus sylvestris'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 2.2,
@@ -396,7 +389,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Picea abies'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 190,
@@ -406,7 +398,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer saccharum'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = c(125, 50),
@@ -416,7 +407,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus taeda'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 75,
@@ -426,7 +416,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Populus tremuloides'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 75,
@@ -436,7 +425,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus koraiensis'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = c(140, 100, 60),
@@ -446,7 +434,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus strobus'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 75,
@@ -456,7 +443,6 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer rubrum'),
-    # position = 'identity',
     size = 2,
     # repel options
     nudge_x = 0.5, nudge_y = 60,
@@ -509,58 +495,248 @@ Figure 5. Distribution of trees in SAPFLUXNET according to sap flow method and m
 
 \pagebreak
 
+
+```{r table_calib, echo=FALSE}
+sfn_allplants_tax %>% 
+  group_by(pl_sens_meth) %>% 
+  summarise(
+    n_cal=sum(pl_sens_calib,na.rm=TRUE),
+    n_noncal=sum(!pl_sens_calib,na.rm=TRUE),
+    n_notprov=sum(is.na(pl_sens_calib),na.rm=TRUE),
+    perc_calib = round(n_cal/(n_noncal+n_notprov)*100,1)) %>% 
+  flextable() %>% 
+  set_header_labels(
+    pl_sens_meth='Method',
+    n_cal='Calibrated',
+    n_noncal='Non-calibrated',
+    n_notprov='Not provided',
+    perc_calib='% calibrated'
+  ) %>% 
+   set_caption('Table 1. Number of sap flow times series in SAPFLUXNET with species-specific calibrated data') %>% 
+  autofit()
+
+```
+
+\pagebreak
+
+```{r spatial_integration, echo=FALSE}
+
+# Spatial integration of sap flow
+left_join(
+  #table  1 calibrations
+  sfn_allplants_tax %>% 
+    group_by(pl_sens_meth,pl_radial_int) %>% 
+    tally()  %>% 
+    pivot_wider(names_from='pl_radial_int',
+                values_from='n',
+                values_fill=list(n=0)) %>% 
+    rename('Not provided'='NA'), # next table
+ #table 2 integration
+ sfn_allplants_tax %>% 
+   group_by(pl_sens_meth,pl_azimut_int) %>% 
+   tally()  %>% 
+   pivot_wider(names_from='pl_azimut_int',
+               values_from='n',
+               values_fill=list(n=0)),
+ by='pl_sens_meth') %>% 
+  rename('Method' ='pl_sens_meth','N.provided'='NA') %>% 
+  flextable(col_keys=c(
+    'Method','Measured','Sensor-integrated','Corrected, measured radial variation',
+    'No radial correction','Not provided',
+     'measured','sensor_integrated','Corrected, measured azimuthal variation',
+    'No azimuthal correction','N.provided')) %>% 
+  set_header_labels(
+    'measured'='Measured',
+    'sensor_integrated'='Sensor-integrated',
+    'N.provided'='Not provided'
+  ) %>% 
+  add_header_row(values=c('','Radial correction','Azimuthal correction'),colwidths=c(1,5,5)) %>% 
+  align(i=1:8,align='right') %>% 
+  bold(i=1,part='header') %>% 
+  fontsize(size=10) %>% 
+    fontsize(size=10,part='header') %>% 
+  height(i=2,height=1,part='header') %>% 
+  width(j=1,width=0.65) %>% 
+  width(j=2:11,width=0.75) %>% 
+  empty_blanks() %>% 
+   set_caption('Table 2. Number of trees using different radial and azimuthal integration approaches, for 
+               the different sap flow methods')
+
+
+
+```
+
+
+
+\pagebreak
+
 ```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
+
+##########################################################################################
+#
+# Split violin plot code taken from here:
+# https://stackoverflow.com/questions/35717353/split-violin-plot-with-ggplot2
+#
+GeomSplitViolin <- ggproto("GeomSplitViolin", GeomViolin, 
+                           draw_group = function(self, data, ..., draw_quantiles = NULL) {
+  data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
+  grp <- data[1, "group"]
+  newdata <- plyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
+  newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
+  newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
+
+  if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
+    stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
+      1))
+    quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
+    aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
+    aesthetics$alpha <- rep(1, nrow(quantiles))
+    both <- cbind(quantiles, aesthetics)
+    quantile_grob <- GeomPath$draw_panel(both, ...)
+    ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
+  }
+  else {
+    ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
+  }
+})
+
+geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", position = "identity", ..., 
+                              draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, 
+                              show.legend = NA, inherit.aes = TRUE) {
+  layer(data = data, mapping = mapping, stat = stat, geom = GeomSplitViolin, 
+        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
+        params = list(trim = trim, scale = scale, draw_quantiles = draw_quantiles, na.rm = na.rm, ...))
+}
+##########################################################################################
 
 # Stand attributes --------------------------------------------------------
 
-sfn_allstands %>%
-  dplyr::select(si_code, st_age, st_height, st_density,
-                        st_basal_area, st_lai, st_soil_depth) %>%
-  pivot_longer(names_to="Var",values_to= "Value", cols=st_age:st_soil_depth)-> sfn_allstands_long
+sfn_allstands_long <- 
+  sfn_allstands %>%
+  dplyr::select(
+    si_code, st_age, st_height, st_density, st_basal_area, st_lai, st_soil_depth
+  ) %>%
+  pivot_longer(names_to = "Var", values_to = "Value", cols=st_age:st_soil_depth) %>%
+  mutate(
+    Varf = forcats::as_factor(Var) %>% forcats::fct_relabel(
+      ~ c(
+        'Age~(years)','Height~(m)','Stem~density~(stems~ha^{"-1"})',
+        'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(m)'
+      )
+    )
+  )
 
-sfn_allstands_long$Varf <- factor(sfn_allstands_long$Var,
-                                 levels=c('st_age','st_height','st_density','st_basal_area','st_lai','st_soil_depth'),
-                                 labels=c('Age~(years)','Height~(m)','Stem~density~(stems~ha^{"-1"})',
-                                          'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(m)'))
-
-sfn_allstands_long %>% 
+stand_violins <-
+  sfn_allstands_long %>% 
   ggplot(.,aes(x = Var, y = Value)) +
-  geom_violin(fill = '#FDE3A7', alpha = 0.3) +
-  geom_point(colour='black',alpha=0.5,
-             position = position_jitter(width = 0.2, height = 0))+
-  facet_wrap(~Varf,scales='free',labeller=label_parsed)+
+  geom_violin(fill = viridis::viridis(1, begin = 0.5), alpha = 0.3) +
+  geom_point(colour = viridis::viridis(1, begin = 0.5),alpha = 0.5,
+             position = position_jitter(width = 0.2, height = 0)) +
+  facet_wrap(~Varf,scales = 'free', labeller = label_parsed) +
   guides(fill = FALSE) +
-  labs(x=NULL,y=NULL)+
-  theme_light()+
-  theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
-        strip.background = element_rect(fill='white',colour='darkgray'),
-        strip.text=element_text(size=20,colour='black',face='bold')) -> stand_violins
+  labs(x = NULL, y = NULL) +
+  theme_light() +
+  theme(axis.text.x = element_blank(),axis.text.y = element_text(size = 16),
+        strip.background = element_rect(fill = 'white', colour = 'darkgray'),
+        strip.text = element_text(size = 16, colour = 'black', face = 'bold'))
 
 #  Plant attributes -------------------------------------------------------
 
-sfn_allplants %>% 
-  dplyr::select(pl_code,pl_dbh,pl_height,pl_sapw_area,pl_sapw_depth,pl_leaf_area) %>% 
-  pivot_longer(names_to="Var", values_to="Value",cols=pl_dbh:pl_leaf_area)-> sfn_allplants_long
+sfn_allplants_long <-
+  sfn_allplants_tax %>%
+  dplyr::select(
+    pl_code, pl_dbh, pl_height, pl_sapw_area, pl_sapw_depth, pl_leaf_area, group
+  ) %>% 
+  pivot_longer(names_to = "Var", values_to = "Value", cols = pl_dbh:pl_leaf_area) %>% 
+  mutate(
+    Varf = forcats::as_factor(Var) %>% forcats::fct_relabel(
+      ~ c(
+        'DBH~(cm)', 'Height~(m)', 'Sapwood~area~(cm^2)',
+        'Sapwood~depth~(cm)', 'Leaf~area(m^2)'
+      )
+    )
+  )
 
-sfn_allplants_long$Varf <- factor(sfn_allplants_long$Var,
-                                  levels=c('pl_dbh','pl_height','pl_sapw_area','pl_sapw_depth','pl_leaf_area'),
-                                  labels=c('DBH~(cm)','Height~(m)','Sapwood~area~(cm^2)','Sapwood~depth~(cm)','Leaf~area(m^2)'))
-
-
-sfn_allplants_long%>% 
-  ggplot(.,aes(x = Var, y = Value)) +
-  geom_violin(fill = '#FDE3A7', alpha = 0.3) +
-  geom_point(colour='black',alpha=0.5,
-             position = position_jitter(width = 0.2, height = 0))+
-  facet_wrap(~Varf,scales='free',labeller=label_parsed)+
-  guides(fill = FALSE) +
+plant_violins <-
+  sfn_allplants_long %>% 
+  ggplot(aes(x = Var, y = Value, fill = group)) +
+  geom_split_violin(alpha = 0.5) +
+  # data points angios
+  geom_point(
+    aes(x = 0.75),
+    data = sfn_allplants_long %>%
+      filter(group == 'Angiosperms'),
+    colour = viridis::viridis(1), alpha=0.2,
+    position = position_jitter(width = 0.1, height = 0, seed = 25),
+    show.legend = FALSE
+  ) +
+  # median point angios
+  geom_errorbarh(
+    data = sfn_allplants_long %>%
+        filter(group == 'Angiosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(xmin = 0.95, xmax = 1.05, y = median, fill = NA, height = 0),
+    colour = 'white', size = 0.8,
+    position = position_nudge(x = -0.03)
+  ) +
+  geom_point(
+    data = sfn_allplants_long %>%
+        filter(group == 'Angiosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(x = Var, y = median),
+    colour = 'white', size = 3, shape = 23, fill = viridis::viridis(1),
+    position = position_nudge(x = -0.03)
+  ) +
+  # data points gymnos
+  geom_point(
+    aes(x = 1.25),
+    data = sfn_allplants_long %>%
+      filter(group == 'Gymnosperms'),
+    colour = viridis::viridis(1, direction = -1), alpha=0.2,
+    position = position_jitter(width = 0.1, height = 0, seed = 25),
+    show.legend = FALSE
+  ) +
+  # median point gymnos
+  geom_errorbarh(
+    data = sfn_allplants_long %>%
+        filter(group == 'Gymnosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(xmin = 0.95, xmax = 1.05, y = median, fill = NA, height = 0),
+    colour = 'black', size = 0.8,
+    position = position_nudge(x = 0.03)
+  ) +
+  geom_point(
+    data = sfn_allplants_long %>%
+        filter(group == 'Gymnosperms') %>%
+        group_by(Var, Varf) %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(x = Var, y = median),
+    colour = 'black', size = 3,
+    shape = 23, fill = viridis::viridis(1, direction = -1),
+    position = position_nudge(x = 0.03)
+  ) +
+  facet_wrap(~Varf,scales='free',labeller=label_parsed) +
+  scale_fill_viridis_d() +
   labs(x=NULL,y=NULL)+
-  theme_light()+
-  theme(axis.text.x=element_blank(),axis.text.y=element_text(size=20),
-        strip.background = element_rect(fill='white',colour='darkgray'),
-        strip.text=element_text(size=20,colour='black',face='bold')) -> plant_violins
+  theme_light() +
+  guides(fill = guide_legend(title = 'Functional group')) +
+  theme(
+    axis.text.x = element_blank(), axis.text.y = element_text(size = 16),
+    strip.background = element_rect(fill = 'white', colour='darkgray'),
+    strip.text = element_text(size = 16, colour = 'black', face = 'bold'),
+    legend.position = c(0.85, 0.25), legend.text = element_text(size = 14),
+    legend.title = element_text(size = 15, face = 'bold')
+  )
 
-cowplot::plot_grid(stand_violins, plant_violins,labels=c('(a)','(b)'),rel_widths=c(1,1),nrow=2)
+cowplot::plot_grid(
+  NULL, plant_violins, NULL, stand_violins,
+  labels = c('(a) Plant attributes', NA,  '(b) Stand attributes', NA),
+  rel_widths = c(1,1,1,1), nrow = 4, rel_heights = c(0.1, 1, 0.1, 1),
+  label_size = 16
+)
 
 ```
 
@@ -569,52 +745,81 @@ Figure 6. Plant and stand attributes
 
 \pagebreak
 
-```{r dataset_duration, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE, fig.height=18, fig.width=15 }
+```{r dataset_duration, echo=FALSE, fig.height=18, fig.width=15, message=FALSE, warning=FALSE, cache=TRUE}
 # Load data
 load('dataset_duration_data.RData')
 
-  # Figure showing dataset duration and n_trees
-   
-  # Palette for dataset duration plot
-  treeclass_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(7))
-  
-  data_duration_plot<- 
-    datasets_duration %>% 
-    ggplot(., 
-           aes( y=index_days,x=reorder(num_code,n),fill = n_trees_class_f)) +
-    geom_tile()+
-    coord_flip()+
-    scale_fill_manual(values = treeclass_pal)+
-    labs(x='',y='Number of days',fill='Number of trees')+
-    theme_light()+
-      theme(legend.position=c(.3,.2),
-            axis.title.x=element_text(size=14),axis.text.x=element_text(size=12),
-            axis.text.y=element_blank())+
-            
-      
-    geom_label_repel(data=duration_annotation %>% 
-                filter(rank%in%1:30),aes(x=reorder(num_code,n),y=0.9*n,label=si_code),inherit.aes=FALSE,
-                ylim=c(3800,6000),direction='y',segment.color='darkgrey',force=0.65,size=3.4,label.size=0.03,
-                
-                # WARNING:If size is set to 3, the final plot only shows some, not all, labels ??
-                
-                nudge_x=duration_annotation %>% filter(rank%in%1:30) %>% arrange(desc(n)) %>% pull(num_code)-50)
+# Figure showing dataset duration and n_trees
+# Palette for dataset duration plot
+treeclass_pal<- c(viridis::viridis_pal(direction = 1, begin = 0.1)(7))
+
+datasets_duration %>%
+      dplyr::filter(n_trees > 0) %>%
+      dplyr::mutate(index_days = seq_along(n)) %>%
+      dplyr::select(si_code, index_days) %>%
+      dplyr::summarise(max_days = max(index_days)) %>%
+      dplyr::arrange(desc(max_days)) %>%
+      dplyr::slice(1:30) -> datasets_duration_top30
+
+data_duration_plot <-
+  datasets_duration %>%
+  filter(n_trees > 0) %>%
+  mutate(index_days = seq_along(n)) %>%
+  ggplot(
+    aes(x = index_days, y = reorder(si_code, index_days, max), fill = n_trees_class_f)
+  ) +
+  geom_tile() +
+  geom_label_repel(
+    data = datasets_duration_top30,
+    aes(x = max_days, y = reorder(si_code, max_days), label = si_code),
+    inherit.aes = FALSE,
+    hjust = 0,
+    direction = 'y',
+    # xlim = c(2000, NA),
+    nudge_x = c(
+      4000 - datasets_duration_top30$max_days[1:25],
+      2500 - datasets_duration_top30$max_days[26:30]
+    ),
+    nudge_y = c(
+      (202 - seq(198, 2, length.out = 30))[1:25] * -1,
+      (202 - seq(198, 2, length.out = 30))[21:25] * -1
+    ),
+    force = 0,
+    seed = 25
+  ) +
+  scale_fill_manual(values = treeclass_pal) +
+  scale_x_continuous(expand = expand_scale(c(0,0), c(0, 20))) +
+  labs(y = '', x = 'Number of days', fill = 'Number of trees') +
+  theme_light() +
+  theme(
+    axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(),
+    legend.position = c(.2, .2), legend.text = element_text(size = 14),
+    legend.title = element_text(size = 15, face = 'bold')
+  )
     
   
-data_period_plot <- ggplot(datasets_duration, aes( y=TIMESTAMP2,x=reorder(num_code,n))) +
-                        geom_tile(fill = treeclass_pal[7])+
-                        coord_flip()+
-  theme_light()+
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())+
-guides(fill='none')+labs(x="",y='Year')+
-  theme(axis.title.x=element_text(size=14),axis.text.x=element_text(size=12))
+data_period_plot <-
+  datasets_duration %>%
+  filter(n_trees > 0) %>%
+  mutate(index_days = seq_along(n)) %>%
+  ggplot(aes(x = TIMESTAMP2, y = reorder(si_code, index_days, max))) +
+  geom_tile(fill = treeclass_pal[1]) +
+  theme_light() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  guides(fill = 'none') +
+  labs(x = "",y = 'Year') +
+  theme(axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12))
 
 # Figure composition
 
-cowplot::plot_grid(data_duration_plot, data_period_plot,labels=c('(a)','(b)'),rel_widths=c(1,0.4))
-
+duration_plot_composed <- cowplot::plot_grid(
+  data_duration_plot, data_period_plot,
+  labels = c('(a)','(b)'), rel_widths = c(1,0.4)
+)
+duration_plot_composed
 
 ```
 
@@ -644,7 +849,118 @@ Figure 8. Temporal patterns.
 
 \pagebreak
 
-Figure 9. Scaling
+Figure 9. Environmental variables
+
+```{r  environ_vars, echo=FALSE,   fig.width=15}
+# Venn diagrams
+venn_data <- 
+  sfn_env %>%
+  dplyr::select(
+    si_code, env_netrad, env_ppfd_in, env_precip, env_rh, env_sw_in,
+    env_ta, env_vpd, env_ws, env_swc_deep_depth , env_swc_shallow_depth
+  ) %>%
+  gather(Variable, Value, starts_with('env_')) %>% 
+  mutate(n = 1) %>%
+  filter(Value != 'Not provided')
+
+venn_list <- list(
+  radiation = venn_data %>%
+    filter(Variable %in% c('env_netrad', 'env_ppfd_in', 'env_sw_in')) %>%
+    pull(si_code) %>%
+    unique(),
+  ws = venn_data %>%
+    filter(Variable == 'env_ws') %>%
+    pull(si_code),
+  vpd = venn_data %>%
+    filter(Variable == 'env_vpd') %>%
+    pull(si_code),
+  swc = venn_data %>%
+    filter(Variable %in% c('env_swc_shallow_depth', 'env_swc_deep_depth')) %>%
+    pull(si_code)
+)
+
+venn_plot <- VennDiagram::venn.diagram(
+  x = venn_list,
+  filename = 'resources/venn_test.tiff',
+  col = 'transparent',
+  fill = c("cornflowerblue", "green", "yellow", "darkorchid1"),
+  alpha = 0.5
+)
+
+# Env variables  
+  sfn_env %>%
+  dplyr::select(si_code, env_netrad, env_ppfd_in, env_precip, env_rh, env_sw_in,
+         env_ta, env_vpd, env_ws) %>%
+  gather(Variable, Value, starts_with('env_')) %>% 
+  mutate(n = 1) %>%
+  # filter(Value != 'Not provided')
+  ggplot(aes(x = Value, fill = si_code)) +
+  geom_bar(aes(stat = 'count', position = 'stack')) +
+  facet_grid(~Variable) +
+  scale_x_discrete(breaks = c('Above canopy', 'Within canopy', 'Clearing',
+                              'Off-site', 'Not provided')) +
+  viridis::scale_fill_viridis(discrete = TRUE) +
+  labs(x = '', y = 'Number of sites', title = 'Environmental variables') +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = 'none',
+    axis.text.x = element_text(angle = 90)
+    # axis.text.y = element_text(angle = 30)
+  ) -> env_freq_plot
+  
+
+# Soil 
+sfn_env %>%
+  dplyr::select(si_code, env_swc_shallow_depth,env_swc_deep_depth) %>%
+  pivot_longer(cols=starts_with('env_'), 
+               names_to='depth',
+               values_to='swc',
+               names_prefix = "env_swc_") %>%
+  mutate(n=1,
+         depth_cat=case_when(
+            swc=='Not provided'~'Not provided',
+           swc>0 & swc<=15 ~'0-15 cm',
+           swc>15 & swc<=30 ~'16-30 cm',
+           swc>30 & swc<=70~'31-70 cm',
+           swc>70 & swc<=100~'71-100 cm',
+           swc >100 ~ '>100 cm'),
+         depth_f=factor(depth_cat,
+                        levels(c('Not provided','0-15 cm','16-30 cm',
+                                 '31-70 cm','71-100 cm','>100 cm')))) ->sfn_swc_freq
+
+sfn_swc_freq$depth_meas<- factor(sfn_swc_freq$depth,levels=c('shallow_depth','deep_depth'))
+
+soil_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(4))
+
+sfn_swc_freq%>%
+  filter(depth_cat!='Not provided') %>% 
+   ggplot(aes(x=depth_meas,fill=depth_cat))+
+  geom_bar(stat='count',position='stack')+
+  scale_fill_manual(values=soil_pal)+
+  labs(x = '', y = 'Number of sites', title = 'Soil water content') +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = 'none',
+    axis.text.x = element_text(angle = 90)
+    # axis.text.y = element_text(angle = 30)
+  )-> swc_freq_plot
 
 
+
+cowplot::plot_grid(env_freq_plot,swc_freq_plot, 
+                   label_size= 16,labels=c('a)', 'b)'),rel_widths = c(1,0.3),
+                   ncol=2, nrow=2, align = "h", axis = "b")
+
+
+```
+
+
+```{r venn}
+knitr::include_graphics('resources/venn_test.tiff')
+```
+
+
+\pagebreak
 
