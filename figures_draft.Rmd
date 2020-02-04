@@ -26,6 +26,7 @@ library(ggbiome)
 library(cowplot)
 library(ggspatial)
 library(raster)
+library(VennDiagram)
 
 source('R/sfn_datapaper_functions.R')
 source('metadata_wrangling.R')
