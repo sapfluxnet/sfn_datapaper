@@ -743,6 +743,50 @@ cowplot::plot_grid(
 
 Figure 6. Plant and stand attributes
 
+```{r attributes_text, include=FALSE}
+
+sfn_allplants_tax %>% 
+  dplyr::select(pl_dbh,pl_height,pl_age,pl_sapw_area,pl_sapw_depth) %>% 
+ map_df(~sum(is.na(.))/length(.)*100)
+
+
+sfn_allplants_tax %>% 
+  mutate(rank_dbh = dense_rank(desc(pl_dbh)),
+         rank_sapw_area =dense_rank(desc(pl_sapw_area)),
+         rank_sap_depth=dense_rank(desc(pl_sapw_depth)),
+         rank_leaf_area=dense_rank(desc(pl_leaf_area))) %>% 
+  arrange(rank_sapw_area) %>% 
+  dplyr::select(si_code,pl_species,pl_dbh,pl_sapw_area,pl_sapw_depth,starts_with('rank')) %>% View()
+  
+
+sfn_allstands  %>% 
+  dplyr::select(si_code,st_lai,st_density,st_basal_area,st_height,st_soil_depth) %>% 
+ map_df(~sum(is.na(.))/length(.)*100)
+
+
+sfn_allstands %>% 
+  mutate(
+    rank_lai= dense_rank(desc(st_lai)),
+    rank_age=dense_rank(desc(st_age)),
+    rank_density=dense_rank(desc(st_density)),
+    rank_abasal=dense_rank(desc(st_basal_area)),
+    rank_height=dense_rank(desc(st_height)),
+    rank_soild=dense_rank(desc(st_soil_depth)) 
+  ) %>% arrange(rank_abasal) %>% 
+  dplyr::select(si_code,st_lai,st_density,st_basal_area,st_height,st_soil_depth,
+                starts_with('rank')) %>% View()
+
+
+sfn_allstands %>% 
+dplyr::select(si_code,st_lai,st_density,st_age,st_basal_area,st_height,st_soil_depth) %>% 
+  summarise_all(median,na.rm=TRUE)
+  
+
+
+```
+
+
+
 \pagebreak
 
 ```{r dataset_duration, echo=FALSE, fig.height=18, fig.width=15, message=FALSE, warning=FALSE, cache=TRUE}
