@@ -240,9 +240,24 @@ ntrees_species_top_data %>%
   # only show label for those sites in each genus with 15 trees or more
   filter(n_si > 14) -> ntrees_species_top_data_labels
 
-ntrees_species_top <- ntrees_species_top_data %>% 
+number_sites_labels <-
+  ntrees_species_top_data %>%
+  count() %>%
+  mutate(x_label = paste0(n, ' sites'), y = 800) %>%
+  left_join(
+    ntrees_species_top_data %>%
+      dplyr::select(genus, n_all) %>%
+      distinct()
+  )
+
+ntrees_species_top <-
+  ntrees_species_top_data %>% 
   ggplot(aes(x = reorder(genus, n_all), y = n_si, fill = reorder(fill_dummy, n_si))) +
   geom_bar(stat = 'identity', show.legend = FALSE) +
+  geom_text(
+    aes(label = x_label, y = y, x = reorder(genus, n_all)),
+    data = number_sites_labels, inherit.aes = FALSE
+  ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Pinus'),
@@ -373,10 +388,24 @@ ntrees_genus_top_data %>%
   # only show label for those sites in each genus with 15 trees or more
   filter(n > 14) -> ntrees_genus_top_data_labels
 
+number_sites_labels_genus <-
+  ntrees_genus_top_data %>%
+  count() %>%
+  mutate(x_label = paste0(n, ' sites'), y = 330) %>%
+  left_join(
+    ntrees_genus_top_data %>%
+      dplyr::select(sp_name, n_all) %>%
+      distinct()
+  )
 
-ntrees_genus_top <- ntrees_genus_top_data %>% 
+ntrees_genus_top <- 
+  ntrees_genus_top_data %>% 
   ggplot(aes(x = reorder(sp_name, n_all), y = n, fill = reorder(fill_dummy, n))) +
   geom_bar(stat = 'identity', show.legend = FALSE) +
+  geom_text(
+    aes(label = x_label, y = y, x = reorder(sp_name, n_all)),
+    data = number_sites_labels_genus, inherit.aes = FALSE
+  ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus sylvestris'),
@@ -450,7 +479,7 @@ ntrees_genus_top <- ntrees_genus_top_data %>%
     direction = 'y', min.segment.length = 1000
   ) +
   scale_fill_manual(values = c('grey', viridis::viridis(19))) +
-  scale_y_continuous(expand = expand_scale(c(0,0), c(0,100))) +
+  scale_y_continuous(expand = expand_scale(c(0,0), c(0,50))) +
   scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of trees', 
