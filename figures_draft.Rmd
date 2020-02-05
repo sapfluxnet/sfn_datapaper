@@ -895,7 +895,7 @@ Figure 8. Temporal patterns.
 
 Figure 9. Environmental variables
 
-```{r  environ_vars, echo=FALSE,   fig.width=15}
+```{r environ_vars, echo=FALSE, fig.width=15, message=FALSE, warning=FALSE}
 # Venn diagrams
 venn_data <- 
   sfn_env %>%
@@ -994,17 +994,133 @@ sfn_swc_freq%>%
 
 
 cowplot::plot_grid(env_freq_plot,swc_freq_plot, 
-                   label_size= 16,labels=c('a)', 'b)'),rel_widths = c(1,0.3),
-                   ncol=2, nrow=2, align = "h", axis = "b")
+                   label_size = 16,labels=c('a)', 'b)'),rel_widths = c(1,0.3),
+                   ncol = 2, align = "h", axis = "b")
 
 
 ```
 
 
-```{r venn}
+```{r venn, echo=FALSE, fig.width=15, cache = FALSE}
 knitr::include_graphics('resources/venn_test.tiff')
 ```
 
 
 \pagebreak
+
+Figure 10. Basal area scaling
+
+```{r scaling, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.height=18, fig.width=15}
+basa_area_data <-
+  dataset_trees_sp %>% 
+  mutate(
+    sp_basal_area_perc = ifelse(si_code == 'RUS_POG_VAR', NA, sp_basal_area_perc),
+    percab_measured = ifelse(si_code == 'RUS_POG_VAR', 0, percab_measured),
+    sp_name_fct = as_factor(sp_name),
+    typeplant = if_else(is.na(typeplant), 'no', typeplant),
+    biomes_joined = case_when(
+      si_biome %in% c(
+        'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
+        'Temperate rain forest','Tropical rain forest'
+      ) ~ 'Dry-Tropical',
+      si_biome %in% c('Boreal forest','Tundra') ~ 'Boreal-Tundra',
+      TRUE ~ si_biome
+    )
+  ) %>%
+  filter(biomes_joined != 'Unknown')
+
+biomes_plot_list <- basa_area_data %>%
+  group_by(biomes_joined) %>%
+  group_map(.f = function(data, key) {
+    data %>%
+      ggplot() +
+      geom_bar(
+        aes(
+          x = fct_reorder(si_code, sp_basal_area_perc, sum, na.rm = TRUE),
+          y = sp_basal_area_perc, fill = sp_name_fct, colour = sp_name_fct,
+          alpha = typeplant
+        ),
+        stat = 'identity', show.legend = TRUE
+      ) +
+      geom_text(
+        aes(
+          x = fct_reorder(si_code, percab_measured, sum, na.rm = TRUE),
+          y = 115,
+          label = nspecies
+        ),
+        size = 4,
+        data = data %>%
+          distinct(si_code, .keep_all = TRUE),
+        show.legend = FALSE
+      ) +
+      geom_text(
+        aes(
+          x = fct_reorder(si_code, percab_measured, sum, na.rm = TRUE),
+          y = 125,
+          label = total_ntrees
+        ),
+        size = 4.5, colour = 'blue',
+        data = data %>%
+          distinct(si_code, .keep_all = TRUE),
+        show.legend = FALSE
+      ) +
+      labs(title = key, x = "", y = "") +
+      scale_y_continuous(expand = expand_scale(c(0,0), c(0, 10))) +
+      scale_colour_viridis_d(drop = FALSE) +
+      scale_fill_viridis_d(drop = FALSE) +
+      scale_alpha_manual(values = c(.1, 1), drop = FALSE) +
+      theme_bw() +
+      theme(
+        legend.text = element_text(size = 12),
+        legend.position = "none",
+        legend.box = "horizontal",
+        legend.title = element_blank(),
+        axis.title.y = element_text(size = 20),
+        axis.text.y = element_text(size = 16),
+        plot.title = element_text(hjust = 0, size = 14),
+        axis.text.x = element_text(angle = 90, hjust = 1)
+      )
+  })
+
+# there is a bug or something I'm doing incorrectly, but the boreal plot
+# always has the alpha inverted, so...
+biomes_plot_list[[1]] <- biomes_plot_list[[1]] +
+  scale_alpha_manual(values = c(1,1))
+
+biomes_grid <- 
+  cowplot::plot_grid(
+    plotlist = biomes_plot_list,
+    nrow = 4, align = 'h'
+  )
+
+common_label_y <-
+  ggdraw() +
+  draw_label(
+  "% of basal area measured with sap flow",
+  fontface = 'bold', size = 20, angle = 90
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 0, 2)
+  )
+
+biomes_grid_common_label <- cowplot::plot_grid(
+  common_label_y, biomes_grid, ncol = 2, rel_widths = c(0.03, 1)
+)
+
+plot_legend <- get_legend(
+  biomes_plot_list[[4]] +
+    theme(
+      legend.position = "left",
+      legend.text = element_text(size = 12),
+      legend.direction = "vertical",
+      legend.title = element_blank(),
+      legend.margin = margin(0,0,0,0)
+    )
+)
+
+cowplot::plot_grid(
+  plot_legend, biomes_grid_common_label, ncol = 2, rel_widths = c(0.3, 1)
+)
+
+```
 
