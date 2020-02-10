@@ -924,7 +924,78 @@ Figure 8. Temporal patterns.
 
 Figure 9. Environmental variables
 
-```{r environ_vars, echo=FALSE, fig.width=15, message=FALSE, warning=FALSE}
+```{r environ_vars, echo=FALSE, fig.width=15, fig.height=15, message=FALSE, warning=FALSE}
+# Env variables  
+env_freq_plot <-
+  sfn_env %>%
+  dplyr::select(
+    si_code, env_netrad, env_ppfd_in, env_precip, env_rh,
+    env_sw_in, env_ta, env_vpd, env_ws
+  ) %>%
+  gather(Variable, Value, starts_with('env_')) %>%
+  mutate(
+    n = 1,
+    Value = if_else(Value == 'clearing', 'Clearing', Value),
+    Value = forcats::fct_relevel(Value, c('Not provided', 'Off-site', 'Clearing'))
+  ) %>%
+  ggplot(aes(x = Variable, fill = Value)) +
+  geom_bar(stat = 'count', position = 'stack') +
+  scale_fill_viridis_d() +
+  labs(x = '', y = 'Number of sites') +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = 'top', legend.direction = 'horizontal',
+    axis.text.x = element_text(angle = 90)
+  )
+  
+
+# Soil 
+sfn_swc_freq <-
+  sfn_env %>%
+  dplyr::select(si_code, env_swc_shallow_depth,env_swc_deep_depth) %>%
+  pivot_longer(
+    cols = starts_with('env_'),
+    names_to = 'depth',
+    values_to = 'swc',
+    names_prefix = "env_swc_"
+  ) %>%
+  mutate(
+    n=1,
+    depth_cat = case_when(
+      swc=='Not provided'~'Not provided',
+      swc>0 & swc<=15 ~'0-15 cm',
+      swc>15 & swc<=30 ~'16-30 cm',
+      swc>30 & swc<=70~'31-70 cm',
+      swc>70 & swc<=100~'71-100 cm',
+      swc >100 ~ '>100 cm'
+    ),
+    depth_f = as_factor(depth_cat),
+    depth_meas = as_factor(depth)
+  )
+
+soil_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(4))
+
+swc_freq_plot <-
+  sfn_swc_freq %>%
+  filter(depth_cat!='Not provided') %>% 
+  ggplot(aes(x=depth_meas,fill=depth_cat)) +
+  geom_bar(stat='count',position='stack') +
+  scale_fill_manual(values=soil_pal) +
+  labs(x = '', y = 'Number of sites', title = 'Soil water content') +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(.8, .8),
+    axis.text.x = element_text(angle = 90)
+  )
+
+upper_grid <- cowplot::plot_grid(
+  env_freq_plot,swc_freq_plot, 
+  label_size = 16, labels=c('a)', 'b)'), rel_widths = c(1, 0.4),
+  ncol = 2, align = "h", axis = "b"
+)
+
 # Venn diagrams
 venn_data <- 
   sfn_env %>%
@@ -952,88 +1023,38 @@ venn_list <- list(
     pull(si_code)
 )
 
-venn_plot <- VennDiagram::venn.diagram(
-  x = venn_list,
-  filename = 'resources/venn_test.tiff',
-  col = 'transparent',
-  fill = c("cornflowerblue", "green", "yellow", "darkorchid1"),
-  alpha = 0.5
+A <- venn_list[[1]]
+B <- venn_list[[2]]
+C <- venn_list[[3]]
+D <- venn_list[[4]]
+list.names <- names(venn_list)
+n12 <- intersect(A, B)
+n13 <- intersect(A, C)
+n14 <- intersect(A, D)
+n23 <- intersect(B, C)
+n24 <- intersect(B, D)
+n34 <- intersect(C, D)
+n123 <- intersect(n12, C)
+n124 <- intersect(n12, D)
+n134 <- intersect(n13, D)
+n234 <- intersect(n23, D)
+n1234 <- intersect(n123, D)
+venn_plot <- VennDiagram::draw.quad.venn(
+  area1 = length(A), area2 = length(B), area3 = length(C), area4 = length(D),
+  n12 = length(n12), n13 = length(n13), n14 = length(n14), 
+  n23 = length(n23), n24 = length(n24), n34 = length(n34), 
+  n123 = length(n123), n124 = length(n124), n134 = length(n134), 
+  n234 = length(n234), n1234 = length(n1234), 
+  ind = FALSE, category = list.names,
+  fill = viridis::viridis(4, direction = -1)
 )
 
-# Env variables  
-  sfn_env %>%
-  dplyr::select(si_code, env_netrad, env_ppfd_in, env_precip, env_rh, env_sw_in,
-         env_ta, env_vpd, env_ws) %>%
-  gather(Variable, Value, starts_with('env_')) %>% 
-  mutate(n = 1) %>%
-  # filter(Value != 'Not provided')
-  ggplot(aes(x = Value, fill = si_code)) +
-  geom_bar(aes(stat = 'count', position = 'stack')) +
-  facet_grid(~Variable) +
-  scale_x_discrete(breaks = c('Above canopy', 'Within canopy', 'Clearing',
-                              'Off-site', 'Not provided')) +
-  viridis::scale_fill_viridis(discrete = TRUE) +
-  labs(x = '', y = 'Number of sites', title = 'Environmental variables') +
-  theme_bw() +
-  theme(
-    legend.title = element_blank(),
-    legend.position = 'none',
-    axis.text.x = element_text(angle = 90)
-    # axis.text.y = element_text(angle = 30)
-  ) -> env_freq_plot
-  
-
-# Soil 
-sfn_env %>%
-  dplyr::select(si_code, env_swc_shallow_depth,env_swc_deep_depth) %>%
-  pivot_longer(cols=starts_with('env_'), 
-               names_to='depth',
-               values_to='swc',
-               names_prefix = "env_swc_") %>%
-  mutate(n=1,
-         depth_cat=case_when(
-            swc=='Not provided'~'Not provided',
-           swc>0 & swc<=15 ~'0-15 cm',
-           swc>15 & swc<=30 ~'16-30 cm',
-           swc>30 & swc<=70~'31-70 cm',
-           swc>70 & swc<=100~'71-100 cm',
-           swc >100 ~ '>100 cm'),
-         depth_f=factor(depth_cat,
-                        levels(c('Not provided','0-15 cm','16-30 cm',
-                                 '31-70 cm','71-100 cm','>100 cm')))) ->sfn_swc_freq
-
-sfn_swc_freq$depth_meas<- factor(sfn_swc_freq$depth,levels=c('shallow_depth','deep_depth'))
-
-soil_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(4))
-
-sfn_swc_freq%>%
-  filter(depth_cat!='Not provided') %>% 
-   ggplot(aes(x=depth_meas,fill=depth_cat))+
-  geom_bar(stat='count',position='stack')+
-  scale_fill_manual(values=soil_pal)+
-  labs(x = '', y = 'Number of sites', title = 'Soil water content') +
-  theme_bw() +
-  theme(
-    legend.title = element_blank(),
-    legend.position = 'none',
-    axis.text.x = element_text(angle = 90)
-    # axis.text.y = element_text(angle = 30)
-  )-> swc_freq_plot
-
-
-
-cowplot::plot_grid(env_freq_plot,swc_freq_plot, 
-                   label_size = 16,labels=c('a)', 'b)'),rel_widths = c(1,0.3),
-                   ncol = 2, align = "h", axis = "b")
-
+cowplot::plot_grid(
+  upper_grid, venn_plot,
+  nrow = 2, label_size = 16, labels = c('', 'c)')
+)
 
 ```
-
-
-```{r venn, echo=FALSE, fig.width=15, cache = FALSE}
-knitr::include_graphics('resources/venn_test.tiff')
-```
-
 
 \pagebreak
 
