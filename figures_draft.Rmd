@@ -811,6 +811,15 @@ sfn_allstands %>%
 dplyr::select(si_code,st_lai,st_density,st_age,st_basal_area,st_height,st_soil_depth) %>% 
   summarise_all(median,na.rm=TRUE)
 
+
+# Stand growth conditions
+sfn_allstands %>% 
+dplyr::select(si_code,st_growth_condition) %>% 
+  group_by(st_growth_condition) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  mutate(perc = n/sum(n)*100)
+
 ```
 
 
