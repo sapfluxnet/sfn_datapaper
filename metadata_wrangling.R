@@ -74,6 +74,16 @@ sfn_allplants_tax[sfn_allplants_tax$pl_species == 'Myrtaceae sp.',
   tibble(pl_species=rep('Unknown',6),genus=rep('Unknown',6),
          family=rep('Myrtaceae',6),order=rep('Myrtales',6),group=rep('Angiosperms',6))
 
+# The following code fixes data for sapwood depth and sapwood area 
+# USA_CHE_ASP: sapwood depth was in mm, convert to cm
+# USA_SMI*: sapwood area in m2, convert to cm2
+
+sfn_allplants_tax %<>% 
+mutate(
+  pl_sapw_depth = ifelse(si_code=='USA_CHE_ASP',pl_sapw_depth*0.1,pl_sapw_depth),
+  pl_sapw_area = ifelse(si_code=='USA_SMI_SCB' | si_code=='USA_SMI_SER',pl_sapw_area*1E4,pl_sapw_area)
+) 
+
 
 # 4. Number of trees (per dataset, species, etc.) -------------------------
 
