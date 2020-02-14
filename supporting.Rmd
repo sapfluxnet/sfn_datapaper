@@ -1,7 +1,7 @@
 ---
-title: "Tables for SAPFLUXNET data paper"
+title: "SAPFLUXNET data paper:supporting information"
 author: "R. Poyatos"
-date: "9th January 2020"
+date: "February 2020"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -12,33 +12,43 @@ output:
 
 ## Contents
 
-### Figure S1. 
-QC overview, showing file management, identifying automatic and manual steps and 
+#### Figure S1
+Overview of the data QC process, showing file management, identifying automatic and manual steps and 
 indicating status file updates.
-### Table S1. Quality control of metadata in the QC1 stage.
-### Figure S2. Structure of sfn_data objects.
-### Table S2. Metadata variables of SAPFLUXNET datasets.
-### Table S3. Quality control of metadata in the QC2 stage.
-### Figure S3. 
-Example of the interactive application for outlier and and out of range detection in
-the QC2 stage.
-### Table. Datasets
-### Table. Number of trees per genus
-### Table. Number of trees per species
+#### Figure S2
+Structure of sfn_data objects.
+#### Table S2
+Metadata variables description. 
+##### Figure S3
+Screenshot of the data cleaning app.
+##### Table S3
+Datasets in the SAPFLUXNET database identified by 
+numeric code, dataset code and site name. Geographic coordinates and elevation are also shown.
+#### Figure S4
+Detailed geographic distribution of SAPFLUXNET datasets.
+#### Table S4 
+Number of trees per species in the SAPFLUXNET database.
+#### Table S5
+Number of trees per genus in the SAPFLUXNET database.
+### Table S6
+Number of species per dataset in the SAPFLUXNET database.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(raster)
 library(flextable)
 library(pander)
 library(magrittr)
 library(readxl)
 library(tidyverse)
+library(ggrepel)
+library(cowplot)
+library(ggspatial)
+
 source('metadata_wrangling.R')
+load('maps_base.RData')
 ```
 
-\pagebreak
-
-## Supplementary 
 
 \pagebreak
 
@@ -54,13 +64,15 @@ knitr::include_graphics('resources/QC_summary2.svg')
 readxl::read_xlsx('resources/table_QC1_checks.xlsx',1) %>% 
    qflextable() %>%  
   bold( i = 1,  part = "header") %>%
-   set_caption('Table X. QC1 data checks') %>% 
+    fontsize(size=10,part='body') %>% 
+  align(part='header',align='left') %>% 
+   set_caption('Table S1. Data checks implemented in the QC1 process') %>% 
   width(width=c(1.8,5)) %>%
-  height(height=.7)
+  height(height=c(0.4,0.6,0.2,0.7,0.4,0.4,0.2,0.4,0.4,0.4,0.2))
 ```
 \pagebreak
 
-```{r fig_sfn_data, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure X. Overview of the data QC process'}
+```{r fig_sfn_data, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure S2. Structure of sfn_data objects'}
 
 knitr::include_graphics('resources/schematics.svg')
 ```
@@ -121,32 +133,142 @@ bind_rows(
 ) %>% 
   qflextable() %>%
    bold( i = 1,  part = "header") %>%
-   set_caption('Table X. Metadata variables list') %>% 
+    fontsize(size=10,part='body') %>% 
+  set_header_labels(
+    variable = 'Variable',
+    description= 'Description',
+    type= 'Type',
+    units= 'Units') %>% 
+   set_caption('Table S2. Metadata variables description') %>% 
   width(width=c(1.8,2.25,1.2,1.2)) %>%
-  height(height=.9)
+  height(height=c(0.4,rep(0.2,5),0.4,0.4,0.2,0.2,0.6,0.6,0.2,0.6,0.7,0.4,0.6,0.6,0.6, # 19
+                  0.6,0.6,0.4,0.6,0.4,0.6,0.4,0.6,0.4,0.6,0.2,0.2,0.2,0.4,0.4,0.2,0.2,# 36
+                  0.4,0.2,0.2,0.2,0.9,0.4,0.6,0.4,0.4,0.6,0.4,0.6,0.2,0.4,0.2,0.4,0.2, #53
+                  0.2,0.4,0.2,0.4,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.4,0.4,0.4,0.4,0.4, # 70
+                  0.4,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.2,0.4,0.4,0.4,0.6,0.4,0.7))
 ```
+
 \pagebreak
 
-```{r fig_outliers_app, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure SX. Outliers app'}
+```{r fig_outliers_app, echo=FALSE,  out.height="800px", fig.cap='Figure S3. Screenshot of the data cleaning app'}
 
 knitr::include_graphics('resources/out_app.png')
 ```
+
 \pagebreak
 
-```{r tab_sites, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+```{r tab_sites, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
 
 sfn_sites_nspecies %>% 
+  left_join(sfn_allsites %>% dplyr::select(si_code,si_name,si_elev)) %>% 
   mutate(country=sapply(strsplit(si_code,"_"),"[[",1),
          num_code = as.integer(factor(si_code)))%>% 
+  mutate_at(vars(si_lat,si_long),round,2) %>% 
+  dplyr::select(num_code,si_code,si_name,si_lat, si_long,si_elev) %>% 
   qflextable() %>%
    bold( i = 1,  part = "header") %>%
-   set_caption('Table X. Sites')
+   fontsize(size=10,part='body') %>% 
+   flextable::set_header_labels(
+     num_code='#',
+     si_code='Dataset code',
+     si_name='Site name',
+     si_lat='Lat.',
+     si_long='Long.',
+     si_elev='Elev.') %>% 
+  width(width=c(0.4,1.7,3,0.7,0.7,0.8)) %>%
+  height(height=c(rep(0.2,176),rep(0.4,3),rep(0.2,23))) %>% 
+   set_caption('Table S3. Datasets in the SAPFLUXNET database identified by 
+               numeric code, dataset code and site name. Geographic 
+               coordinates and elevation are also shown')
 
 ```
 
 \pagebreak
 
-```{r tab_ntrees_species, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+```{r regional_maps,fig.height=18, fig.width=15, cache=TRUE,echo=FALSE, message=FALSE, warning=FALSE,fig.cap='Figure S4. Detailed geographic distribution of SAPFLUXNET datasets'}
+
+# a) Site labels 
+
+# b) Select countries to plot 
+
+countries_sfn <- unique(sapply(strsplit(sfn_allsites$si_code,"_"),"[[",1))
+countries_label <- c('ARG','BRA','COL','CRI','CHN','GUF','IDN','ISR','KOR','MDG','MEX','NZL','RUS','SEN','THA','UZB')
+countries_europe <- c('AUT','CHE','CZE','DEU','ESP','FIN','FRA','GBR','HUN','ITA','NLD','PRT','SWE')
+countries_america <- c('CAN','USA')
+countries_austral <- c('AUS')
+countries_africa <- c('MDG','ZAF')
+
+
+# c) Add numeric codes 
+
+sfn_allsites_country<- sfn_allsites %>% 
+  mutate(country=sapply(strsplit(si_code,"_"),"[[",1),
+         num_code = as.integer(factor(si_code)))
+
+
+# 3. Map, numeric codes, ggrepel not aligned ------------------------------------------------------
+
+# world
+sfnsites_world_dr <- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_label), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# europe
+sfnsites_europe_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_europe), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_y = -0.35,direction = "both",
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(-20, 40), ylim = c(32, 67), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# america
+sfnsites_america_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_america), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(-130, -60), ylim = c(30, 55), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# austral
+sfnsites_austral_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_austral), 
+                  aes(si_long, si_lat, label = num_code), size = 3,
+                  segment.alpha=0.5,  nudge_x = -0.35,
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(110, 162), ylim = c(-10, -50), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+# africa
+sfnsites_africa_dr<- globforest_rec_0_1  +
+  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
+  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_africa), aes(si_long, si_lat, label = num_code), size = 3,
+                  box.padding = unit(0.1, 'lines'), force = 0.5)+
+  coord_sf(xlim = c(10, 50), ylim = c(-10, -40), expand = FALSE)+
+  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
+
+
+
+# e) Build figure 
+
+plot_grid(
+  plot_grid(sfnsites_world_dr,ncol=1,nrow=1,labels=c('a)')),
+  plot_grid(sfnsites_europe_dr,sfnsites_austral_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('b)','c)')),
+  plot_grid(sfnsites_america_dr,sfnsites_africa_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('d)','e)')),
+  nrow=3,rel_heights=c(1,1,0.7))
+
+```
+
+\pagebreak
+
+```{r tab_ntrees_species, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, results="asis"}
 
 sfn_species_ntrees %>% 
   select(species,n_trees) -> sfn_species_ntrees_reduced
@@ -158,22 +280,25 @@ data.frame(sfn_species_ntrees_reduced[1:58,],
   flextable::qflextable() %>% 
   flextable::autofit(add_w=0,add_h=0) %>%
   flextable::set_header_labels(
-    species='species',
+    species='Species',
     n_trees= 'N trees',
-    species.1='species',
+    species.1='Species',
     n_trees.1= 'N trees',
-    species.2='species',
+    species.2='Species',
     n_trees.2= 'N trees') %>% 
   flextable::bold( i = 1,  part = "header") %>% 
   fontsize(size=10,part='body') %>% 
-  flextable::set_caption('Table X. Number of trees per species')
+  italic(j=c(1,3,5)) %>% 
+  height(height=c(rep(.2,7),0.4,rep(.2,6),0.4,rep(.2,26),0.4,rep(.2,16))) %>% 
+  width(width=c(2,0.5,2,0.3,2,0.3)) %>% 
+  flextable::set_caption('Table S4. Number of trees per species in the SAPFLUXNET database')
 
 ```
 
 
 
 \pagebreak
-```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+```{r tab_ntrees_genus, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, results="asis"}
 
 data.frame(sfn_genus_ntrees[1:32,],
           sfn_genus_ntrees[33:64,],
@@ -189,27 +314,33 @@ data.frame(sfn_genus_ntrees[1:32,],
     n_trees.2 = 'N trees') %>% 
    bold( i = 1,  part = "header") %>% 
   fontsize(size=10,part='body') %>% 
-   set_caption('Table X. Number of trees per genus')
+  italic(j=c(1,3,5)) %>% 
+  height(height=.2) %>% 
+ flextable::set_caption('Table S5. Number of trees per genus in the SAPFLUXNET database')
 
 ```
 \pagebreak
 
-```{r tab_nspecies_dataset, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results="asis"}
+```{r tab_nspecies_dataset, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, results="asis"}
 data.frame(sfn_nspecies_dataset[1:58,],
            sfn_nspecies_dataset[59:116,],
            sfn_nspecies_dataset[117:174,])%>% 
   flextable::qflextable() %>% 
   flextable::autofit(add_w=0,add_h=0) %>%
   flextable::set_header_labels(
-    sp_name='species',
+    sp_name='Species',
     n_sites= 'N datasets',
-    sp_name.1='species',
+    sp_name.1='Species',
     n_sites.1= 'N datasets',
-    sp_name.2='species',
+    sp_name.2='Species',
     n_sites.2= 'N datasets') %>% 
   flextable::bold( i = 1,  part = "header") %>% 
   fontsize(size=10,part='body') %>% 
-  flextable::set_caption('Table X. Number of datasets per species')
+  italic(j=c(1,3,5)) %>% 
+    width(width=c(2,0.5,2,0.3,2,0.3)) %>% 
+  height(height=c(rep(.2,5),0.4,rep(.2,12),0.4,rep(.2,33),0.4,rep(.2,5))) %>% 
+    add_header_lines() %>% 
+flextable::set_caption('Table S6. Number of species per dataset in the SAPFLUXNET database')
 
 ```
 \pagebreak
