@@ -42,34 +42,27 @@ load('maps_base.RData')
 
 ### Figure 2. Geographic, bioclimatic and veg type coverage
 - a) world map, b) biome plot, c) pft distribution
-- TODO: world map is also shown in fig 3. Maybe go back to original idea of showing first 
-the geographical distribution (now fig 3), then in another figure show biome and pft distribution.
 
-### Figure 3. Detailed geographic distribution.
-- The idea of this was to get rid of the global map, so it would not repeat somehow fig. 2. See comment
-on fig. 2 ...
+### Figure 3. Taxonomy.
 
-### Figure 4. Taxonomy.
-- Major improvements by Víctor
-
-### Figure 5. Sap flow methods and measurement level.
+### Figure 4. Sap flow methods and measurement level.
 
 ### Table 1. Calibrations
 
 ### Table 2. Whole-plant integration of sap flow data.
 
-### Figure 6. Site and plant level attributes
+### Figure 5. Site and plant level attributes
 - TODO: add titles to labels a) stand, b) plant, gymno/angio.
 
-### Figure 7. Datasets duration and period
+### Figure 6. Datasets duration and period
 - Major improvements by Víctor
 
-### Figure 8. Temporal patterns
+### Figure 7. Temporal patterns
 - TODO: add titles to labels: a) ESP_CAN, Mediterranean, b), c
 
-### Figure 9. Environmental variables
+### Figure 8. Environmental variables
 
-### Figure 10. Scaling.
+### Figure 9. Scaling.
 
 \pagebreak
 
@@ -130,91 +123,6 @@ cowplot::plot_grid(
 ```
 
 Figure 2. Geographical distribution of SAPFLUXNET datasets.
-
-\pagebreak
-
-
-```{r regional_maps,fig.height=18, fig.width=15, cache=TRUE,echo=FALSE, message=FALSE, warning=FALSE,}
-
-# a) Site labels 
-
-# b) Select countries to plot 
-
-countries_sfn <- unique(sapply(strsplit(sfn_allsites$si_code,"_"),"[[",1))
-countries_label <- c('ARG','BRA','COL','CRI','CHN','GUF','IDN','ISR','KOR','MDG','MEX','NZL','RUS','SEN','THA','UZB')
-countries_europe <- c('AUT','CHE','CZE','DEU','ESP','FIN','FRA','GBR','HUN','ITA','NLD','PRT','SWE')
-countries_america <- c('CAN','USA')
-countries_austral <- c('AUS')
-countries_africa <- c('MDG','ZAF')
-
-
-# c) Add numeric codes 
-
-sfn_allsites_country<- sfn_allsites %>% 
-  mutate(country=sapply(strsplit(si_code,"_"),"[[",1),
-         num_code = as.integer(factor(si_code)))
-
-
-# 3. Map, numeric codes, ggrepel not aligned ------------------------------------------------------
-
-# world
-sfnsites_world_dr <- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_label), 
-                  aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
-                  box.padding = unit(0.1, 'lines'), force = 0.5)+geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# europe
-sfnsites_europe_dr<- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_europe), 
-                  aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_y = -0.35,direction = "both",
-                  box.padding = unit(0.1, 'lines'), force = 0.5)+
-  coord_sf(xlim = c(-20, 40), ylim = c(32, 67), expand = FALSE)+
-  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# america
-sfnsites_america_dr<- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_america), 
-                  aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
-                  box.padding = unit(0.1, 'lines'), force = 0.5)+
-  coord_sf(xlim = c(-130, -60), ylim = c(30, 55), expand = FALSE)+
-  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# austral
-sfnsites_austral_dr<- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_austral), 
-                  aes(si_long, si_lat, label = num_code), size = 3,
-                  segment.alpha=0.5,  nudge_x = -0.35,
-                  box.padding = unit(0.1, 'lines'), force = 0.5)+
-  coord_sf(xlim = c(110, 162), ylim = c(-10, -50), expand = FALSE)+
-  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-# africa
-sfnsites_africa_dr<- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_africa), aes(si_long, si_lat, label = num_code), size = 3,
-                  box.padding = unit(0.1, 'lines'), force = 0.5)+
-  coord_sf(xlim = c(10, 50), ylim = c(-10, -40), expand = FALSE)+
-  geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
-
-
-
-# e) Build figure 
-
-plot_grid(
-  plot_grid(sfnsites_world_dr,ncol=1,nrow=1,labels=c('a)')),
-  plot_grid(sfnsites_europe_dr,sfnsites_austral_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('b)','c)')),
-  plot_grid(sfnsites_america_dr,sfnsites_africa_dr,ncol=2,nrow=1,rel_widths=c(1,0.7),labels=c('d)','e)')),
-  nrow=3,rel_heights=c(1,1,0.7))
-
-```
-Figure 3. Detailed geographic distribution.
 
 \pagebreak
 
@@ -498,7 +406,7 @@ ntrees_genus_top <-
 cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
                    label_size= 14,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
 ```
-Figure 4. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees in the database.
+Figure 3. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees in the database.
 
 \pagebreak
 
@@ -520,7 +428,7 @@ ggplot(sfn_plants_type,
   
 ```
 
-Figure 5. Distribution of trees in SAPFLUXNET according to sap flow method and measurement level.
+Figure 4. Distribution of trees in SAPFLUXNET according to sap flow method and measurement level.
 
 \pagebreak
 
@@ -770,7 +678,7 @@ cowplot::plot_grid(
 ```
 
 
-Figure 6. Plant and stand attributes
+Figure 5. Plant and stand attributes
 
 ```{r attributes_text, include=FALSE}
 
@@ -896,7 +804,7 @@ duration_plot_composed
 
 ```
 
-Figure 7. Datasets duration and period
+Figure 6. Datasets duration and period
 
 \pagebreak
 
@@ -918,11 +826,11 @@ ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 
 ```
 
-Figure 8. Temporal patterns.
+Figure 7. Temporal patterns.
 
 \pagebreak
 
-Figure 9. Environmental variables
+Figure 8. Environmental variables
 
 ```{r environ_vars, echo=FALSE, fig.width=15, fig.height=15, message=FALSE, warning=FALSE}
 # Env variables  
@@ -1166,7 +1074,7 @@ cowplot::plot_grid(
 
 ```
 
-Figure 10. Basal area scaling
+Figure 9. Basal area scaling
 
 \pagebreak
 
