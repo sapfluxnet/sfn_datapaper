@@ -14,6 +14,8 @@ inspiration.
 
 [An open-source database for the synthesis of soil radiocarbon data: International Soil Radiocarbon Database (ISRaD) version 1.0](https://www.earth-syst-sci-data.net/12/61/2020/)
 
+[A spatially explicit database of wind disturbances in European forests over the period 2000–2018](https://www.earth-syst-sci-data.net/12/257/2020/)
+
 [The global long-term microwave Vegetation Optical Depth Climate Archive (VODCA)](https://www.earth-syst-sci-data.net/12/177/2020/)
 
 [Global Carbon Budget 2019](https://www.earth-syst-sci-data.net/11/1783/2019/)
