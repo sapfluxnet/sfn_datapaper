@@ -220,10 +220,15 @@ dataset_trees_sp <- sfn_sites_type %>%
       typeplant=ifelse(str_detect(type,'plant'),'plant',NA))
 
 
-# 5. Gap-fill climate -----------------------------------------------------
+# 5. Treatments -----------------------------------------------------
 
-
-# 6. Scaling data ---------------------------------------------------------
+sfn_allstands %>% 
+  distinct(st_treatment) %>% View()
+  
+sfn_allplants_tax %>% 
+  left_join(dplyr::select(sfn_allstands,si_code,st_treatment),by='si_code') %>% 
+  filter(is.na(st_treatment) & !is.na(pl_treatment)) %>% 
+  select(si_code,st_treatment,pl_treatment) %>% View()
 
 
 # Crap --------------------------------------------------------------------
