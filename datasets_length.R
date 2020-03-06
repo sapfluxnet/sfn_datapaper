@@ -3,8 +3,8 @@ library(purrr)
 library(tidyverse)
 library(ggrepel)
 
-path.plant <- file.path('data/0.1.3/RData/plant')
-path.sapwood <- file.path('data/0.1.3/RData/sapwood')
+path.plant <- file.path('data/0.1.4/RData/plant')
+path.sapwood <- file.path('data/0.1.4/RData/sapwood')
 
 # 1. Functions ------------------------------------------------------------
 source('R/sfn_datapaper_functions.R')

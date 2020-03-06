@@ -7,9 +7,9 @@ library(taxonlookup)
 # 1. Read metadata ---------------------------------------------------------------
 # From previously written cache file
 
-sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.3/RData/plant', .write_cache = FALSE)
-sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.3/RData/sapwood', .write_cache = FALSE)
-sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.3/RData/leaf', .write_cache = FALSE)
+sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.4/RData/plant', .write_cache = FALSE)
+sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.4/RData/sapwood', .write_cache = FALSE)
+sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.4/RData/leaf', .write_cache = FALSE)
 
 # 2. Aggregate all datasets -----------------------------------------------
 
@@ -78,11 +78,11 @@ sfn_allplants_tax[sfn_allplants_tax$pl_species == 'Myrtaceae sp.',
 # USA_CHE_ASP: sapwood depth was in mm, convert to cm
 # USA_SMI*: sapwood area in m2, convert to cm2
 
-sfn_allplants_tax %<>% 
-mutate(
-  pl_sapw_depth = ifelse(si_code=='USA_CHE_ASP',pl_sapw_depth*0.1,pl_sapw_depth),
-  pl_sapw_area = ifelse(si_code=='USA_SMI_SCB' | si_code=='USA_SMI_SER',pl_sapw_area*1E4,pl_sapw_area)
-) 
+# sfn_allplants_tax %<>% 
+# mutate(
+#   pl_sapw_depth = ifelse(si_code=='USA_CHE_ASP',pl_sapw_depth*0.1,pl_sapw_depth),
+#   pl_sapw_area = ifelse(si_code=='USA_SMI_SCB' | si_code=='USA_SMI_SER',pl_sapw_area*1E4,pl_sapw_area)
+# ) 
 
 
 # 4. Number of trees (per dataset, species, etc.) -------------------------
@@ -223,12 +223,12 @@ dataset_trees_sp <- sfn_sites_type %>%
 # 5. Treatments -----------------------------------------------------
 
 sfn_allstands %>% 
-  distinct(st_treatment) %>% View()
+  distinct(st_treatment) 
   
 sfn_allplants_tax %>% 
   left_join(dplyr::select(sfn_allstands,si_code,st_treatment),by='si_code') %>% 
   filter(is.na(st_treatment) & !is.na(pl_treatment)) %>% 
-  select(si_code,st_treatment,pl_treatment) %>% View()
+  dplyr::select(si_code,st_treatment,pl_treatment) 
 
 
 # Crap --------------------------------------------------------------------

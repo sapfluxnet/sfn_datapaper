@@ -1,7 +1,7 @@
 ---
-title: "Figures for SAPFLUXNET data paper"
+title: "Figures and tables for SAPFLUXNET data paper"
 author: "R. Poyatos"
-date: "27/12/2019"
+date: "06/03/2020"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -36,33 +36,65 @@ load('maps_base.RData')
 
 ```
 
-## Figures
+## Figure captions
 
-### Figure 1. Data workflow
+**Figure 1.** Overview of the SAPFLUXNET data workflow. Data files are received 
+from data contributors, and undergo several quality control processes (QC1 and QC2). 
+Both, QC1 and QC2 produce an .RData object of the custom-designed sfn-data S4 class 
+storing all data, metadata and data flags for each dataset. The progress and results of the QC  
+processes are monitored through individual reports and log files. The final outcome, 
+is stored in a folder structure with a either single .RData file for each dataset or a
+set of seven csv files for each dataset.
 
-### Figure 2. Geographic, bioclimatic and veg type coverage
-- a) world map, b) biome plot, c) pft distribution
+**Figure 2.** (a) Geographic, (b) bioclimatic and (c) vegetation type distribution 
+of SAPFLUXNET datasets. In (b) we represent the different datasets according to their 
+mean annual temperature and precipitaion in a Whittaker diagram showing the classification
+of the main terrestrial biomes.
 
-### Figure 3. Taxonomy.
+**Figure 3.** Taxonomic distribution of genera and species in SAPFLUXNET, showing 
+(a) genera with > 50 trees and (b) species with > 30 trees in the database.
 
-### Figure 4. Sap flow methods and measurement level.
+**Figure 4.** Distribution of trees in SAPFLUXNET according to taxonomic group, sap flow method 
+and measurement level.
 
-### Table 1. Calibrations
+**Table 1.** Calibrations
 
-### Table 2. Whole-plant integration of sap flow data.
+**Table 2.** Whole-plant integration of sap flow data.
 
-### Figure 5. Site and plant level attributes
-- TODO: add titles to labels a) stand, b) plant, gymno/angio.
+**Figure 5.** Ecological representativity of SAPFLUXNET plants and stands. 
+Panel (a) shows the distribution of plants according to their taxonomic group
+(angiosperms, gymnosperms) and their main individual attributes: 
+diameter at breast height (DBH) plant height, sapwood area, sapwood 
+depth and leaf area. Panel (b) shows the distribution of SAPFLUXNET stands 
+according to their main attributes: stand age, stand height, stem density, 
+stand basal area,leaf area index (LAI) and soil depth.
 
-### Figure 6. Datasets duration and period
-- Major improvements by Víctor
+**Figure 6.** (a) Duration of SAPFLUXNET datasets rxpressed in number days with sap 
+flow data and coloured by the number of trees measured. The 30 longest datasets
+are labelled. For each dataset in panel (a), panel (b) shows its corresponding 
+measurement period.
 
-### Figure 7. Temporal patterns
-- TODO: add titles to labels: a) ESP_CAN, Mediterranean, b), c
+**Figure 7.** Fingerprint plots showing hourly sap flux density (colour scale) 
+as a function of hour of day (x-axis) and day of year (y-axis) for a selection 
+of SAPFLUXNET sites with at least four co-occurring species.
+Panel (a) shows data from a Mediterranean forest in NE Spain (ESP_CAN), 
+for an average (2011) and a dry (2012) year. Panel (b) shows data for a mesic 
+Temperate forest (USA_???) and panel (c) shows data for a Tropical
+forest (CRI_TAM_TOW). 
 
-### Figure 8. Environmental variables
+**Figure 8.** Summary of the availability of different environmental variables in
+SAPFLUXNET datasets. (a) Distribution of environmental variables according to the 
+measurement location. (b) Distribution of soil moisture variables according to the
+measurement depth. (c) Venn diagram showing the degree of overlap amongst the 
+availability of different environmental variables across SAPFLUXNET datasets.
 
-### Figure 9. Scaling.
+**Figure 9.** Potential for upscaling individual tree sap flow to stand-level sap flow
+using SAPFLUXNET datasets, classified using an aggregated biome classification. 
+Each panel shows the percentage of total stand basal area that is covered by
+sap flow measurements for each species in the dataset. Datasets are also coloured
+by the number of species present. Blue numbers on top of each bar depict the total
+number of trees for a given dataset. Empty bars show datasets for which plant-level
+data are not available.
 
 \pagebreak
 
@@ -70,7 +102,7 @@ load('maps_base.RData')
 knitr::include_graphics('resources/QC_process.svg')
 ```
 
-Figure 1. Data workflow.
+**Figure 1.**
 
 \pagebreak
 
@@ -122,7 +154,7 @@ cowplot::plot_grid(
 
 ```
 
-Figure 2. Geographical distribution of SAPFLUXNET datasets.
+**Figure 2.** 
 
 \pagebreak
 
@@ -406,7 +438,7 @@ ntrees_genus_top <-
 cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
                    label_size= 14,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
 ```
-Figure 3. Taxonomic distribution of genera and species in SAPFLUXNET, showing (a) genera with > 50 trees and (b) species with > 30 trees in the database.
+**Figure 3.** 
 
 \pagebreak
 
@@ -427,8 +459,7 @@ ggplot(sfn_plants_type,
         axis.text = element_text(size=16))
   
 ```
-
-Figure 4. Distribution of trees in SAPFLUXNET according to sap flow method and measurement level.
+**Figure 4.** 
 
 \pagebreak
 
@@ -676,9 +707,8 @@ cowplot::plot_grid(
 )
 
 ```
+**Figure 5.** 
 
-
-Figure 5. Plant and stand attributes
 
 ```{r attributes_text, include=FALSE}
 
@@ -721,8 +751,6 @@ dplyr::select(si_code,st_lai,st_density,st_age,st_basal_area,st_height,st_soil_d
 
 
 ```
-
-
 
 \pagebreak
 
@@ -826,11 +854,11 @@ ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 
 ```
 
-Figure 7. Temporal patterns.
+**Figure 7.**
 
 \pagebreak
 
-Figure 8. Environmental variables
+**Figure 8.** 
 
 ```{r environ_vars, echo=FALSE, fig.width=15, fig.height=15, message=FALSE, warning=FALSE}
 # Env variables  
@@ -1073,8 +1101,7 @@ cowplot::plot_grid(
 )
 
 ```
-
-Figure 9. Basal area scaling
+**Figure 9.** 
 
 \pagebreak
 
@@ -1156,4 +1183,4 @@ cowplot::plot_grid(
 )
 ```
 
-Figure 11. Treatment wordclouds
+**Figure 11.**
