@@ -1,7 +1,8 @@
 ---
-title: "Figures and tables for SAPFLUXNET data paper"
+title: "SAPFLUXNET: Global transpiration data from sap flow measurements"
+subtitle: 'Figures and tables'
 author: "R. Poyatos"
-date: "06/03/2020"
+date: "24/03/2020"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -158,7 +159,7 @@ cowplot::plot_grid(
 
 \pagebreak
 
-```{r genera_species,fig.height=15, fig.width=12, echo=FALSE}
+```{r genera_species, message=FALSE, warning=FALSE,fig.height=15, fig.width=12, echo=FALSE}
 
 sfn_sitespecies_tax %>%
   group_by(genus,si_code) %>%
@@ -442,21 +443,21 @@ cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
 
 \pagebreak
 
-```{r method_type,fig.height=18, fig.width=15, echo=FALSE}
+```{r method_type,fig.height=15, fig.width=15, echo=FALSE}
 
 ggplot(sfn_plants_type,
        aes(y = n, axis2 = pl_sens_meth, axis3= typef,axis1=group)) +
   geom_alluvium(aes(fill = group), width = 1/12)+
   geom_stratum(width = 1/12, alpha = .5) +
-  geom_label_repel(stat = "stratum", infer.label = TRUE) +
-  scale_x_discrete(limits = c("Group","Sap flow method", "Measurement level"), 
+  geom_label_repel(stat = "stratum", infer.label = TRUE,size=10) +
+  scale_x_discrete(limits = c("Group","Sap flow method","Level"), 
                    expand = c(.05, .05)) +
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+
   ylab('Number of trees')+
   theme_minimal()+
-  theme(legend.position = "none", axis.title=element_text(size=16),
-        axis.text = element_text(size=16))
+  theme(legend.position = "none", axis.title=element_text(size=24),
+        axis.text = element_text(size=24))
   
 ```
 **Figure 4.** 
@@ -723,7 +724,7 @@ sfn_allplants_tax %>%
          rank_sap_depth=dense_rank(desc(pl_sapw_depth)),
          rank_leaf_area=dense_rank(desc(pl_leaf_area))) %>% 
   arrange(rank_sapw_area) %>% 
-  dplyr::select(si_code,pl_species,pl_dbh,pl_sapw_area,pl_sapw_depth,starts_with('rank')) %>% View()
+  dplyr::select(si_code,pl_species,pl_dbh,pl_sapw_area,pl_sapw_depth,starts_with('rank')) 
   
 
 sfn_allstands  %>% 
@@ -741,7 +742,7 @@ sfn_allstands %>%
     rank_soild=dense_rank(desc(st_soil_depth)) 
   ) %>% arrange(rank_abasal) %>% 
   dplyr::select(si_code,st_lai,st_density,st_basal_area,st_height,st_soil_depth,
-                starts_with('rank')) %>% View()
+                starts_with('rank')) 
 
 
 sfn_allstands %>% 
@@ -1102,85 +1103,3 @@ cowplot::plot_grid(
 
 ```
 **Figure 9.** 
-
-\pagebreak
-
-```{r wordclouds_treatments, echo = FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
-library(wordcloud)
-library(wordcloud2)
-library(tm)
-library(gridGraphics)
-
-set.seed(63025)
-
-# plant wordcloud
-corpus_processed <- 
-  sfn_allplants_tax %>%
-  pull(pl_treatment) %>%
-  VectorSource() %>%
-  Corpus() %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace) %>%
-  tm_map(content_transformer(tolower)) %>%
-  tm_map(removeWords, stopwords("english")) %>%
-  TermDocumentMatrix() %>%
-  as.matrix() %>%
-  rowSums() %>%
-  sort(decreasing = TRUE)
-
-wordcloud_data <- tibble(
-  word = names(corpus_processed),
-  freq = corpus_processed
-)
-
-wordcloud_plant <- function() {
-  wordcloud(
-    wordcloud_data[['word']], wordcloud_data[['freq']],
-    min.freq = 1,
-    max.words = 100,
-    random.order = TRUE, rot.per = 0,
-    scale = c(2.5, 0.5)
-  )
-}
-
-# stand wordcloud
-corpus_processed_stand <- 
-  sfn_allstands %>%
-  pull(st_treatment) %>%
-  VectorSource() %>%
-  Corpus() %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace) %>%
-  tm_map(content_transformer(tolower)) %>%
-  tm_map(removeWords, stopwords("english")) %>%
-  TermDocumentMatrix() %>%
-  as.matrix() %>%
-  rowSums() %>%
-  sort(decreasing = TRUE)
-
-wordcloud_data_stand <- tibble(
-  word = names(corpus_processed_stand),
-  freq = corpus_processed_stand
-)
-
-
-wordcloud_stand <- function() {
-  wordcloud(
-    wordcloud_data_stand[['word']], wordcloud_data_stand[['freq']],
-    min.freq = 1,
-    max.words = 100,
-    random.order = TRUE, rot.per = 0.15,
-    scale = c(2.5, 0.25)
-  )  
-}
-
-cowplot::plot_grid(
-  wordcloud_plant, wordcloud_stand,
-  nrow = 2, labels = c('Plant treatments', 'Stand treatments'),
-  scale = c(1.2, 1.2)
-)
-```
-
-**Figure 11.**

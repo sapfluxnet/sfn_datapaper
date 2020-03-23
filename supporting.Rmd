@@ -1,7 +1,7 @@
 ---
-title: "SAPFLUXNET data paper:supporting information"
-author: "R. Poyatos"
-date: "February 2020"
+title: "SAPFLUXNET: Global transpiration data from sap flow measurements"
+subtitle: 'Supplement'
+date: "24/03/020"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -10,28 +10,30 @@ output:
     df_print: paged
 ---
 
-## Contents
+## Captions
 
-#### Figure S1
-Overview of the data QC process, showing file management, identifying automatic and manual steps and 
-indicating status file updates.
-#### Figure S2
-Structure of sfn_data objects.
-#### Table S2
-Metadata variables description. 
-##### Figure S3
-Screenshot of the data cleaning app.
-##### Table S3
-Datasets in the SAPFLUXNET database identified by 
-numeric code, dataset code and site name. Geographic coordinates and elevation are also shown.
-#### Figure S4
-Detailed geographic distribution of SAPFLUXNET datasets.
-#### Table S4 
-Number of trees per species in the SAPFLUXNET database.
-#### Table S5
-Number of trees per genus in the SAPFLUXNET database.
-### Table S6
-Number of species per dataset in the SAPFLUXNET database.
+**Figure S1.** Overview of the data QC process, showing file management,
+identifying automatic and manual steps and  indicating status file updates.
+
+**Figure S2.** Structure of sfn_data objects.
+
+**Table S2.** Metadata variables description. 
+
+**Figure S3.** Screenshot of the data cleaning app.
+
+**Table S3.** Datasets in the SAPFLUXNET database identified by numeric code, 
+dataset code and site name. Geographic coordinates and elevation are also shown.
+
+**Figure S4.**Detailed geographic distribution of SAPFLUXNET datasets.
+
+**Table S4.** Number of trees per species in the SAPFLUXNET database.
+
+**Table S5.** Number of trees per genus in the SAPFLUXNET database.
+
+**Table S6.** Number of species per dataset in the SAPFLUXNET database.
+
+**Figure S5.** Treatments.
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -56,6 +58,8 @@ load('maps_base.RData')
 
 knitr::include_graphics('resources/QC_summary2.svg')
 ```
+**Figure S1.**
+
 
 \pagebreak
 
@@ -76,7 +80,7 @@ readxl::read_xlsx('resources/table_QC1_checks.xlsx',1) %>%
 
 knitr::include_graphics('resources/schematics.svg')
 ```
-
+**Figure S2.**
 
 \pagebreak
 
@@ -154,6 +158,7 @@ bind_rows(
 
 knitr::include_graphics('resources/out_app.png')
 ```
+**Figure S3.**
 
 \pagebreak
 
@@ -265,6 +270,7 @@ plot_grid(
   nrow=3,rel_heights=c(1,1,0.7))
 
 ```
+**Figure S4.**
 
 \pagebreak
 
@@ -345,3 +351,82 @@ flextable::set_caption('Table S6. Number of species per dataset in the SAPFLUXNE
 ```
 \pagebreak
 
+
+```{r wordclouds_treatments, echo = FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
+library(wordcloud)
+library(wordcloud2)
+library(tm)
+library(gridGraphics)
+
+set.seed(63025)
+
+# plant wordcloud
+corpus_processed <- 
+  sfn_allplants_tax %>%
+  pull(pl_treatment) %>%
+  VectorSource() %>%
+  Corpus() %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(content_transformer(tolower)) %>%
+  tm_map(removeWords, stopwords("english")) %>%
+  TermDocumentMatrix() %>%
+  as.matrix() %>%
+  rowSums() %>%
+  sort(decreasing = TRUE)
+
+wordcloud_data <- tibble(
+  word = names(corpus_processed),
+  freq = corpus_processed
+)
+
+wordcloud_plant <- function() {
+  wordcloud(
+    wordcloud_data[['word']], wordcloud_data[['freq']],
+    min.freq = 1,
+    max.words = 100,
+    random.order = TRUE, rot.per = 0,
+    scale = c(2.5, 0.5)
+  )
+}
+
+# stand wordcloud
+corpus_processed_stand <- 
+  sfn_allstands %>%
+  pull(st_treatment) %>%
+  VectorSource() %>%
+  Corpus() %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace) %>%
+  tm_map(content_transformer(tolower)) %>%
+  tm_map(removeWords, stopwords("english")) %>%
+  TermDocumentMatrix() %>%
+  as.matrix() %>%
+  rowSums() %>%
+  sort(decreasing = TRUE)
+
+wordcloud_data_stand <- tibble(
+  word = names(corpus_processed_stand),
+  freq = corpus_processed_stand
+)
+
+
+wordcloud_stand <- function() {
+  wordcloud(
+    wordcloud_data_stand[['word']], wordcloud_data_stand[['freq']],
+    min.freq = 1,
+    max.words = 100,
+    random.order = TRUE, rot.per = 0.15,
+    scale = c(2.5, 0.25)
+  )  
+}
+
+cowplot::plot_grid(
+  wordcloud_plant, wordcloud_stand,
+  nrow = 2, labels = c('Plant treatments', 'Stand treatments'),
+  scale = c(1.2, 1.2)
+)
+```
+**Figure S5.**
