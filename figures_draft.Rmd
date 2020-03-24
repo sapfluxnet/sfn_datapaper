@@ -99,7 +99,7 @@ data are not available.
 
 \pagebreak
 
-```{r data_workflow, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
+```{r data_workflow, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE,fig.align='center'}
 knitr::include_graphics('resources/QC_process.svg')
 ```
 
@@ -840,7 +840,7 @@ Figure 6. Datasets duration and period
 ```{r fingerprint_plots, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.height=18, fig.width=15}
 
 # Data path
-path.sapwood <- file.path('data/0.1.3/RData/sapwood')
+path.sapwood <- file.path('data/0.1.4/RData/sapwood')
 
 # Plot
 cowplot::plot_grid(
@@ -1103,3 +1103,20 @@ cowplot::plot_grid(
 
 ```
 **Figure 9.** 
+
+```{r table_treatments, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+
+read_csv('resources/treatment_table.csv') %>% 
+   qflextable() %>%  
+  bold( i = 1,  part = "header") %>%
+    fontsize(size=10,part='body') %>% 
+  flextable::set_header_labels(
+    st_treatment='Treatment',
+                    n_sites='N sites',
+                    n_plants='N plants',
+                    n_species='N species') %>% 
+  align(part='header',align='left') %>% 
+   set_caption('Table 3. Treatments')
+
+```
+
