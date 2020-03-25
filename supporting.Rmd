@@ -86,7 +86,7 @@ knitr::include_graphics('resources/schematics.svg')
 
 
 ```{r tab_metadatavars, echo=FALSE, results='asis'}
-
+                              
 site_md_table <- sapfluxnetr:::.metadata_architecture() %>%
   magrittr::extract2(., 'site_md') %>%
   purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
@@ -192,12 +192,13 @@ sfn_sites_nspecies %>%
 
 ```{r regional_maps,fig.height=18, fig.width=15, cache=TRUE,echo=FALSE, message=FALSE, warning=FALSE,fig.cap='Figure S4. Detailed geographic distribution of SAPFLUXNET datasets'}
 
+source('R/sfn_datapaper_functions.R')
 # a) Site labels 
 
 # b) Select countries to plot 
 
 countries_sfn <- unique(sapply(strsplit(sfn_allsites$si_code,"_"),"[[",1))
-countries_label <- c('ARG','BRA','COL','CRI','CHN','GUF','IDN','ISR','KOR','MDG','MEX','NZL','RUS','SEN','THA','UZB')
+countries_label <- c('ARG','BRA','COL','CRI','CHN','GUF','IDN','ISR','JPN','KOR','MDG','MEX','NZL','RUS','SEN','THA','UZB')
 countries_europe <- c('AUT','CHE','CZE','DEU','ESP','FIN','FRA','GBR','HUN','ITA','NLD','PRT','SWE')
 countries_america <- c('CAN','USA')
 countries_austral <- c('AUS')
@@ -211,12 +212,24 @@ sfn_allsites_country<- sfn_allsites %>%
          num_code = as.integer(factor(si_code)))
 
 
+sfn_allsites_country %>% 
+  dplyr::filter(country%in%countries_europe | si_code%in%c('RUS_FYO')) %>% 
+  dplyr::filter(si_code%ni%c('ESP_LAS','FIN_PET')) -> sfn_sites_europe
+
+
+sfn_allsites_country %>% 
+  dplyr::filter(country%in%countries_label 
+                | si_code%in%c('ESP_LAS','FIN_PET','USA_BNZ_BLA','AUS_KAR')) -> sfn_sites_world
+
+sfn_allsites_country %>% 
+  dplyr::filter(country%in%countries_america & si_code%ni%c('USA_BNZ_BLA')) -> sfn_sites_america 
+
 # 3. Map, numeric codes, ggrepel not aligned ------------------------------------------------------
 
 # world
 sfnsites_world_dr <- globforest_rec_0_1  +
   geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_label), 
+  geom_text_repel(data = sfn_sites_world, 
                   aes(si_long, si_lat, label = num_code), size = 3,
                   segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
                   box.padding = unit(0.1, 'lines'), force = 0.5)+geom_label_repel()+guides(fill='none')+xlab(NULL)+ylab(NULL)
@@ -224,7 +237,7 @@ sfnsites_world_dr <- globforest_rec_0_1  +
 # europe
 sfnsites_europe_dr<- globforest_rec_0_1  +
   geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_europe), 
+  geom_text_repel(data = sfn_sites_europe, 
                   aes(si_long, si_lat, label = num_code), size = 3,
                   segment.alpha=0.5,  nudge_y = -0.35,direction = "both",
                   box.padding = unit(0.1, 'lines'), force = 0.5)+
@@ -234,7 +247,7 @@ sfnsites_europe_dr<- globforest_rec_0_1  +
 # america
 sfnsites_america_dr<- globforest_rec_0_1  +
   geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5)+
-  geom_text_repel(data = subset(sfn_allsites_country,country%in%countries_america), 
+  geom_text_repel(data = sfn_sites_america, 
                   aes(si_long, si_lat, label = num_code), size = 3,
                   segment.alpha=0.5,  nudge_x = -0.35,direction = "both",
                   box.padding = unit(0.1, 'lines'), force = 0.5)+

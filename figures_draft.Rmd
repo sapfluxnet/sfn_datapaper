@@ -833,11 +833,14 @@ duration_plot_composed
 
 ```
 
-Figure 6. Datasets duration and period
+**Figure 6.**
 
 \pagebreak
 
 ```{r fingerprint_plots, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.height=18, fig.width=15}
+
+# Functions
+source('R/sfn_datapaper_functions.R')
 
 # Data path
 path.sapwood <- file.path('data/0.1.4/RData/sapwood')
@@ -858,8 +861,6 @@ ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 **Figure 7.**
 
 \pagebreak
-
-**Figure 8.** 
 
 ```{r environ_vars, echo=FALSE, fig.width=15, fig.height=15, message=FALSE, warning=FALSE}
 # Env variables  
@@ -992,6 +993,7 @@ cowplot::plot_grid(
 )
 
 ```
+**Figure 8.** 
 
 \pagebreak
 
@@ -1033,7 +1035,7 @@ biomes_plot_list <- basa_area_data %>%
           y = 125,
           label = total_ntrees
         ),
-        size = 4.5, colour = 'blue',
+        size = 3, colour = 'blue',
         data = data %>%
           distinct(si_code, .keep_all = TRUE),
         show.legend = FALSE

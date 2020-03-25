@@ -2,6 +2,9 @@ library(sapfluxnetr)
 library(purrr)
 library(tidyverse)
 
+# Negate in
+
+`%ni%` = Negate(`%in%`)
 
 # Function to get number of trees with measurements per day
 # To consider a day with measurements uses a threshold of number
@@ -44,7 +47,12 @@ sfn_finger<- function(sfn_data_obj,years=c(2011,2012)){
     geom_raster(interpolate=TRUE)+
     # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(name="sf",option ="C")+
-    facet_grid(year~pl_species)
+    facet_grid(year~pl_species) +
+    theme_light() +
+    theme(axis.text.x = element_blank(),axis.text.y = element_text(size = 16),
+          strip.background = element_rect(fill = 'white', colour = 'darkgray'),
+          strip.text = element_text(size = 16, colour = 'black', face = 'bold'))
+  
   
 }
 
@@ -76,8 +84,17 @@ sfn_finger_species<- function(sfn_data_obj,
     ggplot(.,aes(x=hour,y=doy,fill=sf_species))+
     geom_raster(interpolate=TRUE)+
     # geom_tile(color= "white",size=0.01) + 
-    viridis::scale_fill_viridis(name="sf",option ="C")+
-    facet_grid(year~pl_species)
+    viridis::scale_fill_viridis(name="Sap flow\ndensity\n[cm3cm-2h-1]",
+    option ="C")+
+    xlab('Time of day') + ylab('Day of year')+
+    facet_grid(year~pl_species)+
+    theme_light() +
+    theme(axis.text = element_text(size = 16),
+          axis.title = element_text(size = 16),
+          strip.background = element_rect(fill = 'white', colour = 'darkgray'),
+          strip.text.x = element_text(size = 12, colour = 'black', face = 'italic'),
+          strip.text.y = element_text(size = 12, colour = 'black'))
+  
   
 }
 
