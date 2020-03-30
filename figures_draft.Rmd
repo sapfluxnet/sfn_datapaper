@@ -867,19 +867,27 @@ ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
 env_freq_plot <-
   sfn_env %>%
   dplyr::select(
-    si_code, env_netrad, env_ppfd_in, env_precip, env_rh,
-    env_sw_in, env_ta, env_vpd, env_ws
+    si_code, env_ta, env_rh, env_vpd, env_sw_in,env_ppfd_in, env_netrad, env_precip, 
+      env_ws
   ) %>%
   gather(Variable, Value, starts_with('env_')) %>%
   mutate(
     n = 1,
+    Variable = forcats::fct_relevel(Variable,'env_ta', 'env_rh', 'env_vpd', 'env_sw_in','env_ppfd_in', 
+                                   'env_netrad', 'env_precip','env_ws'),
     Value = if_else(Value == 'clearing', 'Clearing', Value),
     Value = forcats::fct_relevel(Value, c('Not provided', 'Off-site', 'Clearing'))
   ) %>%
   ggplot(aes(x = Variable, fill = Value)) +
   geom_bar(stat = 'count', position = 'stack') +
-  scale_fill_viridis_d() +
-  labs(x = '', y = 'Number of sites') +
+  scale_x_discrete(labels=c('env_ta'='Air temperature\n [env_ta]', 'env_rh'='Relative humidity\n [env_rh]', 
+                            'env_vpd'='VPD\n [env_vpd]', 'env_sw_in'='Global radiation\n [env_sw_in]',
+                            'env_ppfd_in'='PPFD\n [env_ppfd_in]', 
+                                   'env_netrad'='Net radiation\n [env_netrad]', 
+                            'env_precip'='Precipitation\n [env_precip]','env_ws'='Wind speed\n [env_ws]'))+
+   scale_fill_manual(values=c('lightgrey',viridis::viridis_pal(direction=-1)(4))) +
+  #scale_fill_viridis_d() +
+  labs(x = '', y = 'Number of datasets',title='Meteorological variables') +
   theme_bw() +
   theme(
     legend.title = element_blank(),
@@ -919,12 +927,14 @@ swc_freq_plot <-
   filter(depth_cat!='Not provided') %>% 
   ggplot(aes(x=depth_meas,fill=depth_cat)) +
   geom_bar(stat='count',position='stack') +
+    scale_x_discrete(labels=c('shallow_depth'='SWC shallow\n [swc_shallow_depth]',
+                              'deep_depth'='SWC deep\n [swc_deep_depth]'))+
   scale_fill_manual(values=soil_pal) +
-  labs(x = '', y = 'Number of sites', title = 'Soil water content') +
+  labs(x = '', y = 'Number of datasets', title = 'Soil water content\n\n') +
   theme_bw() +
   theme(
     legend.title = element_blank(),
-    legend.position = c(.8, .8),
+    legend.position = c(.8, .74),
     axis.text.x = element_text(angle = 90)
   )
 
