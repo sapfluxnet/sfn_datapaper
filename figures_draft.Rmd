@@ -2,7 +2,7 @@
 title: "SAPFLUXNET: Global transpiration data from sap flow measurements"
 subtitle: 'Figures and tables'
 author: "R. Poyatos"
-date: "24/03/2020"
+date: "30/03/2020"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -58,9 +58,15 @@ of the main terrestrial biomes.
 **Figure 4.** Distribution of trees in SAPFLUXNET according to taxonomic group, sap flow method 
 and measurement level.
 
-**Table 1.** Calibrations
+**Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
+for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
+heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
+stem heat balance (SHB),trunk sector heat balance (TSHB).
 
-**Table 2.** Whole-plant integration of sap flow data.
+**Table 2.** Number of trees using different radial and azimuthal integration approaches
+for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
+heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
+stem heat balance (SHB),trunk sector heat balance (TSHB).
 
 **Figure 5.** Ecological representativity of SAPFLUXNET plants and stands. 
 Panel (a) shows the distribution of plants according to their taxonomic group
@@ -80,22 +86,27 @@ as a function of hour of day (x-axis) and day of year (y-axis) for a selection
 of SAPFLUXNET sites with at least four co-occurring species.
 Panel (a) shows data from a Mediterranean forest in NE Spain (ESP_CAN), 
 for an average (2011) and a dry (2012) year. Panel (b) shows data for a mesic 
-Temperate forest (USA_???) and panel (c) shows data for a Tropical
+Temperate forest (USA_WVF) and panel (c) shows data for a Tropical
 forest (CRI_TAM_TOW). 
 
 **Figure 8.** Summary of the availability of different environmental variables in
-SAPFLUXNET datasets. (a) Distribution of environmental variables according to the 
-measurement location. (b) Distribution of soil moisture variables according to the
-measurement depth. (c) Venn diagram showing the degree of overlap amongst the 
+SAPFLUXNET datasets. (a) Distribution of meteorological variables according to 
+measurement location (in brackets, names of the variables in the database), 
+(b) Distribution of soil moisture variables according to the
+measurement depth (in brackets, names of the variables in the database). 
+(c) Venn diagram showing the degree of overlap amongst the 
 availability of different environmental variables across SAPFLUXNET datasets.
 
 **Figure 9.** Potential for upscaling individual tree sap flow to stand-level sap flow
-using SAPFLUXNET datasets, classified using an aggregated biome classification. 
-Each panel shows the percentage of total stand basal area that is covered by
-sap flow measurements for each species in the dataset. Datasets are also coloured
-by the number of species present. Blue numbers on top of each bar depict the total
-number of trees for a given dataset. Empty bars show datasets for which plant-level
-data are not available.
+using SAPFLUXNET datasets, classified using an aggregated biome classification; 
+'Dry-Tropical' include: 'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
+'Temperate rain forest' and 'Tropical rain forest'. Each panel shows the percentage 
+of total stand basal area that is covered by sap flow measurements for each species 
+in the dataset. Datasets are also coloured by the number of species present. Blue numbers 
+on top of each bar depict the total number of trees for a given dataset. Empty bars show 
+datasets for which plant-level data are not available.
+
+**Table 3.** Number of datasets, plants and species according to treatment at the stand level.
 
 \pagebreak
 
@@ -130,9 +141,9 @@ biomes_plot <- sfn_allsites %>%
     axis.title=element_text(size=20),
     axis.text=element_text(size=20),
     legend.title = element_blank(),
-    legend.text = element_text(size =16),
-    legend.key.size = unit(1.5, 'line'),
-    legend.position = c(0.7,0.2)
+    legend.text = element_text(size =14),
+    legend.key.size = unit(1.25, 'line'),
+    legend.position = c(0.7,0.25)
     
   )
 
@@ -1128,7 +1139,7 @@ read_csv('resources/treatment_table.csv') %>%
                     n_plants='N plants',
                     n_species='N species') %>% 
   align(part='header',align='left') %>% 
-   set_caption('Table 3. Treatments')
+   set_caption('Table 3. Number of datasets, plants and species according to treatment at the stand level.')
 
 ```
 
