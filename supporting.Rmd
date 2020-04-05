@@ -12,27 +12,51 @@ output:
 
 ## Captions
 
-**Figure S1.** Overview of the data QC process, showing file management,
-identifying automatic and manual steps and  indicating status file updates.
+**Figure S1.** Overview of the data QC process, showing file management and 
+identifying automatic (in yellow) and manual steps (in red).  The column on 
+the left shows the different updates of the status file for each dataset and 
+the column on the right shows generated data reports and steps requiring 
+feedback or manual changes. 
 
-**Figure S2.** Structure of sfn_data objects.
+**Table S1** Data checks implemented in the first level of data quality control
+(QC1).
 
-**Table S2.** Metadata variables description. 
+**Figure S2.** Structure of sfn_data objects, which are based on the S4 class
+in R. Each object is identified by the 'si_code', stored as a slot in the object, 
+with the format of a character vector. Slots storing time series of data and the 
+associated data flags are of class 'tibble' and have all the same number of 
+rows (*i*), corresponding to the the number of timesteps in the dataset and 
+labelled with two POSIXct timestamp vectors (TIMESTAMP, solar_TIMESTAMP).The slot 
+storing sap flow data, 'sapf_data' contains(*j*) columns and environmental data 
+('env_data') contains *k* columns, corresponding to the number of environmental 
+variables present. Slots with the suffix 'md' refer to the different metadata and all are objects of
+class 'tibble' with different dimensions. For example, the number of rows in
+'plant_md' depends on the number of trees in the dataset. More information on
+the 'sfn_data' class objects can be found in the vignette 'sfn-data-classes' of the 
+package [sapfluxnetr](https://github.com/sapfluxnet/sapfluxnetr).
 
-**Figure S3.** Screenshot of the data cleaning app.
+**Table S2.** Description of all metadata variables in SAPFLUXNET datasets.
 
-**Table S3.** Datasets in the SAPFLUXNET database identified by numeric code, 
+**Table S3** Data checks implemented in the first level of data quality control
+(QC1).
+
+**Figure S3.** Screenshot of the app used for handling outliers and out of range values
+in time series. The left column shows dataset and variable selection. The central part
+shows the time series, with out of range values in red and possible outliers in yellow.
+Rows to replace or remove are selected in a table and written to a text file when done.
+
+**Table S4.** Datasets in the SAPFLUXNET database identified by numeric code, 
 dataset code and site name. Geographic coordinates and elevation are also shown.
 
-**Figure S4.**Detailed geographic distribution of SAPFLUXNET datasets.
+**Figure S4.** Detailed geographic distribution of SAPFLUXNET datasets.
 
-**Table S4.** Number of trees per species in the SAPFLUXNET database.
+**Table S5.** Number of trees per species in the SAPFLUXNET database.
 
-**Table S5.** Number of trees per genus in the SAPFLUXNET database.
+**Table S6.** Number of trees per genus in the SAPFLUXNET database.
 
-**Table S6.** Number of species per dataset in the SAPFLUXNET database.
+**Table S7.** Number of species per dataset in the SAPFLUXNET database.
 
-**Figure S5.** Treatments.
+**Figure S5.** Wordcloud of treatments at the stand (a) and at the plant (b) levels.
 
 
 ```{r setup, include=FALSE}
@@ -151,6 +175,20 @@ bind_rows(
                   0.2,0.4,0.2,0.4,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.4,0.4,0.4,0.4,0.4, # 70
                   0.4,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.2,0.4,0.4,0.4,0.6,0.4,0.7))
 ```
+\pagebreak
+
+```{r table_QC2, echo=FALSE,results='asis'}
+
+readxl::read_xlsx('resources/table_QC2_checks.xlsx',1) %>% 
+   qflextable() %>%  
+  bold( i = 1,  part = "header") %>%
+    fontsize(size=10,part='body') %>% 
+  align(part='header',align='left') %>% 
+    align(part='body',align='left') %>% 
+  width(width=c(1.8,5)) %>%
+  height(height=c(rep(0.5,6),0.7)) %>% 
+   set_caption('Table S3. Data checks implemented in the QC2 process')
+```
 
 \pagebreak
 
@@ -182,7 +220,7 @@ sfn_sites_nspecies %>%
      si_elev='Elev.') %>% 
   width(width=c(0.4,1.7,3,0.7,0.7,0.8)) %>%
   height(height=c(rep(0.2,176),rep(0.4,3),rep(0.2,23))) %>% 
-   set_caption('Table S3. Datasets in the SAPFLUXNET database identified by 
+   set_caption('Table S4. Datasets in the SAPFLUXNET database identified by 
                numeric code, dataset code and site name. Geographic 
                coordinates and elevation are also shown')
 
@@ -310,7 +348,7 @@ data.frame(sfn_species_ntrees_reduced[1:58,],
   italic(j=c(1,3,5)) %>% 
   height(height=c(rep(.2,7),0.4,rep(.2,6),0.4,rep(.2,26),0.4,rep(.2,16))) %>% 
   width(width=c(2,0.5,2,0.3,2,0.3)) %>% 
-  flextable::set_caption('Table S4. Number of trees per species in the SAPFLUXNET database')
+  flextable::set_caption('Table S5. Number of trees per species in the SAPFLUXNET database')
 
 ```
 
@@ -321,7 +359,7 @@ data.frame(sfn_species_ntrees_reduced[1:58,],
 
 data.frame(sfn_genus_ntrees[1:32,],
           sfn_genus_ntrees[33:64,],
-         add_row(sfn_genus_ntrees[65:95,],genus_f=NA,n_trees=''))%>% 
+        rbind(sfn_genus_ntrees[65:95,],as_tibble_row(c(genus_f=NA,n_trees=''))))%>% 
   qflextable() %>% 
   autofit(add_w=0,add_h=0) %>%
   set_header_labels(
@@ -335,7 +373,7 @@ data.frame(sfn_genus_ntrees[1:32,],
   fontsize(size=10,part='body') %>% 
   italic(j=c(1,3,5)) %>% 
   height(height=.2) %>% 
- flextable::set_caption('Table S5. Number of trees per genus in the SAPFLUXNET database')
+ flextable::set_caption('Table S6. Number of trees per genus in the SAPFLUXNET database')
 
 ```
 \pagebreak
@@ -359,7 +397,7 @@ data.frame(sfn_nspecies_dataset[1:58,],
     width(width=c(2,0.5,2,0.3,2,0.3)) %>% 
   height(height=c(rep(.2,5),0.4,rep(.2,12),0.4,rep(.2,33),0.4,rep(.2,5))) %>% 
     add_header_lines() %>% 
-flextable::set_caption('Table S6. Number of species per dataset in the SAPFLUXNET database')
+flextable::set_caption('Table S7. Number of species per dataset in the SAPFLUXNET database')
 
 ```
 \pagebreak

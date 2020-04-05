@@ -49,9 +49,16 @@ pull(sp_name) %>%
   rownames_to_column('sp_name') %>%
   left_join(sfn_sitespecies_fix, ., by = 'sp_name') -> sfn_sitespecies_tax 
 
-sfn_sitespecies_tax[sfn_sitespecies_tax $sp_name == 'Myrtaceae sp.',
+# I had to do this bc of changes in tibble 3.0.0
+# https://twitter.com/rushworth_a/status/1246719797955567623
+
+sfn_sitespecies_tax <- as.data.frame(sfn_sitespecies_tax)
+
+sfn_sitespecies_tax[sfn_sitespecies_tax$sp_name == 'Myrtaceae sp.',
                      c('sp_name','genus','order','family','group')] <-
   c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
+
+sfn_sitespecies_tax <- as_tibble(sfn_sitespecies_tax)
 
 # Plant level
 sfn_allplants %>% 
