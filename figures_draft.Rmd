@@ -547,7 +547,6 @@ left_join(
 ```
 
 
-
 \pagebreak
 
 ```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
@@ -759,6 +758,21 @@ sfn_allstands %>%
 sfn_allstands %>% 
 dplyr::select(si_code,st_lai,st_density,st_age,st_basal_area,st_height,st_soil_depth) %>% 
   summarise_all(median,na.rm=TRUE)
+
+# Plant size: angio vs gymno
+sfn_allplants_tax %>% 
+  group_by(group) %>% 
+  summarise_at(vars(pl_dbh,pl_height,pl_sapw_area,pl_sapw_depth,pl_leaf_area),median, na.rm=TRUE)
+
+# Stand
+
+sfn_allstands %>% 
+  summarise_at(vars(st_basal_area,st_height,st_age,st_density,st_lai,st_soil_depth),function(x) sum(is.na(x))/length(x))
+
+
+sfn_allstands %>% 
+  summarise_at(vars(st_basal_area,st_height,st_age,st_density,st_lai,st_soil_depth),median,na.rm=TRUE)
+
   
 
 
@@ -845,6 +859,21 @@ duration_plot_composed
 ```
 
 **Figure 6.**
+
+```{r duration_text, include=FALSE, echo=FALSE}
+
+# Values for dataset duration narrative
+datasets_duration %>% 
+  dplyr::select(si_code,TIMESTAMP,ini_date,end_date) %>% 
+  mutate(year=lubridate::year(TIMESTAMP)) %>% 
+  group_by(si_code) %>% 
+  distinct(si_code,year) %>% 
+  group_by(si_code) %>% 
+  summarise(n_years=n_distinct(year)) %>% 
+  arrange(desc(n_years)) 
+
+```
+
 
 \pagebreak
 
@@ -1016,6 +1045,52 @@ cowplot::plot_grid(
 ```
 **Figure 8.** 
 
+```{r env_text, include=FALSE, echo=FALSE}
+
+# Values for env variables narrative
+
+ sfn_env %>% 
+  dplyr::select(
+    si_code, env_ta, env_rh, env_vpd, env_sw_in,env_ppfd_in, env_netrad, env_precip, 
+      env_ws
+  ) %>% 
+ tidyr::pivot_longer(cols=-si_code,names_to='variable',values_to='measurement') %>% 
+  group_by(variable,measurement) %>% 
+  summarise(n_datasets=n(),
+            perc_datasets=n_datasets/202*100) %>% View()
+
+  # vpd overall availbaility
+ sfn_env %>% 
+  dplyr::select(si_code, env_ta, env_rh, env_vpd) %>% 
+   mutate(env_calcvpd = ifelse(env_vpd=='Not provided' & 
+                                 env_ta !='Not provided' & 
+                                 env_rh!='Not provided', 'Calc_vpd','Not provided'),
+          env_vpdall= ifelse(env_vpd!='Not provided' | env_calcvpd!='Not provided',
+          'vpd_available','vpd_not_provided')) %>% 
+   group_by(env_vpdall) %>% tally()
+   
+ # radiation overall availability
+ 
+ sfn_env %>% 
+  dplyr::select(si_code,env_sw_in,env_ppfd_in,env_netrad) %>% 
+   mutate(env_radall = ifelse(env_sw_in!='Not provided' | env_ppfd_in!='Not provided' | env_netrad!='Not provided','rad available','rad unavailable')) %>% 
+   group_by(env_radall) %>% tally()
+ 
+ # soil moisture
+
+ sfn_env %>%
+  dplyr::select(si_code, env_swc_shallow_depth,env_swc_deep_depth) %>%
+  pivot_longer(
+    cols = starts_with('env_'),
+    names_to = 'depth',
+    values_to = 'swc',
+    names_prefix = "env_swc_"
+  ) %>% 
+   group_by(depth) %>% 
+   summarise(swc_perc = sum(!is.na(swc))/202)
+                
+```
+
 \pagebreak
 
 ```{r scaling, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.height=18, fig.width=15}
@@ -1126,6 +1201,8 @@ cowplot::plot_grid(
 
 ```
 **Figure 9.** 
+
+\pagebreak
 
 ```{r table_treatments, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
 
