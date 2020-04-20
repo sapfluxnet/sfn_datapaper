@@ -87,7 +87,8 @@ of SAPFLUXNET sites with at least four co-occurring species.
 Panel (a) shows data from a Mediterranean forest in NE Spain (ESP_CAN), 
 for an average (2011) and a dry (2012) year. Panel (b) shows data for a mesic 
 Temperate forest (USA_WVF) and panel (c) shows data for a Tropical
-forest (CRI_TAM_TOW). 
+forest (CRI_TAM_TOW). For this latter site, only 4 of the 17 measured species are
+shown.
 
 **Figure 8.** Summary of the availability of different environmental variables in
 SAPFLUXNET datasets. (a) Distribution of meteorological variables according to 
@@ -111,7 +112,10 @@ datasets for which plant-level data are not available.
 \pagebreak
 
 ```{r data_workflow, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE,fig.align='center'}
-knitr::include_graphics('resources/QC_process.svg')
+# SVG can't be visualised in Word
+# knitr::include_graphics('resources/QC_process.svg')
+
+knitr::include_graphics('resources/QC_process.png')
 ```
 
 **Figure 1.**
@@ -1173,7 +1177,7 @@ biomes_grid <-
 common_label_y <-
   ggdraw() +
   draw_label(
-  "% of basal area measured with sap flow",
+  "Percentage of stand basal area with sap flow measurements",
   fontface = 'bold', size = 20, angle = 90
   ) +
   theme(

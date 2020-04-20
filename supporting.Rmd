@@ -79,8 +79,11 @@ load('maps_base.RData')
 \pagebreak
 
 ```{r fig_QC, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure S1. Overview of the data QC process'}
+# Doesn't work for Word visualisation
+#knitr::include_graphics('resources/QC_summary2.svg')
 
-knitr::include_graphics('resources/QC_summary2.svg')
+knitr::include_graphics('resources/QC_summary2.png')
+
 ```
 **Figure S1.**
 
@@ -101,8 +104,10 @@ readxl::read_xlsx('resources/table_QC1_checks.xlsx',1) %>%
 \pagebreak
 
 ```{r fig_sfn_data, echo=FALSE,  out.height="800px",fig.align='center', fig.cap='Figure S2. Structure of sfn_data objects'}
+# Doesn't work for Word visualisation
+# knitr::include_graphics('resources/schematics.svg')
 
-knitr::include_graphics('resources/schematics.svg')
+knitr::include_graphics('resources/schematics.png')
 ```
 **Figure S2.**
 
