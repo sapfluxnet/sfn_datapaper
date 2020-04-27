@@ -457,14 +457,23 @@ cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
 \pagebreak
 
 ```{r method_type,fig.height=15, fig.width=15, echo=FALSE}
-
-ggplot(sfn_plants_type,
-       aes(y = n, axis2 = pl_sens_meth, axis3= typef,axis1=group)) +
+sfn_plants_type %>%
+  ggplot(aes(
+    y = n,
+    axis3 = pl_sens_meth,
+    axis1 = typef,
+    axis2 = group
+  )) +
   geom_alluvium(aes(fill = group), width = 1/12)+
-  geom_stratum(width = 1/12, alpha = .5) +
-  geom_label_repel(stat = "stratum", infer.label = TRUE,size=10) +
-  scale_x_discrete(limits = c("Group","Sap flow method","Level"), 
-                   expand = c(.05, .05)) +
+  geom_stratum(width = 1/12, alpha = 0.2) +
+  geom_label_repel(
+    stat = "stratum", infer.label = TRUE,size=10,
+    direction = 'both',
+    # nudge_x = c(rep(-0.2, 8), rep(0.05, 2), rep(0.2, 2), 0.05, 0.2)
+    nudge_x = c(rep(-0.2, 2), -0.05, -0.2, rep(0.05, 2), rep(0.2, 8)), seed = 25
+  ) +
+  scale_x_discrete(limits = c("Level", "Group", "Sap flow method"), 
+                   expand = c(.2, .05)) +
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+
   ylab('Number of trees')+
