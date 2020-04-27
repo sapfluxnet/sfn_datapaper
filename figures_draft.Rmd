@@ -135,9 +135,7 @@ sitesmap_global <- globforest_rec_0_1  +
 biomes_plot <- sfn_allsites %>%
   dplyr::arrange(si_biome) %>%
   dplyr::filter(!is.na(si_map) | !is.na(si_map)) %>% 
-  ggbiome::vis_location_biome(si_lat='si_lat',
-                              si_long='si_long',si_mat='si_mat',si_map='si_map') +
-  
+  vis_location_biome() +
   theme(
     panel.grid = element_blank(),
     axis.ticks = element_blank(),
