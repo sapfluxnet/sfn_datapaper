@@ -153,7 +153,7 @@ igbp_plot<-sfn_allsites %>%
   group_by(si_igbp) %>% 
   tally() %>% 
   ggplot(.,aes(y=n,x=reorder(si_igbp,desc(n))))+
-  geom_bar(stat='identity')+
+  geom_bar(stat='identity', fill = viridis::viridis(1))+
   xlab('Vegetation type')+ylab('Number of datasets')+
   theme_light()+
   theme(axis.title=element_text(size=18),axis.text=element_text(size=18))
