@@ -888,7 +888,7 @@ datasets_duration %>%
 
 \pagebreak
 
-```{r fingerprint_plots, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, fig.height=18, fig.width=15}
+```{r fingerprint_plots, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE, fig.height=18, fig.width=15}
 
 # Functions
 source('R/sfn_datapaper_functions.R')
