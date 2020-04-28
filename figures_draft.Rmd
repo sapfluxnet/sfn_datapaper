@@ -49,7 +49,7 @@ set of seven csv files for each dataset.
 
 **Figure 2.** (a) Geographic, (b) bioclimatic and (c) vegetation type distribution 
 of SAPFLUXNET datasets. In (b) we represent the different datasets according to their 
-mean annual temperature and precipitaion in a Whittaker diagram showing the classification
+mean annual temperature and precipitation in a Whittaker diagram showing the classification
 of the main terrestrial biomes.
 
 **Figure 3.** Taxonomic distribution of genera and species in SAPFLUXNET, showing 
@@ -71,13 +71,13 @@ stem heat balance (SHB),trunk sector heat balance (TSHB).
 **Figure 5.** Ecological representativity of SAPFLUXNET plants and stands. 
 Panel (a) shows the distribution of plants according to their taxonomic group
 (angiosperms, gymnosperms) and their main individual attributes: 
-diameter at breast height (DBH) plant height, sapwood area, sapwood 
+diameter at breast height (DBH), plant height, sapwood area, sapwood 
 depth and leaf area. Panel (b) shows the distribution of SAPFLUXNET stands 
 according to their main attributes: stand age, stand height, stem density, 
 stand basal area,leaf area index (LAI) and soil depth.
 
-**Figure 6.** (a) Duration of SAPFLUXNET datasets rxpressed in number days with sap 
-flow data and coloured by the number of trees measured. The 30 longest datasets
+**Figure 6.** (a) Duration of SAPFLUXNET datasets expressed in number of days with
+sap flow data and coloured by the number of plants measured. The 30 longest datasets
 are labelled. For each dataset in panel (a), panel (b) shows its corresponding 
 measurement period.
 
