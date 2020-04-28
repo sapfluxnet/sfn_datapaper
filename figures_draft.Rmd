@@ -53,9 +53,9 @@ mean annual temperature and precipitaion in a Whittaker diagram showing the clas
 of the main terrestrial biomes.
 
 **Figure 3.** Taxonomic distribution of genera and species in SAPFLUXNET, showing 
-(a) genera with > 50 trees and (b) species with > 30 trees in the database.
+(a) genera and (b) species with > 50 plants in the database.
 
-**Figure 4.** Distribution of trees in SAPFLUXNET according to taxonomic group, sap flow method 
+**Figure 4.** Distribution of plants in SAPFLUXNET according to taxonomic group, sap flow method 
 and measurement level.
 
 **Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
@@ -63,7 +63,7 @@ for the different sap flow methods: cycling heat dissipation (CHD), compensation
 heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
 stem heat balance (SHB),trunk sector heat balance (TSHB).
 
-**Table 2.** Number of trees using different radial and azimuthal integration approaches
+**Table 2.** Number of plants using different radial and azimuthal integration approaches
 for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
 heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
 stem heat balance (SHB),trunk sector heat balance (TSHB).
@@ -98,13 +98,13 @@ measurement depth (in brackets, names of the variables in the database).
 (c) Venn diagram showing the degree of overlap amongst the 
 availability of different environmental variables across SAPFLUXNET datasets.
 
-**Figure 9.** Potential for upscaling individual tree sap flow to stand-level sap flow
+**Figure 9.** Potential for upscaling individual plant sap flow to stand-level sap flow
 using SAPFLUXNET datasets, classified using an aggregated biome classification; 
 'Dry-Tropical' include: 'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
 'Temperate rain forest' and 'Tropical rain forest'. Each panel shows the percentage 
 of total stand basal area that is covered by sap flow measurements for each species 
 in the dataset. Datasets are also coloured by the number of species present. Blue numbers 
-on top of each bar depict the total number of trees for a given dataset. Empty bars show 
+on top of each bar depict the total number of plants for a given dataset. Empty bars show 
 datasets for which plant-level data are not available.
 
 **Table 3.** Number of datasets, plants and species according to treatment at the stand level.
@@ -308,7 +308,7 @@ ntrees_species_top <-
   scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of trees',
-       title = 'Genera with > 50 trees') +
+       title = 'Genera with > 50 plants') +
   # coord_flip() +
   theme_bw() +
   theme(
@@ -436,8 +436,8 @@ ntrees_genus_top <-
   scale_y_continuous(expand = expand_scale(c(0,0), c(0,50))) +
   scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
-  labs(x = '', y = 'Number of trees', 
-       title = 'Species with >50 trees') +
+  labs(x = '', y = 'Number of plants', 
+       title = 'Species with >50 plants') +
   # coord_flip() +
   theme_bw() +
   theme(
@@ -476,7 +476,7 @@ sfn_plants_type %>%
                    expand = c(.2, .05)) +
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+
-  ylab('Number of trees')+
+  ylab('Number of plants')+
   theme_minimal()+
   theme(legend.position = "none", axis.title=element_text(size=24),
         axis.text = element_text(size=24))
@@ -550,7 +550,7 @@ left_join(
   width(j=1,width=0.65) %>% 
   width(j=2:11,width=0.75) %>% 
   empty_blanks() %>% 
-   set_caption('Table 2. Number of trees using different radial and azimuthal integration approaches, for 
+   set_caption('Table 2. Number of plants using different radial and azimuthal integration approaches, for 
                the different sap flow methods')
 
 
@@ -835,7 +835,7 @@ data_duration_plot <-
   ) +
   scale_fill_manual(values = treeclass_pal) +
   scale_x_continuous(expand = expand_scale(c(0,0), c(0, 20))) +
-  labs(y = '', x = 'Number of days', fill = 'Number of trees') +
+  labs(y = '', x = 'Number of days', fill = 'Number of plants') +
   theme_light() +
   theme(
     axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12),
