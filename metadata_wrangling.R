@@ -21,9 +21,6 @@ sfn_allsites<- sfn_metadata_plant[['site_md']] %>%
 sfn_allstands<- sfn_metadata_plant[['stand_md']] %>% 
   full_join(sfn_metadata_sapwood[['stand_md']])
 
-sfn_sitespecies<- sfn_metadata_plant[['species_md']] %>% 
-  full_join(sfn_metadata_sapwood[['species_md']]) 
-
 sfn_allplants<- sfn_metadata_plant[['plant_md']] %>% 
   full_join(sfn_metadata_sapwood[['plant_md']]) %>% 
   distinct(pl_code,.keep_all = TRUE)
@@ -31,34 +28,76 @@ sfn_allplants<- sfn_metadata_plant[['plant_md']] %>%
 sfn_env <- sfn_metadata_plant[['env_md']] %>% 
   full_join(sfn_metadata_sapwood[['env_md']])
 
+
+sfn_metadata_plant[['species_md']] %>% 
+  group_by(si_code,sp_name) %>% 
+  mutate(n_sp=sum(sp_ntrees)) -> sfn_sitesp_plant
+
+sfn_metadata_sapwood[['species_md']] %>% 
+  group_by(si_code,sp_name) %>% 
+  mutate(n_sp=sum(sp_ntrees)) -> sfn_sitesp_sw
+
+
 # 3. Fix errors and taxonize ----------------------------------------------
 
-# Species level
-sfn_sitespecies %>% 
+
+# Species level - plant
+sfn_sitesp_plant%>% 
+  ungroup() %>% 
   mutate(sp_name = case_when(
     sp_name == 'Eschweillera sp.' ~'Eschweilera sp.',
     sp_name == 'Vacapoua americana' ~ 'Vouacapoua americana',
     sp_name == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
     sp_name == 'Cryptocaria spp.' ~ 'Cryptocarya sp.',
-    TRUE ~ sp_name)) ->  sfn_sitespecies_fix
+    TRUE ~ sp_name)) ->  sfn_sitespecies_plant_fix
 
-sfn_sitespecies_fix %>% 
+sfn_sitespecies_plant_fix %>% 
 pull(sp_name) %>%
   unique() %>%
   taxonlookup::lookup_table(missing_action = 'NA', by_species = TRUE) %>%
   rownames_to_column('sp_name') %>%
-  left_join(sfn_sitespecies_fix, ., by = 'sp_name') -> sfn_sitespecies_tax 
+  left_join(sfn_sitespecies_plant_fix, ., by = 'sp_name') -> sfn_sitespecies_plant_tax1
+
+# Species level - plant
+sfn_sitesp_sw%>% 
+  ungroup() %>% 
+  mutate(sp_name = case_when(
+    sp_name == 'Eschweillera sp.' ~'Eschweilera sp.',
+    sp_name == 'Vacapoua americana' ~ 'Vouacapoua americana',
+    sp_name == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
+    sp_name == 'Cryptocaria spp.' ~ 'Cryptocarya sp.',
+    TRUE ~ sp_name)) ->  sfn_sitespecies_sw_fix
+
+sfn_sitespecies_sw_fix %>% 
+  pull(sp_name) %>%
+  unique() %>%
+  taxonlookup::lookup_table(missing_action = 'NA', by_species = TRUE) %>%
+  rownames_to_column('sp_name') %>%
+  left_join(sfn_sitespecies_sw_fix, ., by = 'sp_name') -> sfn_sitespecies_sw_tax1 
+
+
+n_all_species<- union(sfn_sitespecies_plant_tax1$sp_name,sfn_sitespecies_sw_tax1$sp_name)
+
+sfn_sitespecies_tax1<- dplyr::union(sfn_sitespecies_plant_tax1,sfn_sitespecies_sw_tax1)
+
+# sfn_sitespecies_plant_tax %>% 
+#   group_by(sp_name) %>% 
+#   mutate(n_sp=sum(sp_ntrees)) %>% 
+#   distinct(sp_name,.keep_all = TRUE) %>% 
+#   arrange(desc(n_sp)) %>% View()
+# 
 
 # I had to do this bc of changes in tibble 3.0.0
 # https://twitter.com/rushworth_a/status/1246719797955567623
 
-sfn_sitespecies_tax <- as.data.frame(sfn_sitespecies_tax)
+sfn_sitespecies_tax1 <- as.data.frame(sfn_sitespecies_tax1)
 
-sfn_sitespecies_tax[sfn_sitespecies_tax$sp_name == 'Myrtaceae sp.',
+sfn_sitespecies_tax1[sfn_sitespecies_tax1$sp_name == 'Myrtaceae sp.',
                      c('sp_name','genus','order','family','group')] <-
   c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
 
-sfn_sitespecies_tax <- as_tibble(sfn_sitespecies_tax)
+sfn_sitespecies_tax1 <- as_tibble(sfn_sitespecies_tax1)
+
 
 # Plant level
 sfn_allplants %>% 
@@ -91,11 +130,28 @@ sfn_allplants_tax[sfn_allplants_tax$pl_species == 'Myrtaceae sp.',
 #   pl_sapw_area = ifelse(si_code=='USA_SMI_SCB' | si_code=='USA_SMI_SER',pl_sapw_area*1E4,pl_sapw_area)
 # ) 
 
+# Fix number of plants per species/site
+# Use plant level data to correct errors in number of 
+# plants per species 
 
-# 4. Number of trees (per dataset, species, etc.) -------------------------
+sfn_allplants_tax %>% 
+  group_by(si_code,pl_species) %>% tally() %>% 
+  right_join(sfn_sitespecies_tax1,by=c('si_code','pl_species'='sp_name')) %>% 
+  mutate(sp_ntrees=n) %>% 
+  dplyr::select(-sp_ntrees,-n_sp) %>% 
+  rename(sp_name=pl_species,sp_ntrees=n) %>% 
+  ungroup() ->sfn_sitespecies_tax
+
+# 
+# sfn_sitespecies_tax %>% 
+#   group_by(sp_name) %>% 
+#   summarise(nt=sum(sp_ntrees)) %>% View()
+
+
+  # 4. Number of trees (per dataset, species, etc.) -------------------------
 
 # number of trees and species per dataset, with coordinates
-sfn_sites_nspecies <- sfn_sitespecies_fix %>% 
+sfn_sites_nspecies <- sfn_sitespecies_tax %>% 
   group_by(si_code) %>% 
   summarise(nspecies=length(sp_name),
             ntrees=sum(sp_ntrees)) %>% 
@@ -215,7 +271,7 @@ sfn_plants_type %>%
 dataset_trees_sp <- sfn_sites_type %>%
   right_join(sfn_allstands) %>% 
   right_join(
-    sfn_sitespecies %>%
+    sfn_sitespecies_tax %>%
       group_by(si_code) %>%
       mutate(total_ntrees = sum(sp_ntrees,na.rm=TRUE),
              nspecies = n_distinct(sp_name),
@@ -238,6 +294,6 @@ sfn_allplants_tax %>%
   dplyr::select(si_code,st_treatment,pl_treatment) 
 
 
-# Crap --------------------------------------------------------------------
+# 6. Save --------------------------------------------------------------------
 
 save.image('sfn_datapaper_data.RData')

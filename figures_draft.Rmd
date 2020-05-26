@@ -164,7 +164,7 @@ cowplot::plot_grid(
   cowplot::plot_grid(sitesmap_global, labels='(a)'),
   # row 2
   cowplot::plot_grid(biomes_plot, igbp_plot,labels=c('(b)','(c)'),rel_widths=c(0.6,0.4)),
-  ncol=1, label_size=16, rel_heights=c(0.6,0.4))
+  ncol=1, label_size=24, rel_heights=c(0.6,0.4))
 
 ```
 
@@ -425,6 +425,15 @@ ntrees_genus_top <-
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
+    data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Quercus ilex'),
+    size = 2,
+    # repel options
+    nudge_x = 0.5, nudge_y = 75,
+    hjust = 1,
+    direction = 'y', min.segment.length = 1000
+  ) +
+  geom_text_repel(
+    aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer rubrum'),
     size = 2,
     # repel options
@@ -450,7 +459,7 @@ ntrees_genus_top <-
   )
 
 cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
-                   label_size= 14,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
+                   label_size= 24,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
 ```
 **Figure 3.** 
 
