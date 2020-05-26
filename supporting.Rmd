@@ -21,7 +21,7 @@ feedback or manual changes.
 **Table S1** Data checks implemented in the first level of data quality control
 (QC1).
 
-**Figure S2.** Structure of sfn_data objects, which are based on the S4 class
+**Figure S2.** Structure of sfn_data objects, which are based on the S4 class. Boxes in the figure represent different slots where data are stored.
 in R. Each object is identified by the 'si_code', stored as a slot in the object, 
 with the format of a character vector. Slots storing time series of data and the 
 associated data flags are of class 'tibble' and have all the same number of 
@@ -31,7 +31,7 @@ storing sap flow data, 'sapf_data' contains(*j*) columns and environmental data
 ('env_data') contains *k* columns, corresponding to the number of environmental 
 variables present. Slots with the suffix 'md' refer to the different metadata and all are objects of
 class 'tibble' with different dimensions. For example, the number of rows in
-'plant_md' depends on the number of plants in the dataset. More information on
+'plant_md' depends on the number of plants in the dataset (and this is depicted by the different length of the box). More information on
 the 'sfn_data' class objects can be found in the vignette 'sfn-data-classes' of the 
 package [sapfluxnetr](https://github.com/sapfluxnet/sapfluxnetr).
 
@@ -40,19 +40,19 @@ package [sapfluxnetr](https://github.com/sapfluxnet/sapfluxnetr).
 **Table S3** Data checks implemented in the first level of data quality control
 (QC1).
 
-**Figure S3.** Screenshot of the app used for handling outliers and out of range values
+**Figure S3.** Example screenshot of the app used for handling outliers and out of range values
 in time series. The left column shows dataset and variable selection. The central part
 shows the time series, with out of range values in red and possible outliers in yellow.
 Rows to replace or remove are selected in a table and written to a text file when done.
 
 **Table S4.** Datasets in the SAPFLUXNET database identified by numeric code, 
-dataset code and site name. Geographic coordinates and elevation are also shown.
+dataset code and site name. Geographic coordinates and elevation are also shown. Negative values shown for Southern and Western Hemispheres.
 
-**Figure S4.** Detailed geographic distribution of SAPFLUXNET datasets.
+**Figure S4.** Detailed geographic distribution of SAPFLUXNET datasets. Datasets are labelled by dataset number in Table S4.
 
-**Table S5.** Number of plants per species in the SAPFLUXNET database.
+**Table S5.** Number of plants per species present in the SAPFLUXNET database.
 
-**Table S6.** Number of plants per genus in the SAPFLUXNET database.
+**Table S6.** Number of plants per genus present in the SAPFLUXNET database.
 
 **Table S7.** Number of species per dataset in the SAPFLUXNET database.
 
