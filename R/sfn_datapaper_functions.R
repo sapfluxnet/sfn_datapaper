@@ -86,7 +86,7 @@ sfn_finger_species<- function(sfn_data_obj,
     geom_raster(interpolate=TRUE)+
     # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(
-      name="Sap flow\ndensity\n[cm³ cm⁻² h⁻¹]",
+      name="Sap flow per\nsapwood area\n[cm³ cm⁻² h⁻¹]",
       option ="C",
       na.value = 'transparent'
     )+

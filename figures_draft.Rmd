@@ -36,6 +36,19 @@ source('metadata_wrangling.R')
 load('maps_base.RData')
 
 ```
+## Table captions
+
+**Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
+for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
+heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
+stem heat balance (SHB),trunk sector heat balance (TSHB).
+
+**Table 2.** Number of plants using different radial and azimuthal integration approaches
+for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
+heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
+stem heat balance (SHB),trunk sector heat balance (TSHB).
+
+**Table 3.** Number of datasets, plants and species according to treatment at the stand level.
 
 ## Figure captions
 
@@ -48,27 +61,28 @@ is stored in a folder structure with a either single .RData file for each datase
 set of seven csv files for each dataset.
 
 **Figure 2.** (a) Geographic, (b) bioclimatic and (c) vegetation type distribution 
-of SAPFLUXNET datasets. In (b) we represent the different datasets according to their 
-mean annual temperature and precipitation in a Whittaker diagram showing the classification
-of the main terrestrial biomes.
+of SAPFLUXNET datasets. In (b) we represent the different 
+datasets according to their mean annual temperature and precipitation in a Whittaker 
+diagram showing the classification of the main terrestrial biomes. In (c) vegetation types
+are defined according to IGBP classification (ENF: Evergreen Needleleaf Forest; 
+DBF: Deciduous Broadleaf Forest; EBF: Evergreen Broadleaf Forest; MF: Mixed Forest; 
+DNF: Deciduous Needleleaf forest; SAV: Savannas; WSA: Woody Savannas; WET: Permanent Wetlands).
 
 **Figure 3.** Taxonomic distribution of genera and species in SAPFLUXNET, showing 
-(a) genera and (b) species with > 50 plants in the database.
+(a) species and (b) genera with > 50 plants in the database. Total bar height depicts 
+number of plants per species (a) or genera (b). Numbers on top of each bar show the number of datasets
+where each species (a) or genus (b) is present. Colors other than grey highlight datasets
+with 15 or more plants of a given species (a) or genus (b). Bar height for a given color
+is proportional to the number of plants in the corresponding dataset, which is also shown in parentheses
+beside the dataset code.
 
-**Figure 4.** Distribution of plants in SAPFLUXNET according to taxonomic group, sap flow method 
-and measurement level.
+**Figure 4.** Distribution of plants in SAPFLUXNET according to major taxonomic group 
+(angiosperms, gymnosperms), sap flow method (CHD:cycling heat dissipation; CHP: compensation heat pulse; 
+HD: heat dissipation; HFD: heat field deformation: HPTM: heat pulse T-max (HPTM): HRM: heat ratio (HR); 
+SHB: stem heat balance; TSHB: trunk sector heat balance) and reference unit for the expression of
+sap flow (plant, sapwood area, leaf area).
 
-**Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
-for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
-heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
-stem heat balance (SHB),trunk sector heat balance (TSHB).
-
-**Table 2.** Number of plants using different radial and azimuthal integration approaches
-for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
-heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
-stem heat balance (SHB),trunk sector heat balance (TSHB).
-
-**Figure 5.** Ecological representativity of SAPFLUXNET plants and stands. 
+**Figure 5.** Ecological representativeness of SAPFLUXNET plants and stands. 
 Panel (a) shows the distribution of plants according to their taxonomic group
 (angiosperms, gymnosperms) and their main individual attributes: 
 diameter at breast height (DBH), plant height, sapwood area, sapwood 
@@ -77,37 +91,37 @@ according to their main attributes: stand age, stand height, stem density,
 stand basal area,leaf area index (LAI) and soil depth.
 
 **Figure 6.** (a) Duration of SAPFLUXNET datasets expressed in number of days with
-sap flow data and coloured by the number of plants measured. The 30 longest datasets
+sap flow data and coloured by the number of plants measured on each day . The 30 longest datasets
 are labelled. For each dataset in panel (a), panel (b) shows its corresponding 
 measurement period.
 
-**Figure 7.** Fingerprint plots showing hourly sap flux density (colour scale) 
+**Figure 7.** Fingerprint plots showing hourly sap flow per unit sapwood area (colour scale) 
 as a function of hour of day (x-axis) and day of year (y-axis) for a selection 
 of SAPFLUXNET sites with at least four co-occurring species.
 Panel (a) shows data from a Mediterranean forest in NE Spain (ESP_CAN), 
 for an average (2011) and a dry (2012) year. Panel (b) shows data for a mesic 
 Temperate forest (USA_WVF) and panel (c) shows data for a Tropical
 forest (CRI_TAM_TOW). For this latter site, only 4 of the 17 measured species are
-shown.
+shown and some of them were only identified at the genus level.
 
 **Figure 8.** Summary of the availability of different environmental variables in
 SAPFLUXNET datasets. (a) Distribution of meteorological variables according to 
 measurement location (in brackets, names of the variables in the database), 
 (b) Distribution of soil moisture variables according to the
 measurement depth (in brackets, names of the variables in the database). 
-(c) Venn diagram showing the degree of overlap amongst the 
-availability of different environmental variables across SAPFLUXNET datasets.
+(c) Venn diagram showing the number of datasets where certain combinations of different 
+environmental variables are present, grouping shortwave, PPFD and net radiation under 
+'Radiation' variables.
 
 **Figure 9.** Potential for upscaling individual plant sap flow to stand-level sap flow
 using SAPFLUXNET datasets, classified using an aggregated biome classification; 
-'Dry-Tropical' include: 'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
-'Temperate rain forest' and 'Tropical rain forest'. Each panel shows the percentage 
+'Dry-Tropical' include: 'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna'
+and 'Tropical rain forest'. Each panel shows the percentage 
 of total stand basal area that is covered by sap flow measurements for each species 
-in the dataset. Datasets are also coloured by the number of species present. Blue numbers 
+in the dataset. Datasets are also coloured by the number of species present. Numbers 
 on top of each bar depict the total number of plants for a given dataset. Empty bars show 
 datasets for which plant-level data are not available.
 
-**Table 3.** Number of datasets, plants and species according to treatment at the stand level.
 
 \pagebreak
 
@@ -210,7 +224,7 @@ ntrees_species_top <-
   geom_bar(stat = 'identity', show.legend = FALSE) +
   geom_text(
     aes(label = n, y = y, x = reorder(genus, n_all)),
-     size=6,fontface='bold',colour=viridis::viridis(1),
+     size=6,fontface='bold',colour='black',
     data = number_sites_labels, inherit.aes = FALSE
   ) +
   geom_text_repel(
@@ -315,8 +329,8 @@ ntrees_species_top <-
   theme(
     title= element_text(size = 16),
     axis.title=element_text(size = 16),
-    axis.text=element_text(size = 16),
-    axis.text.x=element_text(face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
+    axis.text.y=element_text(size = 18),
+    axis.text.x=element_text(size=16,face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
   )
@@ -359,7 +373,7 @@ ntrees_genus_top <-
   geom_bar(stat = 'identity', show.legend = FALSE) +
   geom_text(
     aes(label = n, y = y, x = reorder(sp_name, n_all)),
-    size=6,fontface='bold',colour=viridis::viridis(1),
+    size=6,fontface='bold',colour='black',
     data = number_sites_labels_genus, inherit.aes = FALSE
   ) +
   geom_text_repel(
@@ -454,8 +468,8 @@ ntrees_genus_top <-
   theme(
     title= element_text(size = 16),
     axis.title=element_text(size = 16),
-    axis.text=element_text(size = 16),
-    axis.text.x=element_text(face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
+   axis.text.y=element_text(size = 18),
+    axis.text.x=element_text(size=16,face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
   )
@@ -514,7 +528,7 @@ sfn_allplants_tax %>%
     n_notprov='Not provided',
     perc_calib='% calibrated'
   ) %>% 
-   set_caption('Table 1. Number of sap flow times series in SAPFLUXNET with species-specific calibrated data') %>% 
+   set_caption('Table 1') %>% 
   autofit()
 
 ```
@@ -552,7 +566,7 @@ left_join(
     'sensor_integrated'='Sensor-integrated',
     'N.provided'='Not provided'
   ) %>% 
-  add_header_row(values=c('','Radial correction','Azimuthal correction'),colwidths=c(1,5,5)) %>% 
+  add_header_row(values=c('','Radial integration','Azimuthal integration'),colwidths=c(1,5,5)) %>% 
   align(i=1:8,align='right') %>% 
   bold(i=1,part='header') %>% 
   fontsize(size=10) %>% 
@@ -561,8 +575,7 @@ left_join(
   width(j=1,width=0.65) %>% 
   width(j=2:11,width=0.75) %>% 
   empty_blanks() %>% 
-   set_caption('Table 2. Number of plants using different radial and azimuthal integration approaches, for 
-               the different sap flow methods')
+   set_caption('Table 2')
 
 
 
@@ -919,14 +932,15 @@ data_duration_plot <-
     seed = 25
   ) +
   scale_fill_manual(values = treeclass_pal) +
-  scale_x_continuous(expand = expand_scale(c(0,0), c(0, 20))) +
+  scale_x_continuous(expand = expansion(c(0,0), c(0, 20))) +
   labs(y = '', x = 'Number of days', fill = 'Number of plants') +
+  ggtitle('')+
   theme_light() +
   theme(
-    axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12),
+    axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16),
     axis.text.y = element_blank(),
-    legend.position = c(.2, .2), legend.text = element_text(size = 14),
-    legend.title = element_text(size = 15, face = 'bold')
+    legend.position = c(.2, .15), legend.text = element_text(size = 16),
+    legend.title = element_text(size = 18, face = 'bold')
   )
     
   
@@ -936,19 +950,21 @@ data_period_plot <-
   mutate(index_days = seq_along(n)) %>%
   ggplot(aes(x = TIMESTAMP2, y = reorder(si_code, index_days, max))) +
   geom_tile(fill = treeclass_pal[1]) +
+  ggtitle('')+
   theme_light() +
   theme(axis.title.y = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank()) +
   guides(fill = 'none') +
-  labs(x = "",y = 'Year') +
-  theme(axis.title.x = element_text(size = 14), axis.text.x = element_text(size = 12))
+  labs(x = "Year",y = '') +
+  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16))
 
 # Figure composition
 
 duration_plot_composed <- cowplot::plot_grid(
   data_duration_plot, data_period_plot,
-  labels = c('(a)','(b)'), rel_widths = c(1,0.4)
+  labels = c('(a)','(b)'), rel_widths = c(1,0.4),
+  label_size=24,hjust=c(-0.6,-0.5),vjust=c(1.1,1.1)
 )
 duration_plot_composed
 
@@ -983,14 +999,19 @@ path.sapwood <- file.path('data/0.1.4/RData/sapwood')
 
 # Plot
 cowplot::plot_grid(
-sfn_finger_species(read_sfn_data('ESP_CAN',folder=path.sapwood)),
+sfn_finger_species(read_sfn_data('ESP_CAN',folder=path.sapwood))+
+  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
+
 sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
-                   species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra')),
+                   species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra'))+
+  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
 
 sfn_finger_species(read_sfn_data('CRI_TAM_TOW',folder=path.sapwood),years=2015,
                    species=c('Pouteria sp.','Inga sp.',
-                                            'Eschweillera sp.','Mortoniodendron anisophyllum')),
-ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1))
+                                            'Eschweillera sp.','Mortoniodendron anisophyllum'))+
+  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
+
+ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1),label_size=24)
 
 ```
 
@@ -1026,9 +1047,12 @@ env_freq_plot <-
   labs(x = '', y = 'Number of datasets',title='Meteorological variables') +
   theme_bw() +
   theme(
+    title=element_text(size=18),
     legend.title = element_blank(),
     legend.position = 'top', legend.direction = 'horizontal',
-    axis.text.x = element_text(angle = 90)
+    legend.text=element_text(size=12),
+    axis.text.x = element_text(size=14,angle = 90),
+     axis.text.y = element_text(size=14,angle = 90)
   )
   
 
@@ -1056,12 +1080,12 @@ sfn_swc_freq <-
     depth_meas = as_factor(depth)
   )
 
-soil_pal<- c('lightgrey',viridis::viridis_pal(direction=-1)(4))
+soil_pal<- c(viridis::viridis_pal(direction=-1)(5))
 
 swc_freq_plot <-
   sfn_swc_freq %>%
   filter(depth_cat!='Not provided') %>% 
-  ggplot(aes(x=depth_meas,fill=depth_cat)) +
+  ggplot(aes(x=depth_meas,fill=depth_f)) +
   geom_bar(stat='count',position='stack') +
     scale_x_discrete(labels=c('shallow_depth'='SWC shallow\n [swc_shallow_depth]',
                               'deep_depth'='SWC deep\n [swc_deep_depth]'))+
@@ -1069,14 +1093,18 @@ swc_freq_plot <-
   labs(x = '', y = 'Number of datasets', title = 'Soil water content\n\n') +
   theme_bw() +
   theme(
+     title=element_text(size=18),
     legend.title = element_blank(),
-    legend.position = c(.8, .74),
-    axis.text.x = element_text(angle = 90)
+    legend.position = c(.8, .75),
+    legend.key.height = unit(.5,'mm'),
+    legend.text=element_text(size=12),
+    axis.text.x = element_text(size=14,angle = 90),
+     axis.text.y = element_text(size=14,angle = 90)
   )
 
 upper_grid <- cowplot::plot_grid(
   env_freq_plot,swc_freq_plot, 
-  label_size = 16, labels=c('a)', 'b)'), rel_widths = c(1, 0.4),
+  label_size = 24, labels=c('a)', 'b)'), rel_widths = c(1, 0.4),vjust=1.2,
   ncol = 2, align = "h", axis = "b"
 )
 
@@ -1129,13 +1157,19 @@ venn_plot <- VennDiagram::draw.quad.venn(
   n23 = length(n23), n24 = length(n24), n34 = length(n34), 
   n123 = length(n123), n124 = length(n124), n134 = length(n134), 
   n234 = length(n234), n1234 = length(n1234), 
-  ind = FALSE, category = list.names,
-  fill = viridis::viridis(4, direction = -1)
+  ind = FALSE, 
+  category = c('Radiation','Wind speed','VPD','SWC'),
+  fill = viridis::viridis(4, direction = -1),
+  fontfamily = "sans",
+  cat.fontfamily = "sans",cat.fontface='bold',
+  cex=1.4,
+  cat.cex=1.4,
+  
 )
 
 cowplot::plot_grid(
   upper_grid, venn_plot,
-  nrow = 2, label_size = 16, labels = c('', 'c)')
+  nrow = 2, label_size = 24, labels = c('', 'c)')
 )
 
 ```
@@ -1201,9 +1235,10 @@ basa_area_data <-
       si_biome %in% c(
         'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
         'Temperate rain forest','Tropical rain forest'
-      ) ~ 'Dry-Tropical',
-      si_biome %in% c('Boreal forest','Tundra') ~ 'Boreal-Tundra',
-      TRUE ~ si_biome
+      ) ~ 'b) Dry-Tropical',
+      si_biome %in% c('Boreal forest','Tundra') ~ 'a) Boreal-Tundra',
+      si_biome=='Mediterranean' ~ 'c) Mediterranean',
+      si_biome=='Temperate forest' ~ 'd) Temperate forest'
     )
   ) %>%
   filter(biomes_joined != 'Unknown')
@@ -1227,13 +1262,13 @@ biomes_plot_list <- basa_area_data %>%
           y = 125,
           label = total_ntrees
         ),
-        size = 3, colour = 'blue',
+        size = 3, colour = 'black',
         data = data %>%
           distinct(si_code, .keep_all = TRUE),
         show.legend = FALSE
       ) +
       labs(title = key, x = "", y = "") +
-      scale_y_continuous(expand = expand_scale(c(0,0), c(0, 10))) +
+      scale_y_continuous(expand = expansion(c(0,0), c(0, 10))) +
       scale_colour_viridis_d(drop = FALSE) +
       scale_fill_viridis_d(drop = FALSE) +
       scale_alpha_manual(values = c(.1, 1), drop = FALSE) +
@@ -1270,7 +1305,7 @@ common_label_y <-
   ggdraw() +
   draw_label(
   "Percentage of stand basal area with sap flow measurements",
-  fontface = 'bold', size = 20, angle = 90
+ size = 24, angle = 90
   ) +
   theme(
     plot.margin = margin(0, 0, 0, 0)
@@ -1284,9 +1319,9 @@ plot_legend <- get_legend(
   biomes_plot_list[[4]] +
     theme(
       legend.position = "right",
-      legend.text = element_text(size = 12),
+      legend.text = element_text(size = 14),
       legend.direction = "vertical",
-      legend.title = element_text(size = 12),
+      legend.title = element_text(size = 16),
       legend.margin = margin(0,0,0,0)
     )
 )
@@ -1312,7 +1347,7 @@ read_csv('resources/treatment_table.csv') %>%
                     n_plants='N plants',
                     n_species='N species') %>% 
   align(part='header',align='left') %>% 
-   set_caption('Table 3. Number of datasets, plants and species according to treatment at the stand level.')
+   set_caption('Table 3')
 
 ```
 
