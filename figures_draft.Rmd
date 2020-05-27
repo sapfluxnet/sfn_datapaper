@@ -209,7 +209,8 @@ ntrees_species_top <-
   ggplot(aes(x = reorder(genus, n_all), y = n_si, fill = reorder(fill_dummy, n_si))) +
   geom_bar(stat = 'identity', show.legend = FALSE) +
   geom_text(
-    aes(label = x_label, y = y, x = reorder(genus, n_all)),
+    aes(label = n, y = y, x = reorder(genus, n_all)),
+     size=6,fontface='bold',colour=viridis::viridis(1),
     data = number_sites_labels, inherit.aes = FALSE
   ) +
   geom_text_repel(
@@ -304,17 +305,17 @@ ntrees_species_top <-
     direction = 'y', min.segment.length = 1000
   ) +
   scale_fill_manual(values = c('grey', viridis::viridis(30))) +
-  scale_y_continuous(expand = expand_scale(c(0,0), c(0,100))) +
-  scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
+  scale_y_continuous(expand = expansion(c(0,0), c(0,100))) +
+  scale_x_discrete(expand = expansion(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
-  labs(x = '', y = 'Number of trees',
+  labs(x = '', y = 'Number of plants',
        title = 'Genera with > 50 plants') +
   # coord_flip() +
   theme_bw() +
   theme(
-    title= element_text(size = 14),
-    axis.title=element_text(size = 14),
-    axis.text=element_text(size = 14),
+    title= element_text(size = 16),
+    axis.title=element_text(size = 16),
+    axis.text=element_text(size = 16),
     axis.text.x=element_text(face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
@@ -357,7 +358,8 @@ ntrees_genus_top <-
   ggplot(aes(x = reorder(sp_name, n_all), y = n, fill = reorder(fill_dummy, n))) +
   geom_bar(stat = 'identity', show.legend = FALSE) +
   geom_text(
-    aes(label = x_label, y = y, x = reorder(sp_name, n_all)),
+    aes(label = n, y = y, x = reorder(sp_name, n_all)),
+    size=6,fontface='bold',colour=viridis::viridis(1),
     data = number_sites_labels_genus, inherit.aes = FALSE
   ) +
   geom_text_repel(
@@ -442,17 +444,17 @@ ntrees_genus_top <-
     direction = 'y', min.segment.length = 1000
   ) +
   scale_fill_manual(values = c('grey', viridis::viridis(19))) +
-  scale_y_continuous(expand = expand_scale(c(0,0), c(0,50))) +
-  scale_x_discrete(expand = expand_scale(c(0,0), c(1,2.5))) +
+  scale_y_continuous(expand = expansion(c(0,0), c(0,50))) +
+  scale_x_discrete(expand = expansion(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of plants', 
        title = 'Species with >50 plants') +
   # coord_flip() +
   theme_bw() +
   theme(
-    title= element_text(size = 14),
-    axis.title=element_text(size = 14),
-    axis.text=element_text(size = 14),
+    title= element_text(size = 16),
+    axis.title=element_text(size = 16),
+    axis.text=element_text(size = 16),
     axis.text.x=element_text(face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
@@ -481,13 +483,13 @@ sfn_plants_type %>%
     # nudge_x = c(rep(-0.2, 8), rep(0.05, 2), rep(0.2, 2), 0.05, 0.2)
     nudge_x = c(rep(-0.2, 2), -0.05, -0.2, rep(0.05, 2), rep(0.2, 8)), seed = 25
   ) +
-  scale_x_discrete(limits = c("Level", "Group", "Sap flow method"), 
+  scale_x_discrete(limits = c("Reference unit", "Taxonomic group", "Sap flow method"), 
                    expand = c(.2, .05)) +
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+
   ylab('Number of plants')+
   theme_minimal()+
-  theme(legend.position = "none", axis.title=element_text(size=24),
+  theme(legend.position = "none", axis.title=element_text(size=28),
         axis.text = element_text(size=24))
   
 ```
@@ -620,7 +622,7 @@ sfn_allstands_long <-
     Varf = forcats::as_factor(Var) %>% forcats::fct_relabel(
       ~ c(
         'Age~(years)','Height~(m)','Stem~density~(stems~ha^{"-1"})',
-        'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(m)'
+        'Basal~area~(m^2~ha^{"-1"})','LAI~(m^2~m^{"-2"})','Soil~depth~(cm)'
       )
     )
   )
@@ -721,21 +723,95 @@ plant_violins <-
   scale_fill_viridis_d() +
   labs(x=NULL,y=NULL)+
   theme_light() +
-  guides(fill = guide_legend(title = 'Functional group')) +
+  guides(fill = guide_legend(title = 'Taxonomic group')) +
   theme(
     axis.text.x = element_blank(), axis.text.y = element_text(size = 16),
     strip.background = element_rect(fill = 'white', colour='darkgray'),
     strip.text = element_text(size = 16, colour = 'black', face = 'bold'),
-    legend.position = c(0.85, 0.25), legend.text = element_text(size = 14),
-    legend.title = element_text(size = 15, face = 'bold')
+    legend.position = c(0.85, 0.25), legend.text = element_text(size = 18),
+    legend.title = element_text(size = 18, face = 'bold')
   )
 
+
+# Inset for sapwood depth
+
+ sfn_allplants_long %>% 
+   filter(Var=='pl_sapw_area' & Value<5000) -> sfn_allplants_long_sw
+
+sw_inset<- sfn_allplants_long_sw %>% 
+  ggplot(aes(x = Var, y = Value, fill = group)) +
+  # data points angios
+  geom_point(
+    aes(x = 0.75),
+    data = sfn_allplants_long_sw %>%
+      filter(group == 'Angiosperms'),
+    colour = viridis::viridis(1), alpha=0.2,
+    position = position_jitter(width = 0.1, height = 0, seed = 25),
+    show.legend = FALSE
+  ) +
+  # data points gymnos
+  geom_point(
+    aes(x = 1),
+    data = sfn_allplants_long_sw %>%
+      filter(group == 'Gymnosperms'),
+    colour = viridis::viridis(1, direction = -1), alpha=0.2,
+    position = position_jitter(width = 0.1, height = 0, seed = 25),
+    show.legend = FALSE
+  ) +
+  
+  geom_point(
+    data = sfn_allplants_long %>%
+        filter(Var == 'pl_sapw_area',group == 'Angiosperms') %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(x = .75, y = median),
+    colour = 'white', size = 4, shape = 23, fill = viridis::viridis(1),
+    position = position_nudge(x = -0.03)
+  )+
+  
+  geom_point(
+    data = sfn_allplants_long %>%
+        filter(Var == 'pl_sapw_area',group == 'Gymnosperms') %>%
+        summarise(median = median(Value, na.rm = TRUE)),
+    aes(x = 1, y = median),
+    colour = 'black', size = 4, shape = 23, fill = viridis::viridis(1,direction=-1),
+    position = position_nudge(x = -0.03)
+  )+
+  
+  labs(x=NULL,y=NULL)+
+  theme_light()+
+  theme(axis.text.x = element_blank(),axis.text.y=element_text(size=12),
+        panel.grid = element_blank())
+
+
+## This function allows us to specify which facet to annotate
+# https://www.blopig.com/blog/2019/08/combining-inset-plots-with-facets-using-ggplot2/
+annotation_custom2 <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data) 
+{
+  layer(data = data, stat = StatIdentity, position = PositionIdentity, 
+        geom = ggplot2:::GeomCustomAnn,
+        inherit.aes = FALSE, params = list(grob = grob, 
+                                          xmin = xmin, xmax = xmax, 
+                                          ymin = ymin, ymax = ymax))
+}
+
+
+# Add inset to plant violins
+
+plant_violins_inset<- plant_violins+
+  annotation_custom2(grob=ggplotGrob(sw_inset), 
+                      data = data.frame(Varf='Sapwood~area~(cm^2)'),
+                      ymin = 7000, ymax=15000, xmin=1.05, xmax=1.6)
+
+
+# Compose plot
+
 cowplot::plot_grid(
-  NULL, plant_violins, NULL, stand_violins,
+  NULL, plant_violins_inset, NULL, stand_violins,
   labels = c('(a) Plant attributes', NA,  '(b) Stand attributes', NA),
   rel_widths = c(1,1,1,1), nrow = 4, rel_heights = c(0.1, 1, 0.1, 1),
-  label_size = 16
+  label_size = 24
 )
+
 
 ```
 **Figure 5.** 
