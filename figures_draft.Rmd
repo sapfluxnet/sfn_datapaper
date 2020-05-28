@@ -175,10 +175,10 @@ igbp_plot<-sfn_allsites %>%
 # Build figure 
 cowplot::plot_grid(
   # row 1
-  cowplot::plot_grid(sitesmap_global, labels='(a)'),
+  cowplot::plot_grid(sitesmap_global, labels='(a)',label_size=24),
   # row 2
-  cowplot::plot_grid(biomes_plot, igbp_plot,labels=c('(b)','(c)'),rel_widths=c(0.6,0.4)),
-  ncol=1, label_size=24, rel_heights=c(0.6,0.4))
+  cowplot::plot_grid(biomes_plot, igbp_plot,labels=c('(b)','(c)'),rel_widths=c(0.6,0.4),label_size=24),
+  ncol=1, rel_heights=c(0.6,0.4))
 
 ```
 
@@ -1278,6 +1278,7 @@ biomes_plot_list <- basa_area_data %>%
       ) +
       theme_bw() +
       theme(
+        title=element_text(size=36),
         legend.text = element_text(size = 12),
         legend.position = "none",
         legend.box = "horizontal",
