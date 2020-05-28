@@ -114,9 +114,9 @@ knitr::include_graphics('resources/schematics.png')
 \pagebreak
 
 
-```{r tab_metadatavars, echo=FALSE, results='asis'}
+```{r tab_sitemd, echo=FALSE, results='asis'}
                               
-site_md_table <- sapfluxnetr:::.metadata_architecture() %>%
+sapfluxnetr:::.metadata_architecture() %>%
   magrittr::extract2(., 'site_md') %>%
   purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
   dplyr::mutate(
@@ -124,46 +124,7 @@ site_md_table <- sapfluxnetr:::.metadata_architecture() %>%
       magrittr::extract2(., 'site_md') %>%
       names()
   ) %>%
-  select(variable, everything())
-stand_md_table <- sapfluxnetr:::.metadata_architecture() %>%
-  magrittr::extract2(., 'stand_md') %>%
-  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
-  dplyr::mutate(
-    variable = sapfluxnetr:::.metadata_architecture() %>%
-      magrittr::extract2(., 'stand_md') %>%
-      names()
-  ) %>%
-  select(variable, everything())
-species_md_table <- sapfluxnetr:::.metadata_architecture() %>%
-  magrittr::extract2(., 'species_md') %>%
-  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
-  dplyr::mutate(
-    variable = sapfluxnetr:::.metadata_architecture() %>%
-      magrittr::extract2(., 'species_md') %>%
-      names()
-  ) %>%
-  select(variable, everything())
-plant_md_table <- sapfluxnetr:::.metadata_architecture() %>%
-  magrittr::extract2(., 'plant_md') %>%
-  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
-  dplyr::mutate(
-    variable = sapfluxnetr:::.metadata_architecture() %>%
-      magrittr::extract2(., 'plant_md') %>%
-      names()
-  ) %>%
-  select(variable, everything())
-env_md_table <- sapfluxnetr:::.metadata_architecture() %>%
-  magrittr::extract2(., 'env_md') %>%
-  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
-  dplyr::mutate(
-    variable = sapfluxnetr:::.metadata_architecture() %>%
-      magrittr::extract2(., 'env_md') %>%
-      names()
-  ) %>%
-  select(variable, everything())
-bind_rows(
-  site_md_table, stand_md_table, species_md_table, plant_md_table, env_md_table
-) %>% 
+  select(variable, everything()) %>% 
   qflextable() %>%
    bold( i = 1,  part = "header") %>%
     fontsize(size=10,part='body') %>% 
@@ -172,13 +133,120 @@ bind_rows(
     description= 'Description',
     type= 'Type',
     units= 'Units') %>% 
-   set_caption('Table S2. Metadata variables description') %>% 
-  width(width=c(1.8,2.25,1.2,1.2)) %>%
+   set_caption('Table S2') %>% 
+  width(width=c(1.8,2.5,1.2,1.2)) %>%
+  align(part='header',align='left') %>% 
+    align(part='body',align='left') %>% 
   height(height=c(0.4,rep(0.2,5),0.4,0.4,0.2,0.2,0.6,0.6,0.2,0.6,0.7,0.4,0.6,0.6,0.6, # 19
-                  0.6,0.6,0.4,0.6,0.4,0.6,0.4,0.6,0.4,0.6,0.2,0.2,0.2,0.4,0.4,0.2,0.2,# 36
-                  0.4,0.2,0.2,0.2,0.9,0.4,0.6,0.4,0.4,0.6,0.4,0.6,0.2,0.4,0.2,0.4,0.2, #53
-                  0.2,0.4,0.2,0.4,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.4,0.4,0.4,0.4,0.4, # 70
-                  0.4,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.2,0.4,0.4,0.4,0.6,0.4,0.7))
+                  0.6,0.6,0.4,0.6))
+```
+\pagebreak
+
+```{r tab_standmd, echo=FALSE, results='asis'}
+                              
+sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'stand_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'stand_md') %>%
+      names()
+  )  %>% 
+  qflextable() %>%
+   bold( i = 1,  part = "header") %>%
+    fontsize(size=10,part='body') %>% 
+  set_header_labels(
+    variable = 'Variable',
+    description= 'Description',
+    type= 'Type',
+    units= 'Units') %>% 
+   set_caption('Table S3') %>% 
+  width(width=c(2.5,2.25,1.2,1.2)) %>%
+   align(part='header',align='left') %>% 
+    align(part='body',align='left') %>% 
+  height(height=c(0.4,0.6,0.4,0.6,0.4,0.6,0.2,0.2,0.2,0.4,0.4,0.2,0.2,
+                  0.4,0.2,0.2,0.2))
+```
+\pagebreak
+
+```{r tab_speciesmd, echo=FALSE, results='asis'}
+                              
+sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'species_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'species_md') %>%
+      names()
+  ) %>%
+  qflextable() %>%
+   bold( i = 1,  part = "header") %>%
+    fontsize(size=10,part='body') %>% 
+  set_header_labels(
+    variable = 'Variable',
+    description= 'Description',
+    type= 'Type',
+    units= 'Units') %>% 
+     align(part='header',align='left') %>% 
+    align(part='body',align='left') %>% 
+   set_caption('Table S4') %>% 
+  width(width=c(2.5,1.2,2.5,1.2)) %>%
+  height(height=c(0.9,0.4,0.6,0.4))
+```
+\pagebreak
+
+```{r tab_plantmd, echo=FALSE, results='asis'}
+                              
+sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'plant_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'plant_md') %>%
+      names()
+  ) %>%
+  qflextable() %>%
+   bold( i = 1,  part = "header") %>%
+    fontsize(size=10,part='body') %>% 
+  set_header_labels(
+    variable = 'Variable',
+    description= 'Description',
+    type= 'Type',
+    units= 'Units') %>% 
+  align(part='header',align='left') %>% 
+    align(part='body',align='left') %>% 
+   set_caption('Table S5') %>% 
+  width(width=c(2.5,1.2,2,1.2)) %>%
+  height(height=c(0.4,0.6,0.4,0.6,0.2,0.4,0.2,0.4,0.2, #53
+                  0.2,0.4,0.2,0.4,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.4,0.4,0.4,0.4))
+```
+\pagebreak
+
+
+```{r tab_envmd, echo=FALSE, results='asis'}
+                              
+sapfluxnetr:::.metadata_architecture() %>%
+  magrittr::extract2(., 'env_md') %>%
+  purrr::map_dfr(magrittr::extract, c('description', 'type', 'units')) %>%
+  dplyr::mutate(
+    variable = sapfluxnetr:::.metadata_architecture() %>%
+      magrittr::extract2(., 'env_md') %>%
+      names()
+  ) %>%
+  select(variable, everything()) %>% 
+  qflextable() %>%
+   bold( i = 1,  part = "header") %>%
+    fontsize(size=10,part='body') %>% 
+  set_header_labels(
+    variable = 'Variable',
+    description= 'Description',
+    type= 'Type',
+    units= 'Units') %>% 
+    align(part='header',align='left') %>% 
+    align(part='body',align='left') %>% 
+   set_caption('Table S6') %>% 
+  width(width=c(1.8,2.25,1.2,1.2)) %>%
+  height(height=c(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.2,0.4,0.4,0.4,0.6,0.4,0.7))
 ```
 \pagebreak
 
