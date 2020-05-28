@@ -45,6 +45,8 @@ sfn_metadata_sapwood[['species_md']] %>%
 sfn_sitesp_plant%>% 
   ungroup() %>% 
   mutate(sp_name = case_when(
+    sp_name =='Larix sibirica Ledeb.'~'Larix sibirica',
+    sp_name == 'Leptolaena' ~'Leptolaena sp.',
     sp_name == 'Eschweillera sp.' ~'Eschweilera sp.',
     sp_name == 'Vacapoua americana' ~ 'Vouacapoua americana',
     sp_name == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
@@ -62,6 +64,8 @@ pull(sp_name) %>%
 sfn_sitesp_sw%>% 
   ungroup() %>% 
   mutate(sp_name = case_when(
+    sp_name =='Larix sibirica Ledeb.'~'Larix sibirica',
+    sp_name == 'Leptolaena' ~'Leptolaena sp.',
     sp_name == 'Eschweillera sp.' ~'Eschweilera sp.',
     sp_name == 'Vacapoua americana' ~ 'Vouacapoua americana',
     sp_name == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
@@ -94,7 +98,7 @@ sfn_sitespecies_tax1 <- as.data.frame(sfn_sitespecies_tax1)
 
 sfn_sitespecies_tax1[sfn_sitespecies_tax1$sp_name == 'Myrtaceae sp.',
                      c('sp_name','genus','order','family','group')] <-
-  c('Unkwown','Unknown','Myrtaceae','Myrtales','Angiosperms')
+  c('Myrtaceae fam.','Myrtaceae fam.','Myrtaceae','Myrtales','Angiosperms')
 
 sfn_sitespecies_tax1 <- as_tibble(sfn_sitespecies_tax1)
 
@@ -102,6 +106,8 @@ sfn_sitespecies_tax1 <- as_tibble(sfn_sitespecies_tax1)
 # Plant level
 sfn_allplants %>% 
   mutate(pl_species = case_when(
+    pl_species =='Larix sibirica Ledeb.'~'Larix sibirica',
+    pl_species == 'Leptolaena spp.' ~'Leptolaena sp.',
     pl_species == 'Eschweillera sp.' ~'Eschweilera sp.',
     pl_species == 'Vacapoua americana' ~ 'Vouacapoua americana',
     pl_species == 'Brachulaena ramiflora' ~ 'Brachylaena ramiflora',
@@ -117,7 +123,7 @@ pull(pl_species) %>%
 
 sfn_allplants_tax[sfn_allplants_tax$pl_species == 'Myrtaceae sp.',
                     c('pl_species','genus','order','family','group')] <-
-  tibble(pl_species=rep('Unknown',6),genus=rep('Unknown',6),
+  tibble(pl_species=rep('Myrtaceae fam.',6),genus=rep('Myrtaceae fam.',6),
          family=rep('Myrtaceae',6),order=rep('Myrtales',6),group=rep('Angiosperms',6))
 
 # The following code fixes data for sapwood depth and sapwood area 
@@ -181,7 +187,7 @@ sfn_species_ntrees<- sfn_allplants_tax %>%
   mutate(n_trees=n()) %>% 
   distinct(pl_species,.keep_all = TRUE) %>% 
   mutate(species = case_when(
-    pl_species=='Unknown' & genus == 'Unknown'~ paste0(family,' fam.'),
+    pl_species=='Myrtaceae sp.'~ paste0(family,' fam.'),
     TRUE ~ pl_species)) %>% 
   ungroup() %>% 
   dplyr::select(group,species,n_trees) %>% 
