@@ -1,8 +1,8 @@
 ---
-title: "SAPFLUXNET: Global transpiration data from sap flow measurements"
+title: 'Global transpiration data from sap flow measurements: the SAPFLUXNET database'
 subtitle: 'Figures and tables'
 author: "R. Poyatos"
-date: "30/03/2020"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output:
   word_document: 
     reference_docx: word-styles-reference-01.docx
@@ -67,6 +67,7 @@ diagram showing the classification of the main terrestrial biomes. In (c) vegeta
 are defined according to IGBP classification (ENF: Evergreen Needleleaf Forest; 
 DBF: Deciduous Broadleaf Forest; EBF: Evergreen Broadleaf Forest; MF: Mixed Forest; 
 DNF: Deciduous Needleleaf forest; SAV: Savannas; WSA: Woody Savannas; WET: Permanent Wetlands).
+Woodland area from Crowther et al. (2015) shown in green.
 
 **Figure 3.** Taxonomic distribution of genera and species in SAPFLUXNET, showing 
 (a) species and (b) genera with > 50 plants in the database. Total bar height depicts 
