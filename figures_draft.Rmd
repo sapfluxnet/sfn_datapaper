@@ -30,6 +30,7 @@ library(cowplot)
 library(ggspatial)
 library(raster)
 library(VennDiagram)
+library(forcats)
 
 source('R/sfn_datapaper_functions.R')
 source('metadata_wrangling.R')
@@ -75,7 +76,7 @@ number of plants per species (a) or genera (b). Numbers on top of each bar show 
 where each species (a) or genus (b) is present. Colors other than grey highlight datasets
 with 15 or more plants of a given species (a) or genus (b). Bar height for a given color
 is proportional to the number of plants in the corresponding dataset, which is also shown in parentheses
-beside the dataset code.
+next to the dataset code.
 
 **Figure 4.** Distribution of plants in SAPFLUXNET according to major taxonomic group 
 (angiosperms, gymnosperms), sap flow method (CHD:cycling heat dissipation; CHP: compensation heat pulse; 
@@ -890,7 +891,7 @@ sfn_allstands %>%
 
 \pagebreak
 
-```{r dataset_duration, echo=FALSE, fig.height=18, fig.width=15, message=FALSE, warning=FALSE, cache=TRUE}
+```{r dataset_duration, echo=FALSE, fig.height=18, fig.width=15, message=FALSE, warning=FALSE, cache=FALSE}
 # Load data
 load('dataset_duration_data.RData')
 
@@ -1077,7 +1078,10 @@ sfn_swc_freq <-
       swc>70 & swc<=100~'71-100 cm',
       swc >100 ~ '>100 cm'
     ),
-    depth_f = as_factor(depth_cat),
+    depth_f = fct_relevel(
+      as_factor(depth_cat), '0-15 cm', '16-30 cm', '31-70 cm',
+      '71-100 cm', '>100 cm'
+    ),
     depth_meas = as_factor(depth)
   )
 
