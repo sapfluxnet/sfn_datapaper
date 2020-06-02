@@ -47,9 +47,11 @@ the left shows the different updates of the status file for each dataset and
 the column on the right shows generated data reports and steps requiring 
 feedback or manual changes. 
 
-**Figure S2.** Structure of sfn_data objects, which are based on the S4 class. Boxes in the figure 
-represent different slots where data are stored.
-in R. Each object is identified by the 'si_code', stored as a slot in the object, 
+**Table S1** Data checks implemented in the first level of data quality control
+(QC1).
+
+**Figure S2.** (a) Structure of sfn_data objects, which are based on the S4 class. Boxes in the figure represent different slots where data are stored.
+Each object is identified by the 'si_code', stored as a slot in the object, 
 with the format of a character vector. Slots storing time series of data and the 
 associated data flags are of class 'tibble' and have all the same number of 
 rows (*i*), corresponding to the the number of timesteps in the dataset and 
@@ -61,7 +63,9 @@ class 'tibble' with different dimensions. For example, the number of rows in
 'plant_md' depends on the number of plants in the dataset (and this is depicted by the different 
 length of the box). More information on
 the 'sfn_data' class objects can be found in the vignette 'sfn-data-classes' of the 
-package [sapfluxnetr](https://github.com/sapfluxnet/sapfluxnetr).
+package [sapfluxnetr](https://github.com/sapfluxnet/sapfluxnetr).  
+(b) Summary of an sfn_data object, showing highlights of site metadata, data
+dimensions, timestamp span and flags present on the data.
 
 
 **Figure S3.** Example screenshot of the app used for handling outliers and out of range values
