@@ -156,6 +156,26 @@ sfn_allplants_tax %>%
 
   # 4. Number of trees (per dataset, species, etc.) -------------------------
 
+# Number of distinct sites
+# based on dataset coding
+sfn_allstands %>% 
+  mutate(country_code=sapply(str_split(si_code,"_"),"[[",1),
+         site_code=sapply(str_split(si_code,"_"),"[[",2),
+         sites_geo=paste(country_code,site_code,sep='_')) %>% 
+  distinct(sites_geo) %>% tally() ->n_sites_codes
+
+# based on coordinates
+sfn_allsites %>% 
+  distinct(si_lat,si_long,.keep_all = TRUE) %>% tally() ->n_sites_coords
+
+# TODO:
+
+sfn_allsites %>% 
+  separate(si_code,sep='_',into=c('country','site','stand','treatment'),
+           remove=FALSE) ->n_sites_extracted
+
+
+
 # number of trees and species per dataset, with coordinates
 sfn_sites_nspecies <- sfn_sitespecies_tax %>% 
   group_by(si_code) %>% 
@@ -176,9 +196,9 @@ sfn_nspecies_taxdetail<- sfn_sitespecies_tax %>%
   distinct(sp_name,.keep_all=TRUE) %>% 
   dplyr::select(group, order, family,sp_name) 
 
-sfn_nspecies_taxdetail %>% 
-  group_by(group) %>% 
-  tally()
+# sfn_nspecies_taxdetail %>% 
+#   group_by(group) %>% 
+#   tally()
 
 
 # Number of trees per species
