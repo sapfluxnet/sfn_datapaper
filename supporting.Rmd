@@ -25,7 +25,7 @@ output:
 
 **Table S6.** Description of environmental metadata variables.
 
-**Table S7** Data checks implemented in the second level of data quality control
+**Table S7.** Data checks implemented in the second level of data quality control
 (QC2).
 
 **Table S8.** Datasets in the SAPFLUXNET database identified by numeric code, 
@@ -50,7 +50,8 @@ feedback or manual changes.
 **Table S1** Data checks implemented in the first level of data quality control
 (QC1).
 
-**Figure S2.** (a) Structure of sfn_data objects, which are based on the S4 class. Boxes in the figure represent different slots where data are stored.
+**Figure S2.** (a) Structure of sfn_data objects, which are based on the S4 class. 
+Boxes in the figure represent different slots where data are stored.
 Each object is identified by the 'si_code', stored as a slot in the object, 
 with the format of a character vector. Slots storing time series of data and the 
 associated data flags are of class 'tibble' and have all the same number of 

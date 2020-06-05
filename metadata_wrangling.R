@@ -175,6 +175,11 @@ sfn_allsites %>%
            remove=FALSE) ->n_sites_extracted
 
 
+# Datasets per biome
+
+sfn_allsites %>% 
+  group_by(si_biome) %>% tally()
+  
 
 # number of trees and species per dataset, with coordinates
 sfn_sites_nspecies <- sfn_sitespecies_tax %>% 

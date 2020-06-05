@@ -1,0 +1,25 @@
+---
+title: 'Global transpiration data from sap flow measurements: the SAPFLUXNET database'
+subtitle: 'Authors and affiliations'
+author: "R. Poyatos"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
+output:
+  word_document: 
+    reference_docx: word-styles-reference-01.docx
+  html_document:
+    df_print: paged
+  pdf_document: 
+    fig_caption: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+# TODO:
+# read data from googlesheets
+# use code to generate author list:
+# https://audhalbritter.com/code-based-author-and-affiliation-list/
+
+```
+

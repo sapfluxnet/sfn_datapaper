@@ -41,13 +41,13 @@ load('maps_base.RData')
 
 **Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
 for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
-heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
-stem heat balance (SHB),trunk sector heat balance (TSHB).
+heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
+stem heat balance (SHB) and trunk sector heat balance (TSHB).
 
 **Table 2.** Number of plants using different radial and azimuthal integration approaches
 for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
-heat dissipatio (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
-stem heat balance (SHB),trunk sector heat balance (TSHB).
+heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
+stem heat balance (SHB) and trunk sector heat balance (TSHB).
 
 **Table 3.** Number of datasets, plants and species according to treatment at the stand level.
 
@@ -56,7 +56,7 @@ stem heat balance (SHB),trunk sector heat balance (TSHB).
 **Figure 1.** Overview of the SAPFLUXNET data workflow. Data files are received 
 from data contributors, and undergo several quality control processes (QC1 and QC2). 
 Both, QC1 and QC2 produce an .RData object of the custom-designed sfn-data S4 class 
-storing all data, metadata and data flags for each dataset. The progress and results of the QC  
+storing all data, metadata and data flags for each dataset. The progress and results of the QC
 processes are monitored through individual reports and log files. The final outcome, 
 is stored in a folder structure with a either single .RData file for each dataset or a
 set of seven csv files for each dataset.
@@ -88,7 +88,8 @@ sap flow (plant, sapwood area, leaf area).
 Panel (a) shows the distribution of plants according to their taxonomic group
 (angiosperms, gymnosperms) and their main individual attributes: 
 diameter at breast height (DBH), plant height, sapwood area, sapwood 
-depth and leaf area. Panel (b) shows the distribution of SAPFLUXNET stands 
+depth and leaf area. The inset in the sapwood area panel zooms in values lower than 
+5000 cm². Panel (b) shows the distribution of SAPFLUXNET stands 
 according to their main attributes: stand age, stand height, stem density, 
 stand basal area,leaf area index (LAI) and soil depth.
 
