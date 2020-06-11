@@ -314,6 +314,16 @@ dataset_trees_sp <- sfn_sites_type %>%
       typeplant=ifelse(str_detect(type,'plant'),'plant',NA))
 
 
+
+dataset_trees_sp %>% 
+  filter(percab_measured>100) %>% 
+  distinct(si_code,.keep_all = TRUE) %>% 
+  select(si_code,contains('contr'))
+  
+
+
+
+
 # 5. Treatments -----------------------------------------------------
 
 sfn_allstands %>% 
