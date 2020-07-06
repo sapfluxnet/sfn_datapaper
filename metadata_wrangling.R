@@ -316,9 +316,9 @@ dataset_trees_sp <- sfn_sites_type %>%
 
 
 dataset_trees_sp %>% 
-  filter(percab_measured>100) %>% 
-  distinct(si_code,.keep_all = TRUE) %>% 
-  select(si_code,contains('contr'))
+  dplyr::filter(percab_measured>100) %>% 
+  dplyr::distinct(si_code,.keep_all = TRUE) %>% 
+  dplyr::select(si_code,contains('contr'))
   
 
 
