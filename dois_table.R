@@ -7,9 +7,12 @@ library(sapfluxnetr)
 
 
 sapwood_site_md <- read_sfn_metadata('data/0.1.4/RData/sapwood') %>%
-  magrittr::extract('site_md')
+  magrittr::extract('site_md') %>% 
+  magrittr::extract2(1)
+
 site_md_all <- read_sfn_metadata('data/0.1.4/RData/plant') %>%
   magrittr::extract('site_md') %>%
+  magrittr::extract2(1) %>% 
   dplyr::bind_rows(sapwood_site_md) %>%
   dplyr::distinct()
 
@@ -48,3 +51,4 @@ dois_table <- site_md_all %>%
   )
 
 writexl::write_xlsx(dois_table, 'DOIs_table.xlsx')
+
