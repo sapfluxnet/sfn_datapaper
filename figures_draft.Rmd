@@ -188,7 +188,7 @@ cowplot::save_plot(
   'Fig_2.tiff', fig_2, nrow = 1, base_height = 15, base_width = 15
 )
 
-fig_2
+knitr::include_graphics('Fig_2.tiff')
 
 ```
 
