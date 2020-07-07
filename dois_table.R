@@ -47,4 +47,4 @@ dois_table <- site_md_all %>%
     `DOI` = si_paper
   )
 
-
+writexl::write_xlsx(dois_table, 'DOIs_table.xlsx')
