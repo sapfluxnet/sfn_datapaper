@@ -4,7 +4,7 @@ subtitle: 'Figures and tables'
 author: "R. Poyatos"
 date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output:
-  word_document: 
+  word_document:
     reference_docx: word-styles-reference-01.docx
   html_document:
     df_print: paged
