@@ -188,6 +188,16 @@ sfn_sites_nspecies <- sfn_sitespecies_tax %>%
             ntrees=sum(sp_ntrees)) %>% 
   left_join(sfn_allsites %>% dplyr::select(si_code,si_lat,si_long))
 
+# trees per dataset
+sfn_sites_nspecies %>% 
+  arrange(desc(ntrees)) %>% View()
+
+sfn_sites_nspecies %>% 
+  arrange(desc(ntrees)) %>% pull(ntrees) %>% quantile(c(0.25,0.5,0.75,.95))
+
+sfn_sites_nspecies %>% 
+  filter(ntrees>=4) %>% tally()
+
 # Number of datasets per species
 sfn_nspecies_dataset <- sfn_sitespecies_tax %>% 
   group_by(sp_name) %>% 
@@ -295,7 +305,13 @@ sfn_plants_type %>%
   group_by(typef) %>% 
   summarise(n_trees=sum(n))
 
+# Methods per species
+sfn_allplants_tax %>% 
+  group_by(pl_species,pl_sens_meth) %>% tally() %>% View()
 
+# Installation height
+sfn_allplants_tax %>% View()
+  
 
 # 4. Percentage basal area ------------------------------------------------
 
@@ -334,6 +350,16 @@ sfn_allplants_tax %>%
   filter(is.na(st_treatment) & !is.na(pl_treatment)) %>% 
   dplyr::select(si_code,st_treatment,pl_treatment) 
 
+
+# FLUXNET
+
+sfn_allsites %>% 
+  pull(si_flux_network) %>% summary
+
+# Dendroglobal
+
+sfn_allsites %>% 
+  pull(si_dendro_network) %>% summary
 
 # 6. Save --------------------------------------------------------------------
 
