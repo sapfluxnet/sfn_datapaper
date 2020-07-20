@@ -40,7 +40,7 @@ load('maps_base.RData')
 ## Table captions
 
 **Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
-for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
+for the different sap flow methods: cyclic (or transient) heat dissipation (CHD), compensation heat pulse (CHP),
 heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
 stem heat balance (SHB) and trunk sector heat balance (TSHB).
 

@@ -1,0 +1,44 @@
+---
+title: 'Global transpiration data from sap flow measurements: the SAPFLUXNET database'
+subtitle: 'Appendix'
+author: "R. Poyatos"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
+output:
+  word_document:
+    reference_docx: word-styles-reference-01.docx
+  html_document:
+    df_print: paged
+  pdf_document: 
+    fig_caption: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(googlesheets4)
+library(flextable)
+library(tidyverse)
+library(magrittr)
+```
+
+**Table A1.** SAPFLUXNET dataset codes and DOIs (Digital Object Identifiers) of the 
+publications associated with each dataset. When no DOI was available the 
+bibliographic reference is shown. Some datasets may have no associated publication
+('unpublished') or they may be listed as 'under review'.
+
+```{r table_dois,echo=FALSE,message=FALSE,warning=FALSE}
+
+dois_table_data <- read_sheet('https://docs.google.com/spreadsheets/d/1MO43IQFSb7aB607u6RiZ6afgk97fwX8DIC4LvN2W1V8/edit#gid=1073664643',
+           sheet='dataset_dois')
+
+dois_table_data %>% 
+  filter(contributor_order=='Main_contributor') %>% 
+  select(site_code,DOI) %>% 
+  flextable() %>% 
+  width(j=1,width=1.75) %>% 
+  width(j=2,width=5) %>% 
+  flextable::align(j=1:2,align='left',part='all')
+  
+```
+
