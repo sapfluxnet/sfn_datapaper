@@ -78,8 +78,6 @@ Rows to replace or remove are selected in a table and written to a text file whe
 **Figure S4.** Detailed geographic distribution of SAPFLUXNET datasets. Datasets are 
 labelled by dataset number in Table S4. Woodland area from Crowther et al. (2015) shown in green.
 
-**Figure S5.** Wordcloud of treatments at the stand (a) and at the plant (b) levels.
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -173,7 +171,8 @@ sapfluxnetr:::.metadata_architecture() %>%
     variable = sapfluxnetr:::.metadata_architecture() %>%
       magrittr::extract2(., 'stand_md') %>%
       names()
-  )  %>% 
+  )  %>%
+  select(variable, everything()) %>% 
   qflextable() %>%
    bold( i = 1,  part = "header") %>%
     fontsize(size=10,part='body') %>% 
@@ -183,7 +182,7 @@ sapfluxnetr:::.metadata_architecture() %>%
     type= 'Type',
     units= 'Units') %>% 
    set_caption('Table S3') %>% 
-  width(width=c(2.5,2.25,1.2,1.2)) %>%
+  width(width=c(1.8,2.5,1.2,1.2)) %>%
    align(part='header',align='left') %>% 
     align(part='body',align='left') %>% 
   height(height=c(0.4,0.6,0.4,0.6,0.4,0.6,0.2,0.2,0.2,0.4,0.4,0.2,0.2,
@@ -201,6 +200,7 @@ sapfluxnetr:::.metadata_architecture() %>%
       magrittr::extract2(., 'species_md') %>%
       names()
   ) %>%
+  select(variable, everything()) %>% 
   qflextable() %>%
    bold( i = 1,  part = "header") %>%
     fontsize(size=10,part='body') %>% 
@@ -212,7 +212,7 @@ sapfluxnetr:::.metadata_architecture() %>%
      align(part='header',align='left') %>% 
     align(part='body',align='left') %>% 
    set_caption('Table S4') %>% 
-  width(width=c(2.5,1.2,2.5,1.2)) %>%
+  width(width=c(1.8,2.5,1.2,1.2)) %>%
   height(height=c(0.9,0.4,0.6,0.4))
 ```
 \pagebreak
@@ -227,6 +227,7 @@ sapfluxnetr:::.metadata_architecture() %>%
       magrittr::extract2(., 'plant_md') %>%
       names()
   ) %>%
+  select(variable, everything()) %>% 
   qflextable() %>%
    bold( i = 1,  part = "header") %>%
     fontsize(size=10,part='body') %>% 
@@ -238,7 +239,7 @@ sapfluxnetr:::.metadata_architecture() %>%
   align(part='header',align='left') %>% 
     align(part='body',align='left') %>% 
    set_caption('Table S5') %>% 
-  width(width=c(2.5,1.2,2,1.2)) %>%
+  width(width=c(1.8,2.5,1.2,1.2)) %>%
   height(height=c(0.4,0.6,0.4,0.6,0.2,0.4,0.2,0.4,0.2, #53
                   0.2,0.4,0.2,0.4,0.2,0.4,0.4,0.4,0.4,0.4,0.6,0.4,0.4,0.4,0.4,0.4))
 ```
@@ -477,82 +478,3 @@ data.frame(sfn_genus_ntrees[1:32,],
 ```
 \pagebreak
 
-
-```{r wordclouds_treatments, echo = FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
-library(wordcloud)
-library(wordcloud2)
-library(tm)
-library(gridGraphics)
-
-set.seed(63025)
-
-# plant wordcloud
-corpus_processed <- 
-  sfn_allplants_tax %>%
-  pull(pl_treatment) %>%
-  VectorSource() %>%
-  Corpus() %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace) %>%
-  tm_map(content_transformer(tolower)) %>%
-  tm_map(removeWords, stopwords("english")) %>%
-  TermDocumentMatrix() %>%
-  as.matrix() %>%
-  rowSums() %>%
-  sort(decreasing = TRUE)
-
-wordcloud_data <- tibble(
-  word = names(corpus_processed),
-  freq = corpus_processed
-)
-
-wordcloud_plant <- function() {
-  wordcloud(
-    wordcloud_data[['word']], wordcloud_data[['freq']],
-    min.freq = 1,
-    max.words = 100,
-    random.order = TRUE, rot.per = 0,
-    scale = c(2.5, 0.5)
-  )
-}
-
-# stand wordcloud
-corpus_processed_stand <- 
-  sfn_allstands %>%
-  pull(st_treatment) %>%
-  VectorSource() %>%
-  Corpus() %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace) %>%
-  tm_map(content_transformer(tolower)) %>%
-  tm_map(removeWords, stopwords("english")) %>%
-  TermDocumentMatrix() %>%
-  as.matrix() %>%
-  rowSums() %>%
-  sort(decreasing = TRUE)
-
-wordcloud_data_stand <- tibble(
-  word = names(corpus_processed_stand),
-  freq = corpus_processed_stand
-)
-
-
-wordcloud_stand <- function() {
-  wordcloud(
-    wordcloud_data_stand[['word']], wordcloud_data_stand[['freq']],
-    min.freq = 1,
-    max.words = 100,
-    random.order = TRUE, rot.per = 0.15,
-    scale = c(2.5, 0.25)
-  )  
-}
-
-cowplot::plot_grid(
-  wordcloud_plant, wordcloud_stand,
-  nrow = 2, labels = c('Plant treatments', 'Stand treatments'),
-  scale = c(1.2, 1.2)
-)
-```
-**Figure S5.**
