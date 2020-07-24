@@ -1277,7 +1277,13 @@ basa_area_data <-
   mutate(
     sp_basal_area_perc = ifelse(si_code == 'RUS_POG_VAR', NA, sp_basal_area_perc),
     percab_measured = ifelse(si_code == 'RUS_POG_VAR', 0, percab_measured),
-    nspecies_fct = as_factor(nspecies),
+    nspecies_fct = case_when(
+      nspecies < 2 ~ '1 species',
+      between(nspecies, 2, 5) ~ '2-5 species',
+      between(nspecies, 6, 10) ~ '6-10 species',
+      nspecies > 10 ~ '+10 species',
+    ) %>% as_factor %>% fct_relevel('+10 species', after = Inf),
+    # nspecies_fct = as_factor(nspecies),
     typeplant = if_else(is.na(typeplant), 'no', typeplant),
     biomes_joined = case_when(
       si_biome %in% c(
@@ -1349,14 +1355,10 @@ biomes_plot_list <- basa_area_data %>%
 biomes_plot_list[[1]] <- biomes_plot_list[[1]] +
   scale_alpha_manual(values = c(1,1))
 
-biomes_bor_and_dry <- cowplot::plot_grid(
-  plotlist = biomes_plot_list[1:2], nrow = 1, align = 'h', rel_widths = c(0.3, 1)
-)
-
 biomes_grid <- 
   cowplot::plot_grid(
-    plotlist = list(biomes_bor_and_dry, biomes_plot_list[[3]], biomes_plot_list[[4]]),
-    nrow = 3, align = 'h'
+    plotlist = biomes_plot_list,
+    nrow = 4, align = 'h'
   )
 
 common_label_y <-
@@ -1376,16 +1378,16 @@ biomes_grid_common_label <- cowplot::plot_grid(
 plot_legend <- get_legend(
   biomes_plot_list[[4]] +
     theme(
-      legend.position = "right",
+      legend.position = "bottom",
       legend.text = element_text(size = 16),
-      legend.direction = "vertical",
+      legend.direction = "horizontal",
       legend.title = element_text(size = 18),
       legend.margin = margin(0,0,0,0)
     )
 )
 
 fig_9 <- cowplot::plot_grid(
-  biomes_grid_common_label, plot_legend, ncol = 2, rel_widths = c(1, .2)
+  biomes_grid_common_label, plot_legend, ncol = 1, rel_heights = c(1, .03)
 )
 
 cowplot::save_plot(
