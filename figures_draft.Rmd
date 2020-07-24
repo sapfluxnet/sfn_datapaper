@@ -1028,7 +1028,7 @@ datasets_duration %>%
 source('R/sfn_datapaper_functions.R')
 
 # Data path
-path.sapwood <- file.path('data/0.1.4/RData/sapwood')
+path.sapwood <- file.path('data/0.1.5/RData/sapwood')
 
 # Plot
 fig_7 <- cowplot::plot_grid(
