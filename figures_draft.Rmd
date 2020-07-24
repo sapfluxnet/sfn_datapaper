@@ -101,7 +101,7 @@ measurement period.
 **Figure 7.** Fingerprint plots showing hourly sap flow per unit sapwood area (colour scale) 
 as a function of hour of day (x-axis) and day of year (y-axis) for a selection 
 of SAPFLUXNET sites with at least four co-occurring species.
-Panel (a) shows data from a Mediterranean forest in NE Spain (ESP_CAN), 
+Panel (a) shows data from a Woodland/Shrubland forest in NE Spain (ESP_CAN), 
 for an average (2011) and a dry (2012) year. Panel (b) shows data for a mesic 
 Temperate forest (USA_WVF) and panel (c) shows data for a Tropical
 forest (CRI_TAM_TOW). For this latter site, only 4 of the 17 measured species are
@@ -1285,12 +1285,13 @@ basa_area_data <-
         'Temperate rain forest','Tropical rain forest'
       ) ~ 'b) Dry and Tropical',
       si_biome %in% c('Boreal forest','Tundra') ~ 'a) Boreal-Tundra',
-      si_biome=='Mediterranean' ~ 'c) Mediterranean',
+      si_biome=='Woodland/Shrubland' ~ 'c) Woodland/Shrubland',
       si_biome=='Temperate forest' ~ 'd) Temperate forest'
     )
   ) %>%
   filter(biomes_joined != 'Unknown') %>%
   arrange(percab_measured)
+
 
 biomes_plot_list <- basa_area_data %>%
   group_by(biomes_joined) %>%
@@ -1348,11 +1349,14 @@ biomes_plot_list <- basa_area_data %>%
 biomes_plot_list[[1]] <- biomes_plot_list[[1]] +
   scale_alpha_manual(values = c(1,1))
 
+biomes_bor_and_dry <- cowplot::plot_grid(
+  plotlist = biomes_plot_list[1:2], nrow = 1, align = 'h', rel_widths = c(0.3, 1)
+)
+
 biomes_grid <- 
   cowplot::plot_grid(
-    plotlist = biomes_plot_list,
-    nrow = 4, align = 'h',
-    label_size = 20
+    plotlist = list(biomes_bor_and_dry, biomes_plot_list[[3]], biomes_plot_list[[4]]),
+    nrow = 3, align = 'h'
   )
 
 common_label_y <-
