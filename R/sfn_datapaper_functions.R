@@ -139,7 +139,7 @@ qc_get_biomes_spdf <- function(merge_deserts = FALSE, parent_logger = 'test') {
               3377.7,2917.0,2355.7,2355.7,2917.0,3377.7,3896.5,4343.1,4415.2,4429.8,4279.0,4113.7,3344.4,2790.6,2574.0,2414.3,
               2355.7, 535.1, 794.3,1269.3,1837.6,2355.7,2414.3,2574.0,2790.6,1920.3, 992.4, 847.9, 702.9, 535.1, 202.6,  50.8,
               7.3,  34.8,  98.8, 170.8, 533.0,1074.1,1405.9,1074.1, 922.9, 202.6),
-      biome = c(rep('Subtropical desert', 9), rep('Temperate grassland desert', 7), rep('Mediterranean', 13),
+      biome = c(rep('Subtropical desert', 9), rep('Temperate grassland desert', 7), rep('Woodland/Shrubland', 13),
                 rep('Temperate forest', 16), rep('Boreal forest', 12), rep('Temperate rain forest', 10),
                 rep('Tropical rain forest', 14), rep('Tropical forest savanna', 13), rep('Tundra', 12))
     )
