@@ -1019,22 +1019,35 @@ path.sapwood <- file.path('data/0.1.5/RData/sapwood')
 
 # Plot
 fig_7 <- cowplot::plot_grid(
+  NULL,
 sfn_finger_species(read_sfn_data('ESP_CAN',folder=path.sapwood))+
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
-
+  theme(
+    axis.title = element_text(size = 12), axis.text.x = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(x = ''),
+NULL,
 sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
                    species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra'))+
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
-
+  theme(
+    axis.title = element_text(size = 12), axis.text.x = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(x = ''),
+NULL,
 sfn_finger_species(read_sfn_data('CRI_TAM_TOW',folder=path.sapwood),years=2015,
                    species=c('Pouteria sp.','Inga sp.',
                                             'Eschweillera sp.','Mortoniodendron anisophyllum'))+
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
+  theme(
+    axis.title = element_text(size = 12), axis.text.x = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ),
 
-ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1),label_size=24)
+ncol=1,labels=c('', '(a)', '', '(b)', '', '(c)'),
+rel_heights = c(0.1, 1,0.1, 1, 0.1, 1),label_size=12, vjust = 0)
 
 cowplot::save_plot(
-  'Fig_7.tiff', fig_7, nrow = 1, base_height = 20, base_width = 15
+  'Fig_7.pdf', fig_7, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
 fig_7

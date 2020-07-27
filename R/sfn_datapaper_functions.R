@@ -71,6 +71,17 @@ sfn_finger_species<- function(sfn_data_obj,
   sfn_data_obj %>%  
     get_plant_md() -> plmdata
   
+  name_legend <- bquote(
+    atop(
+      Sap~flow~per~phantom(),
+      atop(sapwood~area~phantom(), (cm^3~cm^-2~h^-1))
+    )
+  )
+  
+  # name_legend <- expression(paste(
+  #   "Sap flow per \nsapwood area \n(cm"^{3}*"cm"^{-2}*"h"^{-1}*")"
+  # ))
+  
   sfdata %>% 
     full_join(dplyr::select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
     group_by(pl_species) %>% 
@@ -78,6 +89,11 @@ sfn_finger_species<- function(sfn_data_obj,
            doy = lubridate::yday(TIMESTAMP),
            hour = lubridate::hour(TIMESTAMP)) %>% 
     dplyr::filter(year%in%years, pl_species%in%species) %>% 
+    dplyr::mutate(
+      pl_species = dplyr::if_else(
+        pl_species == 'Mortoniodendron anisophyllum', 'Mortoniodendron sp.', pl_species
+      )
+    ) %>% 
     group_by(pl_species,year,doy,hour) %>% 
     mutate(sf_species=mean(sf,na.rm=TRUE)) %>%
     distinct(pl_species,doy,hour,.keep_all = TRUE) %>%
@@ -86,7 +102,8 @@ sfn_finger_species<- function(sfn_data_obj,
     geom_raster(interpolate=TRUE)+
     # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(
-      name="Sap flow per\nsapwood area\n[cm³ cm⁻² h⁻¹]",
+      # name="Sap flow per\nsapwood area\n[cm³ cm⁻² h⁻¹]",
+      name = name_legend,
       option ="C",
       na.value = 'transparent'
     )+
@@ -94,11 +111,11 @@ sfn_finger_species<- function(sfn_data_obj,
     scale_x_continuous(labels = c('6h', '12h', '18h'), breaks = c(6,12,18)) +
     facet_grid(year~pl_species)+
     theme_light() +
-    theme(axis.text = element_text(size = 16),
-          axis.title = element_text(size = 16),
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 12),
           strip.background = element_rect(fill = 'white', colour = 'darkgray'),
-          strip.text.x = element_text(size = 12, colour = 'black', face = 'italic'),
-          strip.text.y = element_text(size = 12, colour = 'black'))
+          strip.text.x = element_text(size = 10, colour = 'black', face = 'italic'),
+          strip.text.y = element_text(size = 10, colour = 'black'))
   
   
 }
