@@ -101,7 +101,7 @@ measurement period.
 **Figure 7.** Fingerprint plots showing hourly sap flow per unit sapwood area (colour scale) 
 as a function of hour of day (x-axis) and day of year (y-axis) for a selection 
 of SAPFLUXNET sites with at least four co-occurring species.
-Panel (a) shows data from a Mediterranean forest in NE Spain (ESP_CAN), 
+Panel (a) shows data from a Woodland/Shrubland forest in NE Spain (ESP_CAN), 
 for an average (2011) and a dry (2012) year. Panel (b) shows data for a mesic 
 Temperate forest (USA_WVF) and panel (c) shows data for a Tropical
 forest (CRI_TAM_TOW). For this latter site, only 4 of the 17 measured species are
@@ -139,12 +139,18 @@ knitr::include_graphics('resources/QC_process.png')
 
 \pagebreak
 
-```{r sitesmap, echo=FALSE, fig.height=15, fig.width=15, message=FALSE, warning=FALSE, cache=FALSE}
+```{r sitesmap, echo=FALSE, fig.width=8, message=FALSE, warning=FALSE, cache=FALSE}
 sitesmap_global <- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5, size = 3)+
+  geom_point(
+    data=sfn_allsites,
+    aes(x=si_long,y=si_lat),
+    shape=21,color='black',
+    fill='royalblue',
+    alpha=0.5, size = 3
+  )+
   guides(fill='none')+xlab(NULL)+ylab(NULL)+
   theme_light()+
-  theme(axis.title=element_text(size=22),axis.text=element_text(size=22))
+  theme(axis.title=element_text(size=12),axis.text=element_text(size=12))
 
 # TODO: preliminary filtering out climatic NAs
 # Use CHELSA to gf 
@@ -153,16 +159,17 @@ biomes_plot <- sfn_allsites %>%
   dplyr::arrange(si_biome) %>%
   dplyr::filter(!is.na(si_map) | !is.na(si_map)) %>% 
   vis_location_biome() +
+  theme_light() +
   theme(
     panel.grid = element_blank(),
     axis.ticks = element_blank(),
-    title= element_text(size=22),
-    axis.title=element_text(size=22),
-    axis.text=element_text(size=22),
+    title= element_text(size=12),
+    axis.title=element_text(size=12),
+    axis.text=element_text(size=12),
     legend.title = element_blank(),
-    legend.text = element_text(size =18),
-    legend.key.size = unit(1.25, 'line'),
-    legend.position = c(0.7,0.25),
+    legend.text = element_text(size = 8),
+    legend.key.size = unit(0.60, 'line'),
+    legend.position = c(0.73,0.27),
     legend.background = element_blank()
     
   )
@@ -174,21 +181,30 @@ igbp_plot<-sfn_allsites %>%
   geom_bar(stat='identity', fill = viridis::viridis(1))+
   xlab('Vegetation type')+ylab('Number of datasets')+
   theme_light()+
-  theme(axis.title=element_text(size=22),axis.text=element_text(size=20))
+  theme(axis.title=element_text(size=12),axis.text=element_text(size=12))
 
-# Build figure 
-fig_2 <- cowplot::plot_grid(
-  # row 1
-  cowplot::plot_grid(sitesmap_global, labels='(a)',label_size=24),
-  # row 2
-  cowplot::plot_grid(biomes_plot, igbp_plot,labels=c('(b)','(c)'),rel_widths=c(0.6,0.4),label_size=24),
-  ncol=1, rel_heights=c(0.5,0.5))
-
-cowplot::save_plot(
-  'Fig_2.tiff', fig_2, nrow = 1, base_height = 15, base_width = 15
+temp_align_plots <- cowplot::align_plots(
+  sitesmap_global, biomes_plot, align = 'v', axis = 'l'
 )
 
-knitr::include_graphics('Fig_2.tiff')
+# Build figure 
+biomes_igbp_grid <- cowplot::plot_grid(
+  biomes_plot, igbp_plot,
+  labels=c('(b)','(c)'), rel_widths=c(0.5,0.5), label_size=12, vjust = -0.5
+)
+
+fig_2 <- cowplot::plot_grid(
+  NULL, temp_align_plots[[1]], NULL, biomes_igbp_grid,
+  labels = c('', '(a)', '', ''), label_size = 12,
+  nrow = 4, rel_heights = c(0.03, 0.5, 0.03, 0.5), vjust = 0
+)
+
+cowplot::save_plot(
+  'Fig_2.pdf', fig_2, nrow = 1, base_height = 15, base_width = 20,
+  units = 'cm'
+)
+
+knitr::include_graphics('Fig_2.pdf')
 
 ```
 
@@ -234,14 +250,14 @@ ntrees_species_top <-
   geom_bar(stat = 'identity', show.legend = FALSE) +
   geom_text(
     aes(label = n, y = y, x = reorder(genus, n_all)),
-     size=6,fontface='bold',colour='black',
+     size=3,fontface='bold',colour='black',
     data = number_sites_labels, inherit.aes = FALSE
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Pinus'),
     # position = 'identity',
-    size = 4,
+    size = 2,
     # repel options
     nudge_x = 2.8,
     hjust = 1,
@@ -251,19 +267,19 @@ ntrees_species_top <-
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Quercus'),
     # position = 'identity',
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
-    nudge_y = 420 - ntrees_species_top_data_labels %>% filter(genus == 'Quercus') %>% pull(segment_start),
+    nudge_x = 0.75,
+    nudge_y = 520 - ntrees_species_top_data_labels %>% filter(genus == 'Quercus') %>% pull(segment_start),
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Acer'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 260 - ntrees_species_top_data_labels %>% filter(genus == 'Acer') %>% pull(segment_start),
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
@@ -271,9 +287,9 @@ ntrees_species_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Picea'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 400 - ntrees_species_top_data_labels %>% filter(genus == 'Picea') %>% pull(segment_start),
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
@@ -281,9 +297,9 @@ ntrees_species_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Eucalyptus'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 210,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
@@ -291,9 +307,9 @@ ntrees_species_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Fagus'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 280,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
@@ -301,9 +317,9 @@ ntrees_species_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Populus'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 100,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
@@ -311,9 +327,9 @@ ntrees_species_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Abies'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 60,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
@@ -321,26 +337,26 @@ ntrees_species_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n_si})"), y = segment_start),
     data = ntrees_species_top_data_labels %>% filter(genus == 'Acacia'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5,
+    nudge_x = 0.75,
     nudge_y = 125,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
-  scale_fill_manual(values = c('grey', viridis::viridis(30))) +
+  scale_fill_manual(values = c('grey88', viridis::viridis(30))) +
   scale_y_continuous(expand = expansion(c(0,0), c(0,100))) +
   scale_x_discrete(expand = expansion(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of plants',
-       title = 'Genera with > 50 plants') +
+       title = '') +
   # coord_flip() +
-  theme_bw() +
+  theme_light() +
   theme(
-    title= element_text(size = 16),
-    axis.title=element_text(size = 20),
-    axis.text.y=element_text(size = 18),
-    axis.text.x=element_text(size=18,face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
+    title= element_text(size = 11),
+    axis.title=element_text(size = 12),
+    axis.text.y=element_text(size = 12),
+    axis.text.x=element_text(size=12,face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
   )
@@ -383,13 +399,13 @@ ntrees_genus_top <-
   geom_bar(stat = 'identity', show.legend = FALSE) +
   geom_text(
     aes(label = n, y = y, x = reorder(sp_name, n_all)),
-    size=6,fontface='bold',colour='black',
+    size=3,fontface='bold',colour='black',
     data = number_sites_labels_genus, inherit.aes = FALSE
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus sylvestris'),
-    size = 4,
+    size = 2,
     # repel options
     nudge_x = 2.8,
     hjust = 1,
@@ -398,100 +414,106 @@ ntrees_genus_top <-
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Picea abies'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = 190,
+    nudge_x = 0.75, nudge_y = 190,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer saccharum'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = c(125, 50),
+    nudge_x = 0.75, nudge_y = c(125, 50),
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus taeda'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = 75,
+    nudge_x = 0.75, nudge_y = 75,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Populus tremuloides'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = 85,
+    nudge_x = 0.75, nudge_y = 85,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus koraiensis'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = c(160, 120, 80),
+    nudge_x = 0.75, nudge_y = c(160, 120, 80),
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Pinus strobus'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = 75,
+    nudge_x = 0.75, nudge_y = 75,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Quercus ilex'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = 85,
+    nudge_x = 0.75, nudge_y = 85,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
   geom_text_repel(
     aes(label = glue::glue("{si_code} ({n})"), y = segment_start),
     data = ntrees_genus_top_data_labels %>% filter(sp_name == 'Acer rubrum'),
-    size = 4,
+    size = 2,
     # repel options
-    nudge_x = 0.5, nudge_y = 60,
+    nudge_x = 0.75, nudge_y = 60,
     hjust = 1,
     direction = 'y', min.segment.length = 1000, seed = 25
   ) +
-  scale_fill_manual(values = c('grey', viridis::viridis(19))) +
+  scale_fill_manual(values = c('grey88', viridis::viridis(19))) +
   scale_y_continuous(expand = expansion(c(0,0), c(0,50))) +
   scale_x_discrete(expand = expansion(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of plants', 
-       title = 'Species with >50 plants') +
+       title = '') +
   # coord_flip() +
-  theme_bw() +
+  theme_light() +
   theme(
-    title= element_text(size = 16),
-    axis.title=element_text(size = 20),
-   axis.text.y=element_text(size = 18),
-    axis.text.x=element_text(size=18,face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
+    title= element_text(size = 11),
+    axis.title=element_text(size = 12),
+   axis.text.y=element_text(size = 12),
+    axis.text.x=element_text(size=12,face='italic', angle = 30, vjust = 0.9, hjust = 0.8),
     legend.title = element_blank(),
     legend.position = 'none'
   )
 
-fig_3 <- cowplot::plot_grid(ntrees_genus_top,ntrees_species_top,
-                   label_size= 24,labels=c('a)', 'b)'),ncol=1, nrow=2, align = "v", axis = "b")
-
-cowplot::save_plot(
-  'Fig_3.tiff', fig_3, nrow = 1, base_height = 15, base_width = 15
+fig_3 <- cowplot::plot_grid(
+  ntrees_genus_top,ntrees_species_top,
+  label_size= 12,
+  labels=c('(a) Species with >50 plants', '(b) Genera with >50 plants'),
+  vjust = 1.7, hjust = -0.05,
+  ncol=1, nrow=2, align = "v", axis = "b"
 )
 
-fig_3
+cowplot::save_plot(
+  'Fig_3.pdf', fig_3, nrow = 1, base_height = 25, base_width = 20,
+  units = 'cm'
+)
+
+knitr::include_graphics('Fig_3.pdf')
 ```
 **Figure 3.** 
 
@@ -508,7 +530,7 @@ fig_4 <- sfn_plants_type %>%
   geom_alluvium(aes(fill = group), width = 1/12)+
   geom_stratum(width = 1/12, alpha = 0.2) +
   geom_label_repel(
-    stat = "stratum", infer.label = TRUE,size=10,
+    stat = "stratum", infer.label = TRUE,size=3,
     direction = 'both',
     # nudge_x = c(rep(-0.2, 8), rep(0.05, 2), rep(0.2, 2), 0.05, 0.2)
     nudge_x = c(rep(-0.2, 2), -0.05, -0.2, rep(0.05, 2), rep(0.2, 8)), seed = 25
@@ -518,15 +540,16 @@ fig_4 <- sfn_plants_type %>%
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+
   ylab('Number of plants')+
-  theme_minimal()+
-  theme(legend.position = "none", axis.title=element_text(size=28),
-        axis.text = element_text(size=24))
+  theme_light()+
+  theme(legend.position = "none", axis.title=element_text(size=12),
+        axis.text = element_text(size=12))
 
 cowplot::save_plot(
-  'Fig_4.tiff', fig_4, nrow = 1, base_height = 15, base_width = 15
+  'Fig_4.pdf', fig_4, nrow = 1, base_height = 15, base_width = 15,
+  units = 'cm'
 )
 
-fig_4
+knitr::include_graphics('Fig_4.pdf')
   
 ```
 **Figure 4.** 
@@ -608,43 +631,6 @@ left_join(
 
 ```{r stand_plant_attributes, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15, fig.width=18}
 
-##########################################################################################
-#
-# Split violin plot code taken from here:
-# https://stackoverflow.com/questions/35717353/split-violin-plot-with-ggplot2
-#
-GeomSplitViolin <- ggproto("GeomSplitViolin", GeomViolin, 
-                           draw_group = function(self, data, ..., draw_quantiles = NULL) {
-  data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
-  grp <- data[1, "group"]
-  newdata <- plyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
-  newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
-  newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
-
-  if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
-    stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
-      1))
-    quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
-    aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
-    aesthetics$alpha <- rep(1, nrow(quantiles))
-    both <- cbind(quantiles, aesthetics)
-    quantile_grob <- GeomPath$draw_panel(both, ...)
-    ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
-  }
-  else {
-    ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
-  }
-})
-
-geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", position = "identity", ..., 
-                              draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, 
-                              show.legend = NA, inherit.aes = TRUE) {
-  layer(data = data, mapping = mapping, stat = stat, geom = GeomSplitViolin, 
-        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
-        params = list(trim = trim, scale = scale, draw_quantiles = draw_quantiles, na.rm = na.rm, ...))
-}
-##########################################################################################
-
 # Stand attributes --------------------------------------------------------
 
 sfn_allstands_long <- 
@@ -672,9 +658,9 @@ stand_violins <-
   guides(fill = FALSE) +
   labs(x = NULL, y = NULL) +
   theme_light() +
-  theme(axis.text.x = element_blank(),axis.text.y = element_text(size = 16),
+  theme(axis.text.x = element_blank(),axis.text.y = element_text(size = 12),
         strip.background = element_rect(fill = 'white', colour = 'darkgray'),
-        strip.text = element_text(size = 16, colour = 'black', face = 'bold'))
+        strip.text = element_text(size = 12, colour = 'black', face = 'bold'))
 
 #  Plant attributes -------------------------------------------------------
 
@@ -760,11 +746,11 @@ plant_violins <-
   theme_light() +
   guides(fill = guide_legend(title = 'Taxonomic group')) +
   theme(
-    axis.text.x = element_blank(), axis.text.y = element_text(size = 16),
+    axis.text.x = element_blank(), axis.text.y = element_text(size = 12),
     strip.background = element_rect(fill = 'white', colour='darkgray'),
-    strip.text = element_text(size = 16, colour = 'black', face = 'bold'),
-    legend.position = c(0.85, 0.25), legend.text = element_text(size = 18),
-    legend.title = element_text(size = 18, face = 'bold')
+    strip.text = element_text(size = 12, colour = 'black', face = 'bold'),
+    legend.position = c(0.85, 0.25), legend.text = element_text(size = 12),
+    legend.title = element_text(size = 12, face = 'bold')
   )
 
 
@@ -780,7 +766,7 @@ sw_inset<- sfn_allplants_long_sw %>%
     aes(x = 0.75),
     data = sfn_allplants_long_sw %>%
       filter(group == 'Angiosperms'),
-    colour = viridis::viridis(1), alpha=0.2,
+    colour = viridis::viridis(1), alpha=0.2, size = 0.5,
     position = position_jitter(width = 0.1, height = 0, seed = 25),
     show.legend = FALSE
   ) +
@@ -789,7 +775,7 @@ sw_inset<- sfn_allplants_long_sw %>%
     aes(x = 1),
     data = sfn_allplants_long_sw %>%
       filter(group == 'Gymnosperms'),
-    colour = viridis::viridis(1, direction = -1), alpha=0.2,
+    colour = viridis::viridis(1, direction = -1), alpha=0.2, size = 0.5,
     position = position_jitter(width = 0.1, height = 0, seed = 25),
     show.legend = FALSE
   ) +
@@ -799,8 +785,7 @@ sw_inset<- sfn_allplants_long_sw %>%
         filter(Var == 'pl_sapw_area',group == 'Angiosperms') %>%
         summarise(median = median(Value, na.rm = TRUE)),
     aes(x = .75, y = median),
-    colour = 'white', size = 4, shape = 23, fill = viridis::viridis(1),
-    position = position_nudge(x = -0.03)
+    colour = 'white', size = 1, shape = 23, fill = viridis::viridis(1)
   )+
   
   geom_point(
@@ -808,14 +793,13 @@ sw_inset<- sfn_allplants_long_sw %>%
         filter(Var == 'pl_sapw_area',group == 'Gymnosperms') %>%
         summarise(median = median(Value, na.rm = TRUE)),
     aes(x = 1, y = median),
-    colour = 'black', size = 4, shape = 23, fill = viridis::viridis(1,direction=-1),
-    position = position_nudge(x = -0.03)
+    colour = 'black', size = 1, shape = 23, fill = viridis::viridis(1,direction=-1)
   )+
   
   labs(x=NULL,y=NULL)+
   theme_light()+
-  theme(axis.text.x = element_blank(),axis.text.y=element_text(size=12),
-        panel.grid = element_blank())
+  theme(axis.text.x = element_blank(),axis.text.y=element_text(size=8),
+        panel.grid = element_blank(), axis.ticks.x = element_blank())
 
 
 ## This function allows us to specify which facet to annotate
@@ -842,16 +826,17 @@ plant_violins_inset<- plant_violins+
 
 fig_5 <- cowplot::plot_grid(
   NULL, plant_violins_inset, NULL, stand_violins,
-  labels = c('(a) Plant attributes', NA,  '(b) Stand attributes', NA),
+  labels = c('', '(a) Plant attributes', '', '(b) Stand attributes'),
+  vjust = -1, hjust = -0.1,
   rel_widths = c(1,1,1,1), nrow = 4, rel_heights = c(0.1, 1, 0.1, 1),
-  label_size = 24
+  label_size = 12, align = 'hv'
 )
 
 cowplot::save_plot(
-  'Fig_5.tiff', fig_5, nrow = 1, base_height = 15, base_width = 18
+  'Fig_5.pdf', fig_5, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_5
+knitr::include_graphics('Fig_5.pdf')
 
 
 ```
@@ -957,7 +942,8 @@ data_duration_plot <-
       (202 - seq(198, 2, length.out = 30))[21:25] * -1
     ),
     force = 0,
-    seed = 25
+    seed = 25,
+    size = 2
   ) +
   scale_fill_manual(values = treeclass_pal) +
   scale_x_continuous(expand = expansion(c(0,0), c(0, 20))) +
@@ -965,10 +951,11 @@ data_duration_plot <-
   ggtitle('')+
   theme_light() +
   theme(
-    axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16),
+    axis.title.x = element_text(size = 12), axis.text.x = element_text(size = 12),
     axis.text.y = element_blank(),
-    legend.position = c(.2, .15), legend.text = element_text(size = 16),
-    legend.title = element_text(size = 18, face = 'bold')
+    legend.position = c(.2, .15), legend.text = element_text(size = 10),
+    legend.title = element_text(size = 12, face = 'bold'),
+    legend.background = element_blank()
   )
     
   
@@ -985,21 +972,21 @@ data_period_plot <-
         axis.ticks.y = element_blank()) +
   guides(fill = 'none') +
   labs(x = "Year",y = '') +
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16))
+  theme(axis.title.x = element_text(size = 12), axis.text.x = element_text(size = 12))
 
 # Figure composition
 
 fig_6 <- cowplot::plot_grid(
   data_duration_plot, data_period_plot,
   labels = c('(a)','(b)'), rel_widths = c(1,0.4),
-  label_size=24,hjust=c(-0.6,-0.5),vjust=c(1.1,1.1)
+  label_size=12
 )
 
 cowplot::save_plot(
-  'Fig_6.tiff', fig_6, nrow = 1, base_height = 20, base_width = 15
+  'Fig_6.pdf', fig_6, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_6
+knitr::include_graphics('Fig_6.pdf')
 
 ```
 
@@ -1028,29 +1015,42 @@ datasets_duration %>%
 source('R/sfn_datapaper_functions.R')
 
 # Data path
-path.sapwood <- file.path('data/0.1.4/RData/sapwood')
+path.sapwood <- file.path('data/0.1.5/RData/sapwood')
 
 # Plot
 fig_7 <- cowplot::plot_grid(
+  NULL,
 sfn_finger_species(read_sfn_data('ESP_CAN',folder=path.sapwood))+
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
-
+  theme(
+    axis.title = element_text(size = 12), axis.text.x = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(x = ''),
+NULL,
 sfn_finger_species(read_sfn_data('USA_WVF',folder=path.sapwood),years=1998,
                    species=c('Acer saccharum','Prunus serotina','Quercus alba','Quercus rubra'))+
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
-
+  theme(
+    axis.title = element_text(size = 12), axis.text.x = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(x = ''),
+NULL,
 sfn_finger_species(read_sfn_data('CRI_TAM_TOW',folder=path.sapwood),years=2015,
                    species=c('Pouteria sp.','Inga sp.',
                                             'Eschweillera sp.','Mortoniodendron anisophyllum'))+
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16)),
+  theme(
+    axis.title = element_text(size = 12), axis.text.x = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ),
 
-ncol=1,labels=c('a)','b)','c)'),rel_heights = c(1,1,1),label_size=24)
+ncol=1,labels=c('', '(a)', '', '(b)', '', '(c)'),
+rel_heights = c(0.1, 1,0.1, 1, 0.1, 1),label_size=12, vjust = 0)
 
 cowplot::save_plot(
-  'Fig_7.tiff', fig_7, nrow = 1, base_height = 20, base_width = 15
+  'Fig_7.pdf', fig_7, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_7
+knitr::include_graphics('Fig_7.pdf')
 
 ```
 
@@ -1083,15 +1083,16 @@ env_freq_plot <-
                             'env_precip'='Precipitation\n [env_precip]','env_ws'='Wind speed\n [env_ws]'))+
    scale_fill_manual(values=c('lightgrey',viridis::viridis_pal(direction=-1)(4))) +
   #scale_fill_viridis_d() +
-  labs(x = '', y = 'Number of datasets',title='Meteorological variables') +
-  theme_bw() +
+  labs(x = '', y = 'Number of datasets',title='') +
+  theme_light() +
   theme(
-    title=element_text(size=18),
+    title=element_text(size=12),
     legend.title = element_blank(),
     legend.position = 'top', legend.direction = 'horizontal',
-    legend.text=element_text(size=12),
-    axis.text.x = element_text(size=14,angle = 90),
-     axis.text.y = element_text(size=14,angle = 90)
+    legend.key.size = unit(0.70, 'line'),
+    legend.text=element_text(size=10),
+    axis.text.x = element_text(size=12,angle = 90, hjust = 0.5, vjust = 0.5),
+     axis.text.y = element_text(size=12)
   )
   
 
@@ -1122,7 +1123,7 @@ sfn_swc_freq <-
     depth_meas = as_factor(depth)
   )
 
-soil_pal<- c(viridis::viridis_pal(direction=-1)(5))
+soil_pal<- c(viridis::viridis_pal(direction=-1, option = 'E')(5))
 
 swc_freq_plot <-
   sfn_swc_freq %>%
@@ -1132,22 +1133,23 @@ swc_freq_plot <-
     scale_x_discrete(labels=c('shallow_depth'='SWC shallow\n [swc_shallow_depth]',
                               'deep_depth'='SWC deep\n [swc_deep_depth]'))+
   scale_fill_manual(values=soil_pal) +
-  labs(x = '', y = 'Number of datasets', title = 'Soil water content\n\n') +
-  theme_bw() +
+  labs(x = '', y = 'Number of datasets', title = '') +
+  theme_light() +
   theme(
-     title=element_text(size=18),
+     title=element_text(size=12),
     legend.title = element_blank(),
-    legend.position = c(.8, .75),
-    legend.key.height = unit(.5,'mm'),
-    legend.text=element_text(size=12),
-    axis.text.x = element_text(size=14,angle = 90),
-     axis.text.y = element_text(size=14,angle = 90)
+    legend.position = c(.73, .75),
+    legend.key.size = unit(0.60, 'line'),
+    legend.text=element_text(size=8),
+    legend.background = element_blank(),
+    axis.text.x = element_text(size=12,angle = 90, hjust = 0.5, vjust = 0.5),
+     axis.text.y = element_text(size=12)
   )
 
 upper_grid <- cowplot::plot_grid(
   env_freq_plot,swc_freq_plot, 
-  label_size = 24, labels=c('a)', 'b)'), rel_widths = c(1, 0.4),vjust=1.2,
-  ncol = 2, align = "h", axis = "b"
+  label_size = 12, labels=c('(a) Metereological variables', '(b) Soil water content'), rel_widths = c(1, 0.4),vjust=1.2, hjust = -0.05,
+  ncol = 2, align = "h", axis = "bt"
 )
 
 # Venn diagrams
@@ -1204,21 +1206,22 @@ venn_plot <- VennDiagram::draw.quad.venn(
   fill = viridis::viridis(4, direction = -1),
   fontfamily = "sans",
   cat.fontfamily = "sans",cat.fontface='bold',
-  cex=1.4,
-  cat.cex=1.4,
+  cex=0.8,
+  cat.cex=0.8,
   
 )
 
 fig_8 <- cowplot::plot_grid(
   upper_grid, venn_plot,
-  nrow = 2, label_size = 24, labels = c('', 'c)')
+  nrow = 2, label_size = 12, labels = c('', '(c)'), rel_heights = c(1, 0.5),
+  scale = c(1, 0.8), hjust = -5
 )
 
 cowplot::save_plot(
-  'Fig_8.tiff', fig_8, nrow = 1, base_height = 20, base_width = 15
+  'Fig_8.pdf', fig_8, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_8
+knitr::include_graphics('Fig_8.pdf')
 
 ```
 **Figure 8.** 
@@ -1277,20 +1280,27 @@ basa_area_data <-
   mutate(
     sp_basal_area_perc = ifelse(si_code == 'RUS_POG_VAR', NA, sp_basal_area_perc),
     percab_measured = ifelse(si_code == 'RUS_POG_VAR', 0, percab_measured),
-    nspecies_fct = as_factor(nspecies),
+    nspecies_fct = case_when(
+      nspecies < 2 ~ '1 species',
+      between(nspecies, 2, 5) ~ '2-5 species',
+      between(nspecies, 6, 10) ~ '6-10 species',
+      nspecies > 10 ~ '+10 species',
+    ) %>% as_factor %>% fct_relevel('+10 species', after = Inf),
+    # nspecies_fct = as_factor(nspecies),
     typeplant = if_else(is.na(typeplant), 'no', typeplant),
     biomes_joined = case_when(
       si_biome %in% c(
         'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
         'Temperate rain forest','Tropical rain forest'
-      ) ~ 'b) Dry and Tropical',
-      si_biome %in% c('Boreal forest','Tundra') ~ 'a) Boreal-Tundra',
-      si_biome=='Mediterranean' ~ 'c) Mediterranean',
-      si_biome=='Temperate forest' ~ 'd) Temperate forest'
+      ) ~ '(b) Dry and Tropical',
+      si_biome %in% c('Boreal forest','Tundra') ~ '(a) Boreal-Tundra',
+      si_biome=='Woodland/Shrubland' ~ '(c) Woodland/Shrubland',
+      si_biome=='Temperate forest' ~ '(d) Temperate forest'
     )
   ) %>%
   filter(biomes_joined != 'Unknown') %>%
   arrange(percab_measured)
+
 
 biomes_plot_list <- basa_area_data %>%
   group_by(biomes_joined) %>%
@@ -1312,7 +1322,7 @@ biomes_plot_list <- basa_area_data %>%
           y = rep(c(115, 125), length.out = data %>% pull(si_code) %>% unique() %>% length()),
           label = total_ntrees
         ),
-        size = 4, colour = 'black',
+        size = 2, colour = 'black',
         data = data %>%
           distinct(si_code, .keep_all = TRUE),
         # direction = 'y', seed = 25,
@@ -1330,15 +1340,15 @@ biomes_plot_list <- basa_area_data %>%
       ) +
       theme_bw() +
       theme(
-        title=element_text(size=36),
+        title=element_text(size=10),
         legend.text = element_text(size = 12),
         legend.position = "none",
         legend.box = "horizontal",
         legend.title = element_blank(),
-        axis.title.y = element_text(size = 20),
-        axis.text.y = element_text(size = 16),
-        plot.title = element_text(hjust = 0, size = 14),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 14),
+        axis.title.y = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        plot.title = element_text(hjust = 0, size = 12),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 6),
         plot.margin = margin(0, 0, 0, 0)
       )
   })
@@ -1351,15 +1361,14 @@ biomes_plot_list[[1]] <- biomes_plot_list[[1]] +
 biomes_grid <- 
   cowplot::plot_grid(
     plotlist = biomes_plot_list,
-    nrow = 4, align = 'h',
-    label_size = 20
+    nrow = 4, axis = 'l', align = 'v'
   )
 
 common_label_y <-
   ggdraw() +
   draw_label(
   "Percentage of stand basal area with sap flow measurements",
- size = 24, angle = 90
+ size = 12, angle = 90
   ) +
   theme(
     plot.margin = margin(0, 0, 0, 0)
@@ -1372,23 +1381,24 @@ biomes_grid_common_label <- cowplot::plot_grid(
 plot_legend <- get_legend(
   biomes_plot_list[[4]] +
     theme(
-      legend.position = "right",
-      legend.text = element_text(size = 16),
-      legend.direction = "vertical",
-      legend.title = element_text(size = 18),
-      legend.margin = margin(0,0,0,0)
+      legend.position = "bottom",
+      legend.text = element_text(size = 10),
+      legend.direction = "horizontal",
+      legend.title = element_text(size = 10),
+      legend.margin = margin(0,0,0,0),
+      legend.key.size = unit(0.60, 'line')
     )
 )
 
 fig_9 <- cowplot::plot_grid(
-  biomes_grid_common_label, plot_legend, ncol = 2, rel_widths = c(1, .2)
+  biomes_grid_common_label, plot_legend, ncol = 1, rel_heights = c(1, .03)
 )
 
 cowplot::save_plot(
-  'Fig_9.tiff', fig_9, nrow = 1, base_height = 20, base_width = 15
+  'Fig_9.pdf', fig_9, nrow = 1, base_height = 24, base_width = 20, units = 'cm'
 )
 
-fig_9
+knitr::include_graphics('Fig_9.pdf')
 
 ```
 **Figure 9.** 

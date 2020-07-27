@@ -71,6 +71,17 @@ sfn_finger_species<- function(sfn_data_obj,
   sfn_data_obj %>%  
     get_plant_md() -> plmdata
   
+  name_legend <- bquote(
+    atop(
+      Sap~flow~per~phantom(),
+      atop(sapwood~area~phantom(), (cm^3~cm^-2~h^-1))
+    )
+  )
+  
+  # name_legend <- expression(paste(
+  #   "Sap flow per \nsapwood area \n(cm"^{3}*"cm"^{-2}*"h"^{-1}*")"
+  # ))
+  
   sfdata %>% 
     full_join(dplyr::select(plmdata,pl_code,pl_species),by=c('tree'='pl_code')) %>% 
     group_by(pl_species) %>% 
@@ -78,6 +89,11 @@ sfn_finger_species<- function(sfn_data_obj,
            doy = lubridate::yday(TIMESTAMP),
            hour = lubridate::hour(TIMESTAMP)) %>% 
     dplyr::filter(year%in%years, pl_species%in%species) %>% 
+    dplyr::mutate(
+      pl_species = dplyr::if_else(
+        pl_species == 'Mortoniodendron anisophyllum', 'Mortoniodendron sp.', pl_species
+      )
+    ) %>% 
     group_by(pl_species,year,doy,hour) %>% 
     mutate(sf_species=mean(sf,na.rm=TRUE)) %>%
     distinct(pl_species,doy,hour,.keep_all = TRUE) %>%
@@ -86,7 +102,8 @@ sfn_finger_species<- function(sfn_data_obj,
     geom_raster(interpolate=TRUE)+
     # geom_tile(color= "white",size=0.01) + 
     viridis::scale_fill_viridis(
-      name="Sap flow per\nsapwood area\n[cm³ cm⁻² h⁻¹]",
+      # name="Sap flow per\nsapwood area\n[cm³ cm⁻² h⁻¹]",
+      name = name_legend,
       option ="C",
       na.value = 'transparent'
     )+
@@ -94,11 +111,11 @@ sfn_finger_species<- function(sfn_data_obj,
     scale_x_continuous(labels = c('6h', '12h', '18h'), breaks = c(6,12,18)) +
     facet_grid(year~pl_species)+
     theme_light() +
-    theme(axis.text = element_text(size = 16),
-          axis.title = element_text(size = 16),
+    theme(axis.text = element_text(size = 12),
+          axis.title = element_text(size = 12),
           strip.background = element_rect(fill = 'white', colour = 'darkgray'),
-          strip.text.x = element_text(size = 12, colour = 'black', face = 'italic'),
-          strip.text.y = element_text(size = 12, colour = 'black'))
+          strip.text.x = element_text(size = 10, colour = 'black', face = 'italic'),
+          strip.text.y = element_text(size = 10, colour = 'black'))
   
   
 }
@@ -139,7 +156,7 @@ qc_get_biomes_spdf <- function(merge_deserts = FALSE, parent_logger = 'test') {
               3377.7,2917.0,2355.7,2355.7,2917.0,3377.7,3896.5,4343.1,4415.2,4429.8,4279.0,4113.7,3344.4,2790.6,2574.0,2414.3,
               2355.7, 535.1, 794.3,1269.3,1837.6,2355.7,2414.3,2574.0,2790.6,1920.3, 992.4, 847.9, 702.9, 535.1, 202.6,  50.8,
               7.3,  34.8,  98.8, 170.8, 533.0,1074.1,1405.9,1074.1, 922.9, 202.6),
-      biome = c(rep('Subtropical desert', 9), rep('Temperate grassland desert', 7), rep('Mediterranean', 13),
+      biome = c(rep('Subtropical desert', 9), rep('Temperate grassland desert', 7), rep('Woodland/Shrubland', 13),
                 rep('Temperate forest', 16), rep('Boreal forest', 12), rep('Temperate rain forest', 10),
                 rep('Tropical rain forest', 14), rep('Tropical forest savanna', 13), rep('Tundra', 12))
     )
@@ -234,6 +251,7 @@ vis_biome <- function(merge_deserts = FALSE, parent_logger = 'test') {
         aes(x = long, y = lat, group = id,
             fill = id)
       ) +
+      # scale_x_continuous(limits = c(0, 6000)) +
       scale_fill_manual('Biomes', values = pal) +
       xlab('Mean annual precipitation (mm)') +
       ylab('Mean annual temperature (ºC)')
@@ -334,3 +352,40 @@ vis_location_biome <- function(data, merge_deserts = FALSE,
                                                         sep = '.'))})
   
 }
+
+##########################################################################################
+#
+# Split violin plot code taken from here:
+# https://stackoverflow.com/questions/35717353/split-violin-plot-with-ggplot2
+#
+GeomSplitViolin <- ggproto("GeomSplitViolin", GeomViolin, 
+                           draw_group = function(self, data, ..., draw_quantiles = NULL) {
+                             data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
+                             grp <- data[1, "group"]
+                             newdata <- plyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
+                             newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
+                             newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
+                             
+                             if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
+                               stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
+                                                                         1))
+                               quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
+                               aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
+                               aesthetics$alpha <- rep(1, nrow(quantiles))
+                               both <- cbind(quantiles, aesthetics)
+                               quantile_grob <- GeomPath$draw_panel(both, ...)
+                               ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
+                             }
+                             else {
+                               ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
+                             }
+                           })
+
+geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", position = "identity", ..., 
+                              draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, 
+                              show.legend = NA, inherit.aes = TRUE) {
+  layer(data = data, mapping = mapping, stat = stat, geom = GeomSplitViolin, 
+        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
+        params = list(trim = trim, scale = scale, draw_quantiles = draw_quantiles, na.rm = na.rm, ...))
+}
+##########################################################################################
