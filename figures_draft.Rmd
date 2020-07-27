@@ -139,12 +139,18 @@ knitr::include_graphics('resources/QC_process.png')
 
 \pagebreak
 
-```{r sitesmap, echo=FALSE, fig.height=15, fig.width=15, message=FALSE, warning=FALSE, cache=FALSE}
+```{r sitesmap, echo=FALSE, fig.width=8, message=FALSE, warning=FALSE, cache=FALSE}
 sitesmap_global <- globforest_rec_0_1  +
-  geom_point(data=sfn_allsites,aes(x=si_long,y=si_lat),shape=21,color='black',fill='royalblue',alpha=0.5, size = 3)+
+  geom_point(
+    data=sfn_allsites,
+    aes(x=si_long,y=si_lat),
+    shape=21,color='black',
+    fill='royalblue',
+    alpha=0.5, size = 3
+  )+
   guides(fill='none')+xlab(NULL)+ylab(NULL)+
   theme_light()+
-  theme(axis.title=element_text(size=22),axis.text=element_text(size=22))
+  theme(axis.title=element_text(size=12),axis.text=element_text(size=12))
 
 # TODO: preliminary filtering out climatic NAs
 # Use CHELSA to gf 
@@ -153,16 +159,17 @@ biomes_plot <- sfn_allsites %>%
   dplyr::arrange(si_biome) %>%
   dplyr::filter(!is.na(si_map) | !is.na(si_map)) %>% 
   vis_location_biome() +
+  theme_light() +
   theme(
     panel.grid = element_blank(),
     axis.ticks = element_blank(),
-    title= element_text(size=22),
-    axis.title=element_text(size=22),
-    axis.text=element_text(size=22),
+    title= element_text(size=12),
+    axis.title=element_text(size=12),
+    axis.text=element_text(size=12),
     legend.title = element_blank(),
-    legend.text = element_text(size =18),
-    legend.key.size = unit(1.25, 'line'),
-    legend.position = c(0.7,0.25),
+    legend.text = element_text(size = 8),
+    legend.key.size = unit(0.60, 'line'),
+    legend.position = c(0.73,0.27),
     legend.background = element_blank()
     
   )
@@ -174,21 +181,30 @@ igbp_plot<-sfn_allsites %>%
   geom_bar(stat='identity', fill = viridis::viridis(1))+
   xlab('Vegetation type')+ylab('Number of datasets')+
   theme_light()+
-  theme(axis.title=element_text(size=22),axis.text=element_text(size=20))
+  theme(axis.title=element_text(size=12),axis.text=element_text(size=12))
 
-# Build figure 
-fig_2 <- cowplot::plot_grid(
-  # row 1
-  cowplot::plot_grid(sitesmap_global, labels='(a)',label_size=24),
-  # row 2
-  cowplot::plot_grid(biomes_plot, igbp_plot,labels=c('(b)','(c)'),rel_widths=c(0.6,0.4),label_size=24),
-  ncol=1, rel_heights=c(0.5,0.5))
-
-cowplot::save_plot(
-  'Fig_2.tiff', fig_2, nrow = 1, base_height = 15, base_width = 15
+temp_align_plots <- cowplot::align_plots(
+  sitesmap_global, biomes_plot, align = 'v', axis = 'l'
 )
 
-knitr::include_graphics('Fig_2.tiff')
+# Build figure 
+biomes_igbp_grid <- cowplot::plot_grid(
+  biomes_plot, igbp_plot,
+  labels=c('(b)','(c)'), rel_widths=c(0.5,0.5), label_size=12, vjust = -0.5
+)
+
+fig_2 <- cowplot::plot_grid(
+  NULL, temp_align_plots[[1]], NULL, biomes_igbp_grid,
+  labels = c('', '(a)', '', ''), label_size = 12,
+  nrow = 4, rel_heights = c(0.03, 0.5, 0.03, 0.5), vjust = 0
+)
+
+cowplot::save_plot(
+  'Fig_2.pdf', fig_2, nrow = 1, base_height = 15, base_width = 20,
+  units = 'cm'
+)
+
+knitr::include_graphics('Fig_2.pdf')
 
 ```
 
@@ -1345,7 +1361,7 @@ biomes_plot_list <- basa_area_data %>%
         axis.title.y = element_text(size = 20),
         axis.text.y = element_text(size = 16),
         plot.title = element_text(hjust = 0, size = 14),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 14),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 14),
         plot.margin = margin(0, 0, 0, 0)
       )
   })
@@ -1391,7 +1407,7 @@ fig_9 <- cowplot::plot_grid(
 )
 
 cowplot::save_plot(
-  'Fig_9.tiff', fig_9, nrow = 1, base_height = 20, base_width = 15
+  'Fig_9.tiff', fig_9, nrow = 1, base_height = 11.7, base_width = 8.3
 )
 
 fig_9

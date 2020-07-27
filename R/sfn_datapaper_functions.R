@@ -234,6 +234,7 @@ vis_biome <- function(merge_deserts = FALSE, parent_logger = 'test') {
         aes(x = long, y = lat, group = id,
             fill = id)
       ) +
+      # scale_x_continuous(limits = c(0, 6000)) +
       scale_fill_manual('Biomes', values = pal) +
       xlab('Mean annual precipitation (mm)') +
       ylab('Mean annual temperature (ºC)')
