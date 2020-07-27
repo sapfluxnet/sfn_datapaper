@@ -7,9 +7,9 @@ library(taxonlookup)
 # 1. Read metadata ---------------------------------------------------------------
 # From previously written cache file
 
-sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.4/RData/plant', .write_cache = FALSE)
-sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.4/RData/sapwood', .write_cache = FALSE)
-sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.4/RData/leaf', .write_cache = FALSE)
+sfn_metadata_plant <- read_sfn_metadata(folder = 'data/0.1.5/RData/plant', .write_cache = FALSE)
+sfn_metadata_sapwood <- read_sfn_metadata(folder = 'data/0.1.5/RData/sapwood', .write_cache = FALSE)
+sfn_metadata_leaf <- read_sfn_metadata(folder = 'data/0.1.5/RData/leaf', .write_cache = FALSE)
 
 # 2. Aggregate all datasets -----------------------------------------------
 
