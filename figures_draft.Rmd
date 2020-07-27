@@ -349,7 +349,7 @@ ntrees_species_top <-
   scale_x_discrete(expand = expansion(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of plants',
-       title = 'Genera with >50 plants') +
+       title = '') +
   # coord_flip() +
   theme_light() +
   theme(
@@ -488,7 +488,7 @@ ntrees_genus_top <-
   scale_x_discrete(expand = expansion(c(0,0), c(1,2.5))) +
   # viridis::scale_fill_viridis(discrete = TRUE) +
   labs(x = '', y = 'Number of plants', 
-       title = 'Species with >50 plants') +
+       title = '') +
   # coord_flip() +
   theme_light() +
   theme(
@@ -502,7 +502,9 @@ ntrees_genus_top <-
 
 fig_3 <- cowplot::plot_grid(
   ntrees_genus_top,ntrees_species_top,
-  label_size= 12,labels=c('(a)', '(b)'), vjust = 1.7,
+  label_size= 12,
+  labels=c('(a) Species with >50 plants', '(b) Genera with >50 plants'),
+  vjust = 1.7, hjust = -0.05,
   ncol=1, nrow=2, align = "v", axis = "b"
 )
 
@@ -940,7 +942,8 @@ data_duration_plot <-
       (202 - seq(198, 2, length.out = 30))[21:25] * -1
     ),
     force = 0,
-    seed = 25
+    seed = 25,
+    size = 2
   ) +
   scale_fill_manual(values = treeclass_pal) +
   scale_x_continuous(expand = expansion(c(0,0), c(0, 20))) +
@@ -948,10 +951,11 @@ data_duration_plot <-
   ggtitle('')+
   theme_light() +
   theme(
-    axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16),
+    axis.title.x = element_text(size = 12), axis.text.x = element_text(size = 12),
     axis.text.y = element_blank(),
-    legend.position = c(.2, .15), legend.text = element_text(size = 16),
-    legend.title = element_text(size = 18, face = 'bold')
+    legend.position = c(.2, .15), legend.text = element_text(size = 10),
+    legend.title = element_text(size = 12, face = 'bold'),
+    legend.background = element_blank()
   )
     
   
@@ -968,18 +972,18 @@ data_period_plot <-
         axis.ticks.y = element_blank()) +
   guides(fill = 'none') +
   labs(x = "Year",y = '') +
-  theme(axis.title.x = element_text(size = 18), axis.text.x = element_text(size = 16))
+  theme(axis.title.x = element_text(size = 12), axis.text.x = element_text(size = 12))
 
 # Figure composition
 
 fig_6 <- cowplot::plot_grid(
   data_duration_plot, data_period_plot,
   labels = c('(a)','(b)'), rel_widths = c(1,0.4),
-  label_size=24,hjust=c(-0.6,-0.5),vjust=c(1.1,1.1)
+  label_size=12
 )
 
 cowplot::save_plot(
-  'Fig_6.tiff', fig_6, nrow = 1, base_height = 20, base_width = 15
+  'Fig_6.pdf', fig_6, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
 fig_6
