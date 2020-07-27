@@ -528,7 +528,7 @@ fig_4 <- sfn_plants_type %>%
   geom_alluvium(aes(fill = group), width = 1/12)+
   geom_stratum(width = 1/12, alpha = 0.2) +
   geom_label_repel(
-    stat = "stratum", infer.label = TRUE,size=10,
+    stat = "stratum", infer.label = TRUE,size=3,
     direction = 'both',
     # nudge_x = c(rep(-0.2, 8), rep(0.05, 2), rep(0.2, 2), 0.05, 0.2)
     nudge_x = c(rep(-0.2, 2), -0.05, -0.2, rep(0.05, 2), rep(0.2, 8)), seed = 25
@@ -538,12 +538,13 @@ fig_4 <- sfn_plants_type %>%
   #scale_fill_brewer(type = "qual", palette = "Set1")+
   scale_fill_viridis_d()+
   ylab('Number of plants')+
-  theme_minimal()+
-  theme(legend.position = "none", axis.title=element_text(size=28),
-        axis.text = element_text(size=24))
+  theme_light()+
+  theme(legend.position = "none", axis.title=element_text(size=12),
+        axis.text = element_text(size=12))
 
 cowplot::save_plot(
-  'Fig_4.tiff', fig_4, nrow = 1, base_height = 15, base_width = 15
+  'Fig_4.pdf', fig_4, nrow = 1, base_height = 15, base_width = 15,
+  units = 'cm'
 )
 
 fig_4
