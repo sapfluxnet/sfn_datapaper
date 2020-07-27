@@ -16,10 +16,105 @@ editor_options:
 
 ```{r setup, include=FALSE}
 
+library(googlesheets4)
+library(tidyverse)
+# Function to get affiliations ranked from 1 to n (this function was found on Stack Overflow)
+
+rankID <- function(x){
+  su=sort(unique(x))
+  for (i in 1:length(su)) x[x==su[i]] = i
+  return(x)
+}
+
+```
+
+```{r read_data,echo=FALSE,include=FALSE,message=FALSE}
+
 # TODO:
 # read data from googlesheets
 # use code to generate author list:
 # https://audhalbritter.com/code-based-author-and-affiliation-list/
 
+
+coauthor_data <- read_sheet('https://docs.google.com/spreadsheets/d/1MO43IQFSb7aB607u6RiZ6afgk97fwX8DIC4LvN2W1V8',
+sheet='coauthor_data')
+
+# Extract first and last names
+coauthor_data %>% 
+  mutate(last_name=sapply(strsplit(full_name,","),'[[',1),
+         first_name=sapply(strsplit(full_name,","),'[[',2)
+  ) %>% 
+  select(full_name,first_name,last_name,everything())-> coauthor_data_names
+         
+# Gather affiliations
+
+coauthor_data_names %>% 
+  pivot_longer(cols=c('affiliation1','affiliation2','affiliation3'),
+               names_to='num_affiliation',values_to='affiliation',
+              names_prefix='affiliation', 
+              names_transform=list(num_affiliation=as.numeric)) %>% 
+  filter(!is.na(affiliation))-> coauthor_afflong
+
+## TODO:
+# Add main authors
+# Create order ID
+
+```
+
+
+```{r build_list,echo=FALSE,include=FALSE,message=FALSE}
+
+name_aff_list <- coauthor_afflong %>% 
+  arrange(last_name, affiliation) %>% 
+  rowwise() %>% 
+  # extract the first letter of each first name and put a dot after each letter
+  mutate(
+    Initials = paste(stringi::stri_extract_all(regex = "\\b([[:alpha:]])", 
+                                               str = first_name, simplify = TRUE), collapse = ". "),
+    Initials = paste0(Initials, ".")) %>%
+  ungroup() %>% 
+  # add a column from 1 to n
+  mutate(ID = 1:n()) %>%
+  group_by(affiliation) %>% 
+  # replace ID with min number (same affiliations become the same number)
+  mutate(ID = min(ID)) %>% 
+  ungroup() %>% 
+  # use function above to assign new ID from 1 to n
+  mutate(ID = rankID(ID)) %>%
+  #Paste Last and Initials
+  mutate(name = paste0(last_name, ", ", Initials))
+
+```
+
+
+
+```{r authors_list, echo=FALSE,results='asis',message=FALSE}
+
+# Create a list with all names
+name_aff_list %>%   
+  group_by(last_name, name) %>% 
+  summarise(affs = paste(ID, collapse = ",")) %>% 
+  mutate(
+    affs = paste0("^", affs, "^"),
+    nameID = paste0(name, affs)     
+         ) %>% 
+  pull(nameID) %>% 
+  paste(collapse = ", ") %>% 
+  cat(sep=", ")
+
+```
+
+
+```{r affiliation_list, echo=FALSE, results='asis'}
+
+# Create a list with all Affiliations
+name_aff_list%>% 
+  distinct(ID, affiliation) %>% 
+  arrange(ID) %>% 
+  mutate(ID = paste0("^", ID, "^")) %>% 
+  mutate(affiliation2 = paste(ID, affiliation, sep = "")) %>% 
+  pull(affiliation2) %>% 
+   paste(collapse = ". ") %>% 
+  cat(sep="\n")
 ```
 
