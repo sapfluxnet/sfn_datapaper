@@ -1292,10 +1292,10 @@ basa_area_data <-
       si_biome %in% c(
         'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna',
         'Temperate rain forest','Tropical rain forest'
-      ) ~ 'b) Dry and Tropical',
-      si_biome %in% c('Boreal forest','Tundra') ~ 'a) Boreal-Tundra',
-      si_biome=='Woodland/Shrubland' ~ 'c) Woodland/Shrubland',
-      si_biome=='Temperate forest' ~ 'd) Temperate forest'
+      ) ~ '(b) Dry and Tropical',
+      si_biome %in% c('Boreal forest','Tundra') ~ '(a) Boreal-Tundra',
+      si_biome=='Woodland/Shrubland' ~ '(c) Woodland/Shrubland',
+      si_biome=='Temperate forest' ~ '(d) Temperate forest'
     )
   ) %>%
   filter(biomes_joined != 'Unknown') %>%
@@ -1322,7 +1322,7 @@ biomes_plot_list <- basa_area_data %>%
           y = rep(c(115, 125), length.out = data %>% pull(si_code) %>% unique() %>% length()),
           label = total_ntrees
         ),
-        size = 4, colour = 'black',
+        size = 2, colour = 'black',
         data = data %>%
           distinct(si_code, .keep_all = TRUE),
         # direction = 'y', seed = 25,
@@ -1340,15 +1340,15 @@ biomes_plot_list <- basa_area_data %>%
       ) +
       theme_bw() +
       theme(
-        title=element_text(size=36),
+        title=element_text(size=10),
         legend.text = element_text(size = 12),
         legend.position = "none",
         legend.box = "horizontal",
         legend.title = element_blank(),
-        axis.title.y = element_text(size = 20),
-        axis.text.y = element_text(size = 16),
-        plot.title = element_text(hjust = 0, size = 14),
-        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 14),
+        axis.title.y = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        plot.title = element_text(hjust = 0, size = 12),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 6),
         plot.margin = margin(0, 0, 0, 0)
       )
   })
@@ -1361,14 +1361,14 @@ biomes_plot_list[[1]] <- biomes_plot_list[[1]] +
 biomes_grid <- 
   cowplot::plot_grid(
     plotlist = biomes_plot_list,
-    nrow = 4, align = 'h'
+    nrow = 4, axis = 'l', align = 'v'
   )
 
 common_label_y <-
   ggdraw() +
   draw_label(
   "Percentage of stand basal area with sap flow measurements",
- size = 24, angle = 90
+ size = 12, angle = 90
   ) +
   theme(
     plot.margin = margin(0, 0, 0, 0)
@@ -1382,10 +1382,11 @@ plot_legend <- get_legend(
   biomes_plot_list[[4]] +
     theme(
       legend.position = "bottom",
-      legend.text = element_text(size = 16),
+      legend.text = element_text(size = 10),
       legend.direction = "horizontal",
-      legend.title = element_text(size = 18),
-      legend.margin = margin(0,0,0,0)
+      legend.title = element_text(size = 10),
+      legend.margin = margin(0,0,0,0),
+      legend.key.size = unit(0.60, 'line')
     )
 )
 
@@ -1394,7 +1395,7 @@ fig_9 <- cowplot::plot_grid(
 )
 
 cowplot::save_plot(
-  'Fig_9.tiff', fig_9, nrow = 1, base_height = 11.7, base_width = 8.3
+  'Fig_9.pdf', fig_9, nrow = 1, base_height = 24, base_width = 20, units = 'cm'
 )
 
 fig_9
