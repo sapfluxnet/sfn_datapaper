@@ -1083,15 +1083,16 @@ env_freq_plot <-
                             'env_precip'='Precipitation\n [env_precip]','env_ws'='Wind speed\n [env_ws]'))+
    scale_fill_manual(values=c('lightgrey',viridis::viridis_pal(direction=-1)(4))) +
   #scale_fill_viridis_d() +
-  labs(x = '', y = 'Number of datasets',title='Meteorological variables') +
-  theme_bw() +
+  labs(x = '', y = 'Number of datasets',title='') +
+  theme_light() +
   theme(
-    title=element_text(size=18),
+    title=element_text(size=12),
     legend.title = element_blank(),
     legend.position = 'top', legend.direction = 'horizontal',
-    legend.text=element_text(size=12),
-    axis.text.x = element_text(size=14,angle = 90),
-     axis.text.y = element_text(size=14,angle = 90)
+    legend.key.size = unit(0.70, 'line'),
+    legend.text=element_text(size=10),
+    axis.text.x = element_text(size=12,angle = 90, hjust = 0.5, vjust = 0.5),
+     axis.text.y = element_text(size=12)
   )
   
 
@@ -1122,7 +1123,7 @@ sfn_swc_freq <-
     depth_meas = as_factor(depth)
   )
 
-soil_pal<- c(viridis::viridis_pal(direction=-1)(5))
+soil_pal<- c(viridis::viridis_pal(direction=-1, option = 'E')(5))
 
 swc_freq_plot <-
   sfn_swc_freq %>%
@@ -1132,22 +1133,23 @@ swc_freq_plot <-
     scale_x_discrete(labels=c('shallow_depth'='SWC shallow\n [swc_shallow_depth]',
                               'deep_depth'='SWC deep\n [swc_deep_depth]'))+
   scale_fill_manual(values=soil_pal) +
-  labs(x = '', y = 'Number of datasets', title = 'Soil water content\n\n') +
-  theme_bw() +
+  labs(x = '', y = 'Number of datasets', title = '') +
+  theme_light() +
   theme(
-     title=element_text(size=18),
+     title=element_text(size=12),
     legend.title = element_blank(),
-    legend.position = c(.8, .75),
-    legend.key.height = unit(.5,'mm'),
-    legend.text=element_text(size=12),
-    axis.text.x = element_text(size=14,angle = 90),
-     axis.text.y = element_text(size=14,angle = 90)
+    legend.position = c(.73, .75),
+    legend.key.size = unit(0.60, 'line'),
+    legend.text=element_text(size=8),
+    legend.background = element_blank(),
+    axis.text.x = element_text(size=12,angle = 90, hjust = 0.5, vjust = 0.5),
+     axis.text.y = element_text(size=12)
   )
 
 upper_grid <- cowplot::plot_grid(
   env_freq_plot,swc_freq_plot, 
-  label_size = 24, labels=c('a)', 'b)'), rel_widths = c(1, 0.4),vjust=1.2,
-  ncol = 2, align = "h", axis = "b"
+  label_size = 12, labels=c('(a) Metereological variables', '(b) Soil water content'), rel_widths = c(1, 0.4),vjust=1.2, hjust = -0.05,
+  ncol = 2, align = "h", axis = "bt"
 )
 
 # Venn diagrams
@@ -1204,18 +1206,19 @@ venn_plot <- VennDiagram::draw.quad.venn(
   fill = viridis::viridis(4, direction = -1),
   fontfamily = "sans",
   cat.fontfamily = "sans",cat.fontface='bold',
-  cex=1.4,
-  cat.cex=1.4,
+  cex=0.8,
+  cat.cex=0.8,
   
 )
 
 fig_8 <- cowplot::plot_grid(
   upper_grid, venn_plot,
-  nrow = 2, label_size = 24, labels = c('', 'c)')
+  nrow = 2, label_size = 12, labels = c('', '(c)'), rel_heights = c(1, 0.5),
+  scale = c(1, 0.8), hjust = -5
 )
 
 cowplot::save_plot(
-  'Fig_8.tiff', fig_8, nrow = 1, base_height = 20, base_width = 15
+  'Fig_8.pdf', fig_8, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
 fig_8
