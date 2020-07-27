@@ -513,7 +513,7 @@ cowplot::save_plot(
   units = 'cm'
 )
 
-fig_3
+knitr::include_graphics('Fig_3.pdf')
 ```
 **Figure 3.** 
 
@@ -549,7 +549,7 @@ cowplot::save_plot(
   units = 'cm'
 )
 
-fig_4
+knitr::include_graphics('Fig_4.pdf')
   
 ```
 **Figure 4.** 
@@ -836,7 +836,7 @@ cowplot::save_plot(
   'Fig_5.pdf', fig_5, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_5
+knitr::include_graphics('Fig_5.pdf')
 
 
 ```
@@ -986,7 +986,7 @@ cowplot::save_plot(
   'Fig_6.pdf', fig_6, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_6
+knitr::include_graphics('Fig_6.pdf')
 
 ```
 
@@ -1050,7 +1050,7 @@ cowplot::save_plot(
   'Fig_7.pdf', fig_7, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_7
+knitr::include_graphics('Fig_7.pdf')
 
 ```
 
@@ -1221,7 +1221,7 @@ cowplot::save_plot(
   'Fig_8.pdf', fig_8, nrow = 1, base_height = 21, base_width = 20, units = 'cm'
 )
 
-fig_8
+knitr::include_graphics('Fig_8.pdf')
 
 ```
 **Figure 8.** 
@@ -1398,7 +1398,7 @@ cowplot::save_plot(
   'Fig_9.pdf', fig_9, nrow = 1, base_height = 24, base_width = 20, units = 'cm'
 )
 
-fig_9
+knitr::include_graphics('Fig_9.pdf')
 
 ```
 **Figure 9.** 
