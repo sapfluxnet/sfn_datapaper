@@ -18,7 +18,8 @@ editor_options:
 
 library(googlesheets4)
 library(tidyverse)
-# Function to get affiliations ranked from 1 to n (this function was found on Stack Overflow)
+# Function to get affiliations ranked from 
+# 1 to n (this function was found on Stack Overflow)
 
 rankID <- function(x){
   su=sort(unique(x))
@@ -30,7 +31,6 @@ rankID <- function(x){
 
 ```{r read_data,echo=FALSE,include=FALSE,message=FALSE}
 
-# TODO:
 # read data from googlesheets
 # use code to generate author list:
 # https://audhalbritter.com/code-based-author-and-affiliation-list/
@@ -39,12 +39,48 @@ rankID <- function(x){
 coauthor_data <- read_sheet('https://docs.google.com/spreadsheets/d/1MO43IQFSb7aB607u6RiZ6afgk97fwX8DIC4LvN2W1V8',
 sheet='coauthor_data')
 
-# Extract first and last names
+
 coauthor_data %>% 
+  arrange(full_name) %>% 
+  rownames_to_column('author_order') %>% 
+  mutate(author_order=6+as.numeric(author_order))->coauthor_data
+
+# Add main authors
+
+main_authors <- tibble(
+  author_order=1:6,
+      full_name = c('Poyatos, Rafael','Granda, Víctor','Flo, Víctor',
+                     'Steppe, Kathy','Mencuccini, Maurizio','Martínez-Vilalta, Jordi'),
+       email=c('r.poyatos@creaf.uab.es','victorgrandagarcia@gmail.com',
+               'v.flo@creaf.uab.cat','kathy.steppe@ugent.be','m.mencuccini@creaf.uab.cat',
+               'jordi.martinez.vilata@uab.cat'),
+       affiliation1=c('CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain',
+                      'CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain',
+                      'CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain',
+                      'Laboratory of Plant Ecology, Faculty of Bioscience Engineering, Ghent University, B‐9000 Ghent, Belgium',
+                      'ICREA, Barcelona, Catalonia, Spain',
+                      'CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain'),
+       affiliation2=c('Universitat Autònoma de Barcelona, E08193 Bellaterra, (Cerdanyola del Vallès), Catalonia, Spain',
+                      'InForest Joint Research Unit (CTFC‐CREAF), Solsona, Catalonia, Spain',
+                      NA,NA,'CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain',
+                      'Universitat Autònoma de Barcelona, E08193 Bellaterra, (Cerdanyola del Vallès), Catalonia, Spain'),
+       affiliation3=rep(NA,6),
+       observations=rep(NA,6),
+       ORCID=c('https://orcid.org/0000-0003-0521-2523','https://orcid.org/0000-0002-0469-1991',
+               'https://orcid.org/0000-0003-1908-4577','https://orcid.org/0000-0001-6252-0704',
+               'http://orcid.org/0000-0003-0840-1477','http://orcid.org/0000-0002-2332-7298')
+)
+
+main_authors %>% 
+  bind_rows(coauthor_data) ->all_authors
+
+
+# Extract first and last names
+all_authors %>% 
   mutate(last_name=sapply(strsplit(full_name,","),'[[',1),
          first_name=sapply(strsplit(full_name,","),'[[',2)
   ) %>% 
-  select(full_name,first_name,last_name,everything())-> coauthor_data_names
+  select(author_order,full_name,first_name,last_name,everything())-> coauthor_data_names
          
 # Gather affiliations
 
@@ -55,9 +91,6 @@ coauthor_data_names %>%
               names_transform=list(num_affiliation=as.numeric)) %>% 
   filter(!is.na(affiliation))-> coauthor_afflong
 
-## TODO:
-# Add main authors
-# Create order ID
 
 ```
 
@@ -65,7 +98,7 @@ coauthor_data_names %>%
 ```{r build_list,echo=FALSE,include=FALSE,message=FALSE}
 
 name_aff_list <- coauthor_afflong %>% 
-  arrange(last_name, affiliation) %>% 
+  arrange(author_order, affiliation) %>% 
   rowwise() %>% 
   # extract the first letter of each first name and put a dot after each letter
   mutate(
@@ -92,8 +125,9 @@ name_aff_list <- coauthor_afflong %>%
 
 # Create a list with all names
 name_aff_list %>%   
-  group_by(last_name, name) %>% 
+  group_by(last_name, name,author_order) %>% 
   summarise(affs = paste(ID, collapse = ",")) %>% 
+  arrange(author_order) %>% 
   mutate(
     affs = paste0("^", affs, "^"),
     nameID = paste0(name, affs)     
@@ -112,9 +146,10 @@ name_aff_list%>%
   distinct(ID, affiliation) %>% 
   arrange(ID) %>% 
   mutate(ID = paste0("^", ID, "^")) %>% 
-  mutate(affiliation2 = paste(ID, affiliation, sep = "")) %>% 
+  mutate(affiliation2 = paste(ID, affiliation, sep = ""), 
+  affiliation3 = paste(ID, affiliation, sep = "")) %>% 
   pull(affiliation2) %>% 
-   paste(collapse = ". ") %>% 
-  cat(sep="\n")
+   paste0(".  \n") %>%
+  cat()
 ```
 
