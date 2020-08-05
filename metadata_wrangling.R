@@ -190,7 +190,7 @@ sfn_sites_nspecies <- sfn_sitespecies_tax %>%
 
 # trees per dataset
 sfn_sites_nspecies %>% 
-  arrange(desc(ntrees)) %>% View()
+  arrange(desc(ntrees)) ->sfn_sites_nspecies_dataset
 
 sfn_sites_nspecies %>% 
   arrange(desc(ntrees)) %>% pull(ntrees) %>% quantile(c(0.25,0.5,0.75,.95))
@@ -307,10 +307,10 @@ sfn_plants_type %>%
 
 # Methods per species
 sfn_allplants_tax %>% 
-  group_by(pl_species,pl_sens_meth) %>% tally() %>% View()
+  group_by(pl_species,pl_sens_meth) %>% tally() ->methods_species
 
 # Installation height
-sfn_allplants_tax %>% View()
+sfn_allplants_tax ->installation_height
   
 
 # 4. Percentage basal area ------------------------------------------------

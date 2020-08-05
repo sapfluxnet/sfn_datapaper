@@ -61,7 +61,7 @@ main_authors <- tibble(
                       'ICREA, Barcelona, Catalonia, Spain',
                       'CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain'),
        affiliation2=c('Universitat Autònoma de Barcelona, E08193 Bellaterra, (Cerdanyola del Vallès), Catalonia, Spain',
-                      'InForest Joint Research Unit (CTFC‐CREAF), Solsona, Catalonia, Spain',
+                      'Joint Research Unit CREAF-CTFC, Bellaterra, Catalonia, Spain',
                       NA,NA,'CREAF, E08193 Bellaterra (Cerdanyola del Vallès), Catalonia, Spain',
                       'Universitat Autònoma de Barcelona, E08193 Bellaterra, (Cerdanyola del Vallès), Catalonia, Spain'),
        affiliation3=rep(NA,6),
@@ -71,8 +71,12 @@ main_authors <- tibble(
                'http://orcid.org/0000-0003-0840-1477','http://orcid.org/0000-0002-2332-7298')
 )
 
-main_authors %>% 
-  bind_rows(coauthor_data) ->all_authors
+main_authors[1:3,] %>% 
+  bind_rows(coauthor_data) %>% 
+  bind_rows(main_authors[4:6,]) %>% 
+  select(-author_order) %>% 
+  rownames_to_column('author_order') %>% 
+  mutate_at('author_order',as.numeric)->all_authors
 
 
 # Extract first and last names
@@ -115,7 +119,7 @@ name_aff_list <- coauthor_afflong %>%
   # use function above to assign new ID from 1 to n
   mutate(ID = rankID(ID)) %>%
   #Paste Last and Initials
-  mutate(name = paste0(last_name, ", ", Initials))
+  mutate(name = paste0(first_name, " ", last_name))
 
 ```
 

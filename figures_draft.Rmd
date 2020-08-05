@@ -39,22 +39,28 @@ load('maps_base.RData')
 ```
 ## Table captions
 
-**Table 1.** Number of sap flow times series in SAPFLUXNET with species-specific calibrated data 
-for the different sap flow methods: cyclic (or transient) heat dissipation (CHD), compensation heat pulse (CHP),
-heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
-stem heat balance (SHB) and trunk sector heat balance (TSHB).
+**Table 1.** Number of sap flow times series in SAPFLUXNET depending
+on whether they were calibrated (species-specific), non-calibrated or
+this information was not provided, for the different sap flow methods: 
+cyclic (or transient) heat dissipation (CHD), compensation heat pulse (CHP),
+heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), 
+heat ratio (HR), stem heat balance (SHB) and trunk sector heat balance (TSHB). 
+The percentage of calibrated time series was expressed with respect to the total
+number for each method.
 
-**Table 2.** Number of plants using different radial and azimuthal integration approaches
-for the different sap flow methods: cycling heat dissipation (CHD), compensation heat pulse (CHP),
-heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), heat ratio (HR), 
-stem heat balance (SHB) and trunk sector heat balance (TSHB).
+**Table 2.** Number of plants in the SAPFLUXNET database using different radial 
+and azimuthal integration approaches for the different sap flow methods: 
+cyclic (or transient) heat dissipation (CHD), compensation heat pulse (CHP),
+heat dissipation (HD), heat field deformation (HFD), heat pulse T-max (HPTM), 
+heat ratio (HR), stem heat balance (SHB) and trunk sector heat balance (TSHB).
 
-**Table 3.** Number of datasets, plants and species according to treatment at the stand level.
+**Table 3.** Number of datasets, plants and species by stand-level treatment in 
+the SAPFLUXNET database.
 
 ## Figure captions
 
 **Figure 1.** Overview of the SAPFLUXNET data workflow. Data files are received 
-from data contributors, and undergo several quality control processes (QC1 and QC2). 
+from data contributors, and undergo several quality-control processes (QC1 and QC2). 
 Both, QC1 and QC2 produce an .RData object of the custom-designed sfn-data S4 class 
 storing all data, metadata and data flags for each dataset. The progress and results of the QC
 processes are monitored through individual reports and log files. The final outcome, 
@@ -62,38 +68,40 @@ is stored in a folder structure with a either single .RData file for each datase
 set of seven csv files for each dataset.
 
 **Figure 2.** (a) Geographic, (b) bioclimatic and (c) vegetation type distribution 
-of SAPFLUXNET datasets. In (b) we represent the different 
-datasets according to their mean annual temperature and precipitation in a Whittaker 
-diagram showing the classification of the main terrestrial biomes. In (c) vegetation types
-are defined according to IGBP classification (ENF: Evergreen Needleleaf Forest; 
-DBF: Deciduous Broadleaf Forest; EBF: Evergreen Broadleaf Forest; MF: Mixed Forest; 
-DNF: Deciduous Needleleaf forest; SAV: Savannas; WSA: Woody Savannas; WET: Permanent Wetlands).
-Woodland area from Crowther et al. (2015) shown in green.
+of SAPFLUXNET datasets. In (a) woodland area from Crowther et al. (2015) is shown 
+in green. In (b) we represent the different datasets according to their mean annual 
+temperature and precipitation in a Whittaker diagram showing the classification of 
+the main terrestrial biomes. In (c) vegetation types are defined according to IGBP 
+classification (ENF: Evergreen Needleleaf Forest; DBF: Deciduous Broadleaf Forest; 
+EBF: Evergreen Broadleaf Forest; MF: Mixed Forest; DNF: Deciduous Needleleaf forest; 
+SAV: Savannas; WSA: Woody Savannas; WET: Permanent Wetlands).
+
 
 **Figure 3.** Taxonomic distribution of genera and species in SAPFLUXNET, showing 
 (a) species and (b) genera with > 50 plants in the database. Total bar height depicts 
-number of plants per species (a) or genera (b). Numbers on top of each bar show the number of datasets
-where each species (a) or genus (b) is present. Colors other than grey highlight datasets
-with 15 or more plants of a given species (a) or genus (b). Bar height for a given color
-is proportional to the number of plants in the corresponding dataset, which is also shown in parentheses
-next to the dataset code.
+number of plants per species (a) or genera (b). Numbers on top of each bar show 
+the number of datasets where each species (a) or genus (b) is present. Colours 
+other than grey highlight datasets with 15 or more plants of a given species (a) or 
+genus (b). Bar height for a given colour is proportional to the number of plants 
+in the corresponding dataset, which is also shown in parentheses next to the dataset code.
 
 **Figure 4.** Distribution of plants in SAPFLUXNET according to major taxonomic group 
-(angiosperms, gymnosperms), sap flow method (CHD:cycling heat dissipation; CHP: compensation heat pulse; 
-HD: heat dissipation; HFD: heat field deformation: HPTM: heat pulse T-max (HPTM): HRM: heat ratio (HR); 
-SHB: stem heat balance; TSHB: trunk sector heat balance) and reference unit for the expression of
-sap flow (plant, sapwood area, leaf area).
+(angiosperms, gymnosperms), sap flow method (CHD:cycling heat dissipation; 
+CHP: compensation heat pulse; HD: heat dissipation; HFD: heat field deformation: 
+HPTM: heat pulse T-max (HPTM): HRM: heat ratio (HR); SHB: stem heat balance; 
+TSHB: trunk sector heat balance) and reference unit for the expression of
+sap flow (plant, sapwood area, leaf area). Combinations of reference units imply 
+that data are present in multiple units.
 
-**Figure 5.** Ecological representativeness of SAPFLUXNET plants and stands. 
-Panel (a) shows the distribution of plants according to their taxonomic group
-(angiosperms, gymnosperms) and their main individual attributes: 
-diameter at breast height (DBH), plant height, sapwood area, sapwood 
-depth and leaf area. The inset in the sapwood area panel zooms in values lower than 
-5000 cm². Panel (b) shows the distribution of SAPFLUXNET stands 
-according to their main attributes: stand age, stand height, stem density, 
+**Figure 5.** Characteristics of trees and stands in the SAPFLUXNET database.
+Panel (a) shows plant data and kernel density plots of the main plant attributes, 
+coloured by taxonomic group (angiosperms and gymnosperms): diameter at breast height (DBH), 
+plant height, sapwood area, sapwood  depth and leaf area. The inset in the 
+sapwood area panel zooms in values lower than 5000 cm². Panel (b) shows stand data 
+and kernel density plots of the main stand attributes: stand age, stand height, stem density, 
 stand basal area,leaf area index (LAI) and soil depth.
 
-**Figure 6.** (a) Duration of SAPFLUXNET datasets expressed in number of days with
+**Figure 6.** (a) Measurement duration of SAPFLUXNET datasets expressed in number of days with
 sap flow data and coloured by the number of plants measured on each day . The 30 longest datasets
 are labelled. For each dataset in panel (a), panel (b) shows its corresponding 
 measurement period.
@@ -109,21 +117,21 @@ shown and some of them were only identified at the genus level.
 
 **Figure 8.** Summary of the availability of different environmental variables in
 SAPFLUXNET datasets. (a) Distribution of meteorological variables according to 
-measurement location (in brackets, names of the variables in the database), 
+sensor location (in brackets, names of the variables in the database), 
 (b) Distribution of soil moisture variables according to the
 measurement depth (in brackets, names of the variables in the database). 
-(c) Venn diagram showing the number of datasets where certain combinations of different 
+(c) Venn diagram showing the number of datasets where each combination of different 
 environmental variables are present, grouping shortwave, PPFD and net radiation under 
 'Radiation' variables.
 
-**Figure 9.** Potential for upscaling individual plant sap flow to stand-level sap flow
-using SAPFLUXNET datasets, classified using an aggregated biome classification; 
-'Dry-Tropical' include: 'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna'
+**Figure 9.** Potential for upscaling species-specific plant sap flow to stand-level sap flow
+using SAPFLUXNET datasets. Datasets are shown using an aggregated biome classification; 
+'Dry and Tropical' include: 'Subtropical desert', 'Temperate grassland desert','Tropical forest savanna'
 and 'Tropical rain forest'. Each panel shows the percentage 
 of total stand basal area that is covered by sap flow measurements for each species 
 in the dataset. Datasets are also coloured by the number of species present. Numbers 
 on top of each bar depict the total number of plants for a given dataset. Empty bars show 
-datasets for which plant-level data are not available.
+datasets for which sap flow data expressed at the plant level were not available.
 
 
 \pagebreak
@@ -173,6 +181,8 @@ biomes_plot <- sfn_allsites %>%
     legend.background = element_blank()
     
   )
+
+biomes_plot$layers[[2]]$aes_params$size <- 2.5
 
 igbp_plot<-sfn_allsites %>% 
   group_by(si_igbp) %>% 
@@ -564,7 +574,8 @@ sfn_allplants_tax %>%
     n_cal=sum(pl_sens_calib,na.rm=TRUE),
     n_noncal=sum(!pl_sens_calib,na.rm=TRUE),
     n_notprov=sum(is.na(pl_sens_calib),na.rm=TRUE),
-    perc_calib = round(n_cal/(n_noncal+n_notprov)*100,1)) %>% 
+    perc_calib = round(n_cal/(n_cal+n_noncal+n_notprov)*100,1)) %>% 
+  arrange(desc(perc_calib)) %>% 
   flextable() %>% 
   set_header_labels(
     pl_sens_meth='Method',
@@ -1148,7 +1159,7 @@ swc_freq_plot <-
 
 upper_grid <- cowplot::plot_grid(
   env_freq_plot,swc_freq_plot, 
-  label_size = 12, labels=c('(a) Metereological variables', '(b) Soil water content'), rel_widths = c(1, 0.4),vjust=1.2, hjust = -0.05,
+  label_size = 12, labels=c('(a) Meteorological variables', '(b) Soil water content'), rel_widths = c(1, 0.4),vjust=1.2, hjust = -0.05,
   ncol = 2, align = "h", axis = "bt"
 )
 
@@ -1238,7 +1249,7 @@ knitr::include_graphics('Fig_8.pdf')
  tidyr::pivot_longer(cols=-si_code,names_to='variable',values_to='measurement') %>% 
   group_by(variable,measurement) %>% 
   summarise(n_datasets=n(),
-            perc_datasets=n_datasets/202*100) %>% View()
+            perc_datasets=n_datasets/202*100) ->sfn_env_narrative
 
   # vpd overall availbaility
  sfn_env %>% 
