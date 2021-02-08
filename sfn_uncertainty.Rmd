@@ -1,0 +1,239 @@
+---
+title: "Sapfluxnet uncertainty estimation"
+author: "R. Poyatos"
+date: "29/1/2021"
+output: html_document
+---
+
+### Setup code
+
+Assumes that sapfluxnet data is in a child folder 'data' in the working directory.
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sapfluxnetr)
+library(dplyr)
+library(datapasta)
+library(tidyr)
+library(ggplot2)
+
+folder_plant <- 'data/0.1.5/RData/plant'
+folder_sapwood <- 'data/0.1.5/RData/sapwood'
+#source('metadata_wrangling.R')
+```
+
+### Uncertainty and bias correction function
+
+This function estimates rmse for each method from Table 2 Flo et al 2019 and 
+adds 2 RMSE to sap flow density values. It also applies bias correction for 
+uncalibrated HD sensors from Flo et al 2019.
+
+It only works for methods assessed in the study, and only takes sfn objects
+expressed per unit sapwood area.
+
+The result is a dataframe in long format with mean sap flow density (sfd), and
+an uncertainty range defined by sfd+-2 RMSE (sfd_up, sfd_lo). The number of
+RMSE can be adjusted in the function but default is 2. This is calculated for both
+corrected and uncorrected HD data.
+
+```{r function_rmse}
+
+sf_add_uncert <- function(sfn_dataset,nsd=2){
+
+# nsd number of nrmse's 
+# TODO: function only for sapwood area expressed datasets
+  
+# Table 2 from Flo et al 2019
+# Method names modified to match SFN metadata specifications
+# TODO: function could also allow user-specified values 
+  
+nrmse_flo <- tibble(
+  method=c('CHP','HPTM','HR','HFD','HD','CHD'),
+  beta0=c(27.03,31.56,9.38,30.33,34.93,44.04),
+  beta1=c(-0.08,0.25,0.81,-0.12,0.10,-0.04)
+)  
+  
+# TODO: add a check to make sure that method is included in
+# nrmse_flo
+
+sfn_dataset %>% 
+    get_sapf_data() %>% 
+    tidyr::pivot_longer(-TIMESTAMP,names_to='tree',
+                 values_to='sfd') %>% 
+    # join with necessary plant metadata
+    left_join(select(get_plant_md(sfn_dataset),pl_code,pl_species,pl_dbh,
+                     pl_sens_meth,pl_sens_calib),by=c('tree'='pl_code')) %>% 
+    left_join(nrmse_flo,by=c('pl_sens_meth'='method')) %>% 
+  mutate(
+    # estimate nrmse and convert to absolute rmse depending on sfd
+    sfd_error = (beta0+beta1*sfd)/100*sfd,
+    sfd_up=sfd + nsd*sfd_error,
+    sfd_lo=sfd - nsd*sfd_error,
+    # applies correction for uncalibrated HD data
+    sfdcor=if_else(pl_sens_meth=='HD' & is.na(pl_sens_calib),sfd*1.405,sfd),
+    sfdcor_error = (beta0+beta1*sfdcor)/100*sfdcor,
+    sfdcor_up=sfdcor + nsd*sfdcor_error,
+    sfdcor_lo=sfdcor - nsd*sfdcor_error,
+  )
+
+}
+
+
+```
+
+
+## Example applications
+
+### Heat dissipation
+
+Here I apply uncertainty and bias correction to Pinus sylvestris 
+HD data from Vallcebre.
+A tree is selected to show sap flow density and bias-corrected 
+sap flow density with their uncertainty ranges.
+All plots show daily-averaged values, for better clarity.
+
+```{r hd_dataset}
+
+ESP_VAL_SOR_sw<- read_sfn_data('ESP_VAL_SOR',folder=folder_sapwood)
+
+esp_val_sor_unc<- sf_add_uncert(ESP_VAL_SOR_sw,nsd=2) 
+
+esp_val_sor_unc%>% 
+  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+  summarise(
+  across(contains('sfd'),mean,na.rm=TRUE)
+  ) %>%
+  filter(tree%in%'ESP_VAL_SOR_Psy_Jt_12') %>% 
+  ggplot(aes(x=day,y=sfd))+
+  geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),fill='black', alpha=0.2)+
+  geom_line(aes(x=day,y=sfd,col='black'))+
+geom_line(aes(x=day,y=sfdcor,col='blue'))+
+  geom_ribbon(aes(ymin=sfdcor_lo,ymax=sfdcor_up),fill='blue',alpha=0.2)+
+    scale_colour_manual(name=NULL,values=c('black','blue'),
+    labels=c('HD uncorrected','HD corrected'))+
+   theme_minimal()+
+    labs(x='TIMESTAMP',y='Mean daily sap flow density [cm3 cm-2h-1]')
+
+
+
+```
+
+
+# Compensation heat pulse
+
+Same for CHP Pinus sylvestris from Devilla, Scotland
+
+```{r}
+ # sfn_sites_in_folder(folder='data/0.1.5/RData/sapwood') %>% 
+ #  filter_sites_by_md(pl_sens_meth=='CHP',
+ #                     metadata=read_sfn_data(folder=folder_sapwood))
+
+GBR_DEV_CON_sw<- read_sfn_data('GBR_DEV_CON',folder='data/0.1.5/RData/sapwood')
+
+gbr_dev_con_unc<- sf_add_uncert(GBR_DEV_CON_sw) 
+
+gbr_dev_con_unc%>% 
+  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+  summarise(
+  across(contains('sfd'),mean,na.rm=TRUE)
+  ) %>%
+  filter(tree%in%'GBR_DEV_CON_Psy_Jt_2') %>% 
+  ggplot(aes(x=day,y=sfd))+
+geom_line(alpha=1)+
+  geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),alpha=0.3)+
+   theme_minimal()+
+   labs(x='TIMESTAMP',y='Mean daily sap flow density [cm3 cm-2h-1]')
+
+
+
+```
+
+```{r}
+
+AUS_KAR_sw<- read_sfn_data('AUS_KAR',folder='data/0.1.5/RData/sapwood')
+
+aus_kar_unc<- sf_add_uncert(AUS_KAR_sw) 
+
+aus_kar_unc%>% 
+  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+  summarise(
+  across(contains('sfd'),mean,na.rm=TRUE)
+  ) %>%
+  filter(tree%in%'AUS_KAR_Evi_Js_1') %>% 
+  ggplot(aes(x=day,y=sfd))+
+geom_line(alpha=1)+
+  geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),alpha=0.3)+
+   theme_minimal()+
+   labs(x='TIMESTAMP',y='Mean daily sap flow density [cm3 cm-2h-1]')
+
+
+
+```
+
+
+
+## Uncertainty in sap flow from sapwood estimation
+
+Here I estimate uncertainty in sap flow caused by uncertainty in sapwood estimation
+from allometry (P.sylvestris, Vallcebre). 
+High and low uncertainty bounds are calculated from 95% prediction
+interval of sapwood area.
+I compare uncertainty from sapwood area estimation with methodological uncertainty.
+
+
+```{r allometry}
+
+# Vallcebre P.sylvestris sapwood allometry
+
+# Data
+data_sw_ba <- tibble(
+  sapwood_area_cm2=c(503.2, 168.3, 181.9, 147.4, 24.6, 313.6, 186.2, 32.9, 98.1, 
+  44.4, 81, 290.8, 321.8, 787.7, 554.5, 471, 961.5, 760.9),
+basal_area_cm2=c(649.2, 203.6, 212.5, 160.6, 28.3, 371.5, 246.1, 44.2, 122.7, 
+  51.5, 105.7, 356.3, 404.7, 956.6, 613.6, 559.9, 1023.5, 989.8)
+)
+# Model
+modsw <- lm(log(sapwood_area_cm2)~log(basal_area_cm2),data=data_sw_ba)
+
+# Calculations
+esp_val_sor_unc_sf <- esp_val_sor_unc %>% 
+  mutate(pl_basal_area=pi*(pl_dbh/2)^2,
+  sw_area_mean=exp(predict(modsw,newdata=data.frame(basal_area_cm2=pl_basal_area),
+                       interval='prediction')[,'fit']),
+  sw_area_lo=exp(predict(modsw,newdata=data.frame(basal_area_cm2=pl_basal_area),
+                       interval='prediction')[,'lwr']),
+    sw_area_up=exp(predict(modsw,newdata=data.frame(basal_area_cm2=pl_basal_area),
+                       interval='prediction')[,'upr']),
+# Sw area uncertainty
+sfd_mean = sfd*sw_area_mean,
+sfd_uncsw_lo = sfd*sw_area_lo,
+sfd_uncsw_up = sfd*sw_area_up,
+
+# Method uncertainty
+sfd_uncmeth_lo = sfd_lo*sw_area_mean,
+sfd_uncmeth_up = sfd_up*sw_area_mean,
+
+  )
+
+```
+
+
+```{r plotting_total_unc}
+esp_val_sor_unc_sf %>% 
+  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+  summarise(
+  across(contains('sfd'),mean,na.rm=TRUE)
+  ) %>% 
+  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+  ggplot(aes(x=day,y=sfd_mean))+
+  geom_ribbon(aes(ymin=sfd_uncsw_lo,ymax=sfd_uncsw_up,fill='sapwood'),alpha=0.7)+
+  geom_ribbon(aes(ymin=sfd_uncmeth_lo,ymax=sfd_uncmeth_up,fill='method'),alpha=0.3)+
+    geom_line(col='black')+
+    theme_minimal()+
+theme(legend.title = element_blank())+
+   labs(x='TIMESTAMP',y='Mean daily sap flow [cm3 h-1]')+
+
+  
+
+```
+

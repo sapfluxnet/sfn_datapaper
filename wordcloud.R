@@ -1,5 +1,5 @@
 
-```{r wordclouds_treatments, echo = FALSE, fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
+library(dplyr)
 library(wordcloud)
 library(wordcloud2)
 library(tm)
@@ -7,6 +7,7 @@ library(gridGraphics)
 
 set.seed(63025)
 
+source('metadata_wrangling.R')
 # plant wordcloud
 corpus_processed <-
   sfn_allplants_tax %>%
@@ -75,5 +76,4 @@ cowplot::plot_grid(
   nrow = 2, labels = c('Plant treatments', 'Stand treatments'),
   scale = c(1.2, 1.2)
 )
-```
-**Figure S5.**
+
