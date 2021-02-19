@@ -1,6 +1,10 @@
 SAPFLUXNET data paper
 ================
 
+## TODO: 
+
+Tidy code in the repo, including the uncertainty estimation.
+
 ## Reproducing figures, tables and supplement.
 
 To run the code in this repository, one needs the following structure
