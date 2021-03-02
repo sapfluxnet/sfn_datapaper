@@ -1,46 +1,17 @@
-library(tidyverse)
 library(emmeans)
-#library(lsmeans)
 library(lme4)
 library(sapfluxnetr)
-# library(LSD) # this is Beni's forked version
-# https://stineb.github.io/post/lsd/
-# https://github.com/stineb/LSD
-library(ggridges)
 library(cowplot)
 library(patchwork)
 library(viridis)
 library(sapflux)
-library(merTools)
-library(bootpredictlme4)
-library(ggeffects)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(forcats)
+library(flextable)
+
 Sys.setlocale("LC_TIME", "en_US.UTF-8")
-
-# 2. Sapfluxnet daily data ------------------------------------------------
-
-# Load daily data
-load('data/sapwood.Rdata')
-
-sfn_folder <- 'data/0.1.5'
-sfn_metadata_sw <- read_sfn_metadata(folder=file.path(sfn_folder,'RData','sapwood'))
-
-methods_included <- c('CHD','CHP','HD','HFD','HPTM','HR')
-
-# Process daily data: selection, filtering, join SEcoefs, SE estimation
-sfn_daily_all_uncert <- sapwood %>%
-  # select variables
-  select(TIMESTAMP,si_code,pl_code,sapflow_mean,
-         sapflow_q_95,sapflow_q_99,
-         sapflow_coverage,sapflow_n,vpd_mean) %>%
-  # join with plant metadata
-  left_join(select(sfn_metadata_sw$plant_md,pl_code,pl_species,pl_sens_meth,pl_sens_calib),
-            by='pl_code') %>%
-  filter(sapflow_coverage>90 & pl_sens_meth%in%methods_included) %>% 
-  # join with method-sepcific coefs to estimate SE
-  left_join(coefficients,by=c('pl_sens_meth'='method')) %>% 
-  mutate(
-    sapflow_SE = beta0 + beta1* sapflow_mean 
-  )
 
 # 1. Calibrations data ----------------------------------------------------
 
@@ -48,22 +19,22 @@ sfn_daily_all_uncert <- sapwood %>%
 subdata <- read.csv("data/subdata.csv")
 
 #calculate range of each calibration
-range_df <- subdata %>% group_by(method) %>%
-  dplyr::summarize(min_method=min(real),
-                   max_method = max(real),
-                   range_mean_method = (min_method + max_method)/2)
+range_df <- subdata %>% group_by(calibrations) %>%
+  dplyr::summarize(min_real=min(real),
+                   max_real = max(real),
+                   range_mean = (min_real + max_real)/2)
 
 # Approach 1. Based on range ----------------------------------------------
 
 #Calculate standard error at range_mean of each calibration 
 df <- subdata %>% group_by(calibrations) %>%
   do(broom::tidy(lm( real ~ measured, data = .))) %>%
-  select(calibrations, term, std.error) %>%
+  dplyr::select(calibrations, term, std.error) %>%
   tidyr::spread(term, std.error) %>%
   dplyr::rename(slope_error=measured,intercept_error=`(Intercept)`)%>%
   right_join(range_df,by = 'calibrations') %>%
   dplyr::mutate(SE_mean = intercept_error + slope_error * range_mean) %>% 
-  right_join(select(subdata,'study','specie','method','calibrations'), 
+  right_join(dplyr::select(subdata,'study','specie','method','calibrations'), 
              by = 'calibrations') %>%
   unique()
 
@@ -74,14 +45,15 @@ range_df_method <- df %>%
             max_method = max(max_real)
   )
 
+# Approach 1 --------------------------------------------------------------
+
 #Model standard error
 foo_se <- lmer(SE_mean ~  range_mean * method + (1|study) + (1|specie), 
                data=df)
 
-
 #extract error coefficients
 coefficients_1 <- emmeans::emmeans(foo_se,~range_mean * method, 
-                                 adjust="tukey",at = list(range_mean = 0)) %>% 
+                                   adjust="tukey",at = list(range_mean = 0)) %>% 
   as_tibble() %>%
   dplyr::select(method,beta0=emmean) %>% 
   left_join(emmeans::emtrends(foo_se,"method",var='range_mean') %>%
@@ -96,13 +68,14 @@ coefficients_1 <- emmeans::emmeans(foo_se,~range_mean * method,
 # Model with singularity issues - discard
 
 df2 <- subdata %>% group_by(method) %>% 
-  do(broom.mixed::tidy(lmer( real ~ measured+ (1|study/calibrations) + (1|specie), data = .))) %>%
-  filter(!is.na(std.error)) %>% 
-  select(method, term, std.error) %>%
+  do(broom.mixed::tidy(lmer( real ~ measured+ (1|study/calibrations) + 
+                               (1|specie), data = .))) %>%
+  dplyr::filter(!is.na(std.error)) %>% 
+  dplyr::select(method, term, std.error) %>%
   tidyr::spread(term, std.error) %>%
   dplyr::rename(beta1 = measured,
                 beta0 = `(Intercept)`)%>%
-  left_join(range_df) %>% 
+  left_join(range_df_method) %>% 
   mutate(
     method=as.factor(method),
     method=fct_recode(method,HPTM="T-max",HD="TD",CHD="TTD"))  
@@ -113,129 +86,66 @@ df2 <- subdata %>% group_by(method) %>%
 
 df3 <- subdata %>% group_by(method) %>% 
   do(broom.mixed::tidy(lmer( real ~ measured+ (1|calibrations), data = .))) %>%
-  filter(!is.na(std.error)) %>% 
-  select(method, term, std.error) %>%
+  dplyr::filter(!is.na(std.error)) %>% 
+  dplyr::select(method, term, std.error) %>%
   tidyr::spread(term, std.error) %>%
   dplyr::rename(beta1 = measured,
                 beta0 = `(Intercept)`)%>%
-  left_join(range_df) %>% 
+  left_join(range_df_method) %>% 
   mutate(
     method=as.factor(method),
     method=fct_recode(method,HPTM="T-max",HD="TD",CHD="TTD"))  
-
-
-# Approach 4 log model
-
-
-subdata %>% 
-  group_by(method) %>% 
-  group_map(~lmer( log(real) ~ log(measured)+ (1|calibrations), data = .),
-            .keep=TRUE) 
-
-
-lmmodels <- subdata %>% 
-  group_by(method) %>% 
-  nest() %>% 
-  mutate(
-    fit = map(data,~lmer( real ~ measured+ (1|calibrations),data=.))
-  ) 
-
-lmmodels$fit %>% 
-  map(plot)
-
-logmodels <- subdata %>% 
-  group_by(method) %>% 
-  nest() %>% 
-  mutate(
-    fit = map(data,~lmer( log(real) ~ log(measured)+ (1|calibrations),data=.))
-  ) 
-
-logmodels$fit %>% 
-  map(plot)
-
-
-# Bootstrap SEs
-dfhd <- data.frame(method='TD',measured=seq(1,200,10))
- 
-selog_HD<- predict(logmodels$fit[[1]],nsim=100,
-        newdata=dfhd,re.form=NA,se.fit=TRUE)$se.boot
-
-selog_HD<- predict(lmmodels$fit[[1]],nsim=100,
-                   newdata=dfhd,re.form=NA,se.fit=TRUE)$se.fit
-
-data.frame(sfd=seq(1,200,10),se=exp(selog_HD))
-
-# Mannual
-
-
-err_vic <- function(b0,b1,se_b0,se_b1,sfd){
-  
-  err_up <- exp(b0)*exp(se_b0)+(exp(b1)*exp(se_b1))^log(sfd)
-  err_lo <- exp(b0)/exp(se_b0)+((exp(b1)/exp(se_b1)))^log(sfd)
-  return(c(err_up,err_lo))
-  
-}
-
-
-err_rf <- function(b0,b1,se_b0,se_b1,sfd){
-  
-  err_up <- exp(b0)*exp(se_b0)*exp(b1*log(sfd))*exp(se_b1*log(sfd))
-  err_lo <- exp(b0)*exp(-se_b0)*exp((b1*log(sfd)))*exp(-se_b1*log(sfd))
-  return(c(err_up,err_lo))
-  
-}
-
-
-err_vic(0.1,1,0.01,0.01,20)
-err_rf(0.1,1,0.01,0.01,20)
-
-err_log_4<- df4 %>% 
-  mutate(
-    se_up_min = err_vic(b0=beta0,b1=beta1,se_b0=se_beta0,se_b1=se_beta1,
-                        sfd=min_method)[1],
-    se_lo_min = err_vic(b0=beta0,b1=beta1,se_b0=se_beta0,se_b1=se_beta1,
-                        sfd=min_method)[2],
-    se_up_max = err_vic(b0=beta0,b1=beta1,se_b0=se_beta0,se_b1=se_beta1,
-                        sfd=max_method)[1],
-    se_lo_max = err_vic(b0=beta0,b1=beta1,se_b0=se_beta0,se_b1=se_beta1,
-                        sfd=max_method)[2],
-  ) 
-
-
-# From predicted CI 
-err_log_HD<- sjPlot::get_model_data(logmodels$fit[[2]],
-                                    'pred',ci.lvl=0.67) %>% as.data.frame() %>% 
-  
-  
-  ggpredict(logmodels$fit[[2]],ci.lvl=0.67)
-  
-ggpredict(logmodels$fit[[2]],ci.lvl=0.67,interval='prediction')
-
-
-df4 <- subdata %>% group_by(method) %>% 
-  do(broom.mixed::tidy(lmer( log(real) ~ log(measured)+ (1|calibrations), data = .))) %>%
-  filter(!is.na(std.error)) %>% 
-  dplyr::select(method, term, std.error,estimate) %>%
-  tidyr::pivot_wider(values_from=c(estimate,std.error),
-                     names_from=c(term)) %>%
-  dplyr::rename(beta0 = 'estimate_(Intercept)',
-                beta1 = 'estimate_log(measured)',
-                se_beta0= 'std.error_(Intercept)',
-                se_beta1= 'std.error_log(measured)')%>%
-  left_join(range_df) %>% 
-  mutate(
-    method=as.factor(method),
-    method=fct_recode(method,HPTM="T-max",HD="TD",CHD="TTD"))  
-
-
-
-
-
 
 
 # Choose approach
 
 coefficients <- df3
+
+coefficients %>% 
+  mutate(method=fct_relevel(method,'HD','CHP','HR','HPTM','CHD','HFD')) %>%  
+  arrange(method) %>% 
+  select(method,beta0,beta1) %>% 
+  qflextable() %>%  
+  bold( i = 1,  part = "header") %>%
+  fontsize(size=10,part='body') %>% 
+  colformat_num(digits=2,j=c(2,3)) %>% 
+  set_header_labels(
+    method='Method',
+    beta0='Intercept',
+    beta1='Slope') %>% 
+  align(part='header',align='left') %>% 
+  save_as_docx(path='docs/table_coefs.docx')
+# Model coefficients
+
+
+# 2. Sapfluxnet daily data ------------------------------------------------
+
+# Load daily data
+load('data/sapwood.Rdata')
+
+sfn_folder <- 'data/0.1.5'
+sfn_metadata_sw <- read_sfn_metadata(folder=file.path(sfn_folder,'RData','sapwood'))
+
+methods_included <- c('CHD','CHP','HD','HFD','HPTM','HR')
+
+# Process daily data: selection, filtering, join SEcoefs, SE estimation
+sfn_daily_all_uncert <- sapwood %>%
+  # select variables
+  dplyr::select(TIMESTAMP,si_code,pl_code,sapflow_mean,
+         sapflow_q_95,sapflow_q_99,
+         sapflow_coverage,sapflow_n,vpd_mean) %>%
+  # join with plant metadata
+  left_join(dplyr::select(sfn_metadata_sw$plant_md,pl_code,pl_species,
+                          pl_sens_meth,pl_sens_calib),
+            by='pl_code') %>%
+  dplyr::filter(sapflow_coverage>90 & pl_sens_meth%in%methods_included) %>% 
+  # join with method-sepcific coefs to estimate SE
+  left_join(coefficients,by=c('pl_sens_meth'='method')) %>% 
+  mutate(
+    sapflow_SE = beta0 + beta1* sapflow_mean 
+  )
+
+
 
 # 3. Compare SE estimation with flow range in calibrations ---------------------------------------
 
@@ -254,18 +164,6 @@ sfn_max <- sfn_daily_all_uncert %>%
   
 
 
-# log option
-sfn_max_log <- sfn_daily_all_uncert %>% 
-  group_by(pl_sens_meth) %>% 
-  summarise(
-    across(contains('q_'),~max(.x,na.rm=TRUE)),
-  ) %>% 
-  left_join(df4,by=c('pl_sens_meth'='method')) %>% 
-  mutate(
-    sfdq95_SE = exp(beta0 + beta1* log(sapflow_q_95)),
-    sfdq99_SE = exp(beta0 + beta1* log(sapflow_q_99)),
-    pl_sens_meth=fct_relevel(pl_sens_meth,'HD','CHP','HR','HPTM','CHD','HFD')
-  ) 
 
 
 calibSE_plot <-  sfn_max%>% 
@@ -281,20 +179,6 @@ calibSE_plot <-  sfn_max%>%
   xlab(expression(paste('Sap flow per sapwood area, ',cm^3,cm^-2,h^-1)))+
   ylab(expression(paste('Standard error, ',cm^3,cm^-2,h^-1)))
   
-
-calibSE_plot_log <-  sfn_max_log%>% 
-  ggplot() + xlim(0,385)+
-  geom_segment(aes(colour=pl_sens_meth,
-                   x=min_method,xend=max_method,
-                   y=exp(beta0+beta1*log(min_method)),
-                   yend=exp(beta0+beta1*log(max_method))),size=1.5)+
-  scale_colour_viridis_d(option = "D") +
-  theme_cowplot()+
-  theme(legend.position=c(0.8,0.75),legend.title = element_blank(),
-        legend.box.background = element_rect(colour = 1),
-        legend.box.margin = margin(t=.25,b=.25,r=.25,l=.25,'cm'))+
-  xlab(expression(paste('Sap flow per sapwood area, ',cm^3,cm^-2,h^-1)))+
-  ylab(expression(paste('Standard error, ',cm^3,cm^-2,h^-1)))
 
 
 #Calibrations, estimate ranges
@@ -316,7 +200,7 @@ calibrange <- sfn_max %>%
 calib_uncert_plot<- calibSE_plot + calibrange + plot_layout(nrow=2,heights=c(3,1))
 
 cowplot::save_plot(
-  'docs/Fig_calib_uncert.pdf', calib_uncert_plot, nrow = 1, 
+  'docs/Fig_B1_calib_uncert.pdf', calib_uncert_plot, nrow = 1, 
   base_height = 21, base_width = 20, units = 'cm'
 )
 
@@ -327,19 +211,18 @@ sf_add_uncert <- function(sfn_dataset,table_coefs,nsd=1){
   # nsd number of nrmse's 
   # TODO: function only for sapwood area expressed datasets
   
-  # Table 2 from Flo et al 2019
   # Method names modified to match SFN metadata specifications
   # TODO: function could also allow user-specified values
   
-  # TODO: add a check to make sure that method is included in
-  # nrmse_flo
+  # TODO: add a check to make sure that method is included
+
   
   sfn_dataset %>% 
     get_sapf_data() %>% 
     tidyr::pivot_longer(-TIMESTAMP,names_to='tree',
                         values_to='sfd') %>% 
     # join with necessary plant metadata
-    left_join(select(get_plant_md(sfn_dataset),pl_code,pl_species,pl_dbh,
+    left_join(dplyr::select(get_plant_md(sfn_dataset),pl_code,pl_species,pl_dbh,
                      pl_sens_meth,pl_sens_calib),by=c('tree'='pl_code')) %>% 
     left_join(table_coefs,by=c('pl_sens_meth'='method')) %>% 
     mutate(
@@ -357,108 +240,6 @@ sf_add_uncert <- function(sfn_dataset,table_coefs,nsd=1){
 }
 
 
-logmodels <- subdata %>% 
-  group_by(method) %>% 
-  nest() %>% 
-  mutate(
-    fit = map(data,~lmer( log(real) ~ log(measured)+ (1|calibrations),data=.)),
-    method=forcats::fct_recode(method,HPTM="T-max",HD="TD",CHD="TTD"))
-
-
-foo <- map(logmodels[logmodels$method=='HD',"fit"],1)$fit
-
-
-logmodels[logmodels$method=='HD',"fit"][1]
-
-sf_add_uncert_log <- function(sfn_dataset){
-  
-  fitmod <- map(logmodels[logmodels$method=='HD',"fit"],1)$fit
-  
-  print(summary(fitmod))
-  
-  dat_unc <-  sfn_dataset %>% 
-    get_sapf_data() %>% 
-    tidyr::pivot_longer(-TIMESTAMP,names_to='tree',
-                        values_to='sfd') %>% 
-    # join with necessary plant metadata
-    left_join(dplyr::select(get_plant_md(sfn_dataset),pl_code,pl_species,pl_dbh,
-                     pl_sens_meth,pl_sens_calib),by=c('tree'='pl_code')) 
-   
-   dat_unc$se_lo <- 
-             as.numeric(as.data.frame(ggpredict(fitmod,terms='measured[dat_unc$sfd]',
-                     ci.lvl=0.67,interval='prediction'))['conf.low'])
-    dat_unc$se_up <-  
-             as.numeric(as.data.frame(ggpredict(fitmod,terms='measured[dat_unc$sfd]',
-                                     ci.lvl=0.67,interval='prediction'))['conf.high'])
-    
-    return(dat_unc)
-           }
-
-
-dat_unc <- ESP_VAL_SOR_sw %>% 
-  get_sapf_data() %>% 
-  tidyr::pivot_longer(-TIMESTAMP,names_to='tree',
-                      values_to='sfd') %>% 
-  # join with necessary plant metadata
-  left_join(dplyr::select(get_plant_md( ESP_VAL_SOR_sw),pl_code,pl_species,pl_dbh,
-                          pl_sens_meth,pl_sens_calib),by=c('tree'='pl_code')) 
-
-sf_add_uncert_log(ESP_VAL_SOR_sw)
-
-
-
-
-fitmod <- map(logmodels[logmodels$method=='HD',"fit"],1)$fit
-as.numeric(as.data.frame(ggpredict(fitmod,
-                                   terms='measured [12]',ci.lvl=0.67,interval='prediction'))['conf.low'])
-
-
-fii <- c(1:10)
-
-sapply(fii,
-       function(x){ as.numeric(
-         as.data.frame(ggpredict(fitmod,terms='measured [x]',
-                  ci.lvl=0.67,interval='prediction'))['conf.low'])
-       }
-)
-
-
-merTools::predictInterval(merMod = fitmod, 
-                          newdata = data.frame(measured=dat_unc$sfd),
-                          which='fixed',
-                level = 0.67, n.sims = 100,
-                stat = "median", type="linear.prediction",
-                include.resid.var = TRUE)
-
-
-##Functions for bootMer() and objects
-####Return predicted values from bootstrap
-mySumm <- function(.) {
-  predict(., newdata=data.frame(measured=dat_unc$sfd), re.form=NA)
-}
-####Collapse bootstrap into median, 95% PI
-sumBoot <- function(merBoot) {
-  return(
-    data.frame(fit = apply(merBoot$t, 2, function(x) as.numeric(quantile(x, probs=.5, na.rm=TRUE))),
-               lwr = apply(merBoot$t, 2, function(x) as.numeric(quantile(x, probs=.167, na.rm=TRUE))),
-               upr = apply(merBoot$t, 2, function(x) as.numeric(quantile(x, probs=.833, na.rm=TRUE)))
-    )
-  )
-}
-
-##lme4::bootMer() method 1
- 
-  boot1 <- lme4::bootMer(fitmod, mySumm, nsim=100, 
-                         use.u=FALSE, type="parametric")
-
-PI.boot1 <- sumBoot(boot1)
-
-
-
-foo <- sf_add_uncert_log(ESP_VAL_SOR_sw)
-
-View(foo)
-
 # Examples for HD, CHP, HR - subdaily -------------------------------------
 
 
@@ -472,15 +253,15 @@ GBR_DEV_CON_sw<- read_sfn_data('GBR_DEV_CON',
                                folder=file.path(sfn_folder,'RData','sapwood'))
 
 esp_val_sor_unc<- sf_add_uncert(ESP_VAL_SOR_sw,table_coefs=coefficients,nsd=1) 
-aus_kar_unc<- sf_add_uncert(AUS_KAR_sw,coefficients) 
-gbr_dev_con_unc<- sf_add_uncert(GBR_DEV_CON_sw,coefficients) 
+aus_kar_unc<- sf_add_uncert(AUS_KAR_sw,coefficients,nsd=1) 
+gbr_dev_con_unc<- sf_add_uncert(GBR_DEV_CON_sw,coefficients,nsd=1) 
 
 # Subdaily
 
 esp_val_sor <- esp_val_sor_unc %>% 
-  filter(lubridate::year(TIMESTAMP)==2004) %>% 
-  filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
-  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+  dplyr::filter(lubridate::year(TIMESTAMP)==2004) %>% 
+  dplyr::filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
+  dplyr::filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
   ggplot(aes(x=TIMESTAMP,y=sfdcor))+
   geom_line(alpha=1)+
   geom_ribbon(aes(ymin=sfdcor_lo,ymax=sfdcor_up),alpha=0.3)+
@@ -491,8 +272,8 @@ esp_val_sor <- esp_val_sor_unc %>%
        title='a) Heat dissipation')
 
 gbr_dev_plot <- gbr_dev_con_unc%>% 
-  filter(tree%in%'GBR_DEV_CON_Psy_Jt_2') %>% 
-  filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
+  dplyr::filter(tree%in%'GBR_DEV_CON_Psy_Jt_2') %>% 
+  dplyr::filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
   ggplot(aes(x=TIMESTAMP,y=sfd))+
   geom_line(alpha=1)+
   geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),alpha=0.3)+
@@ -504,8 +285,8 @@ gbr_dev_plot <- gbr_dev_con_unc%>%
 
 
 aus_kar_plot<- aus_kar_unc%>% 
-  filter(tree%in%'AUS_KAR_Evi_Js_1') %>% 
-  filter(lubridate::yday(TIMESTAMP)%in%c(160:170)) %>% 
+  dplyr::filter(tree%in%'AUS_KAR_Evi_Js_1') %>% 
+  dplyr::filter(lubridate::yday(TIMESTAMP)%in%c(160:170)) %>% 
   ggplot(aes(x=TIMESTAMP,y=sfd))+
   geom_line(alpha=1)+
   geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),alpha=0.3)+
@@ -519,26 +300,23 @@ uncert_hd_chp_hr<- esp_val_sor + gbr_dev_plot+ aus_kar_plot +
   plot_layout(nrow=3,heights=c(1,1,1))
 
 cowplot::save_plot(
-  'docs/Fig_uncert_methods_subdaily.pdf', uncert_hd_chp_hr, nrow = 1, 
+  'docs/Fig_B2_uncert_methods_subdaily.pdf', uncert_hd_chp_hr, nrow = 1, 
   base_height = 21, base_width = 20, units = 'cm'
 )
 
 # Example application -----------------------------------------------------
 
 
-# daily
+# subdaily
 
-method_uncert_timseries<- esp_val_sor_unc%>% 
+method_uncert_timseries_subd<- esp_val_sor_unc%>% 
   filter(lubridate::year(TIMESTAMP)==2004) %>% 
-  filter(lubridate::yday(TIMESTAMP)%in%c(120:270)) %>% 
-  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
-   summarise(
-  across(contains('sfd'),mean,na.rm=TRUE)) %>%
+  filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>%
   filter(tree%in%'ESP_VAL_SOR_Psy_Jt_12') %>% 
-  ggplot(aes(x=day,y=sfd))+
+  ggplot(aes(x=TIMESTAMP,y=sfd))+
   geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),fill='black',  colour=NA,alpha=0.4)+
-  geom_line(aes(x=day,y=sfd,col='black'))+
-  geom_line(aes(x=day,y=sfdcor,col='blue'))+
+  geom_line(aes(x=TIMESTAMP,y=sfd,col='black'))+
+  geom_line(aes(x=TIMESTAMP,y=sfdcor,col='blue'))+
   geom_ribbon(aes(ymin=sfdcor_lo,ymax=sfdcor_up),fill='blue', colour=NA,alpha=0.4)+
   scale_colour_manual(name=NULL,values=c('black','blue'),
                       labels=c('HD uncorrected','HD corrected'))+
@@ -549,7 +327,41 @@ method_uncert_timseries<- esp_val_sor_unc%>%
 
 
 cowplot::save_plot(
-  'docs/Fig_method_uncert_timeseries.pdf', method_uncert_timseries, nrow = 1, 
+  'docs/Fig_method_uncert_timeseries_subd.pdf', method_uncert_timseries_subd, nrow = 1, 
+  base_height = 21, base_width = 20, units = 'cm'
+)
+
+
+# daily - new
+
+method_uncert_timseries<- esp_val_sor_unc%>% 
+  filter(lubridate::year(TIMESTAMP)==2004) %>% 
+  filter(lubridate::yday(TIMESTAMP)%in%c(120:270)) %>% 
+  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+  summarise(
+   sfd_day = mean(sfd,na.rm=TRUE),
+   sfdcor_day = mean(sfdcor,na.rm=TRUE),
+   sfd_err_day = 1/length(sfd_error)*sqrt(sum(sfd_error^2)),
+   sfdcor_err_day = 1/length(sfdcor_error)*sqrt(sum(sfdcor_error^2))
+    ) %>% filter(tree%in%'ESP_VAL_SOR_Psy_Jt_12')%>% 
+  ggplot(aes(x=day,y=sfd_day))+
+  geom_ribbon(aes(ymin=sfd_day-sfd_err_day,ymax=sfd_day+sfd_err_day),
+              fill='black',  colour=NA,alpha=0.4)+
+  geom_line(aes(x=day,y=sfd_day,col='black'))+
+  geom_line(aes(x=day,y=sfdcor_day,col='blue'))+
+  geom_ribbon(aes(ymin=sfdcor_day-sfdcor_err_day,
+                  ymax=sfdcor_day+sfdcor_err_day),
+              fill='blue', colour=NA,alpha=0.4)+
+  scale_colour_manual(name=NULL,values=c('black','blue'),
+                      labels=c('HD uncorrected','HD corrected'))+
+  theme_cowplot()+
+  theme(legend.position = 'top')+
+  xlab(NULL)+
+  ylab(expression(paste('Sap flow density, ',cm^3,cm^-2,h^-1)))
+
+
+cowplot::save_plot(
+  'docs/Fig_method_uncert_timeseries_daily.pdf', method_uncert_timseries, nrow = 1, 
   base_height = 21, base_width = 20, units = 'cm'
 )
 
@@ -617,16 +429,44 @@ esp_val_sor_unc_sf <- esp_val_sor_unc %>%
 
 # Compare method uncertainty with sapwood uncertainty ---------------------
 
+# Subdaily
+
 # Plot
 Sys.setlocale("LC_TIME", "en_US.UTF-8")
-esp_val_sor_unc_sf_plot<- esp_val_sor_unc_sf %>% 
-  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+esp_val_sor_unc_sf_plot_subd<- esp_val_sor_unc_sf %>%
+  filter(lubridate::year(TIMESTAMP)==2004) %>% 
+  filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
+  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+  ggplot(aes(x=TIMESTAMP,y=sfcor_mean))+
+  geom_line(aes(col='black'))+
+  geom_ribbon(aes(ymin=sfcor_uncsw_lo,ymax=sfcor_uncsw_up,
+                  fill='red'), colour=NA,alpha=0.3)+
+  geom_ribbon(aes(ymin=sfcor_uncmeth_lo,ymax=sfcor_uncmeth_up,
+                  fill='blue'), colour=NA,alpha=0.3)+
+  scale_colour_manual(name=NULL,values=c('black'),
+                      labels=c('HD corrected'))+
+  scale_fill_manual(name=NULL,values=c('red','blue'),
+                    labels=c('method','sapwood'))+
+  theme_cowplot()+
+  theme(legend.position = 'top',legend.title=element_blank())+
+  labs(x=NULL,
+       y=expression(paste('Sap flow, ',cm^3,h^-1)))
+
+
+# Daily
+
+# Plot new
+Sys.setlocale("LC_TIME", "en_US.UTF-8")
+esp_val_sor_unc_sf_plot2<- esp_val_sor_unc_sf%>% 
   filter(lubridate::year(TIMESTAMP)==2004) %>% 
   filter(lubridate::yday(TIMESTAMP)%in%c(120:270)) %>% 
+  group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
   summarise(
-    across(contains('sf'),mean,na.rm=TRUE)
-  ) %>% 
-  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+    sfd_day = mean(sfd,na.rm=TRUE),
+    sfdcor_day = mean(sfdcor,na.rm=TRUE),
+    sfd_err_day = 1/length(sfd_error)*sqrt(sum(sfd_error^2)),
+    sfdcor_err_day = 1/length(sfdcor_error)*sqrt(sum(sfdcor_error^2))
+  ) %>% filter(tree%in%'ESP_VAL_SOR_Psy_Jt_12')%>% 
   ggplot(aes(x=day,y=sfcor_mean*24/1000))+
   geom_line(aes(col='black'))+
   geom_ribbon(aes(ymin=sfcor_uncsw_lo*24/1000,ymax=sfcor_uncsw_up*24/1000,
@@ -636,29 +476,78 @@ esp_val_sor_unc_sf_plot<- esp_val_sor_unc_sf %>%
   scale_colour_manual(name=NULL,values=c('black'),
                       labels=c('HD corrected'))+
   scale_fill_manual(name=NULL,values=c('red','blue'),
-                      labels=c('method','sapwood'))+
+                    labels=c('method','sapwood'))+
   theme_cowplot()+
   theme(legend.position = 'top',legend.title=element_blank())+
   labs(x=NULL,
        y= expression(paste('Sap flow, kg·', day^-1)))
-  
+
 
 # Combined uncertainty
 
-# Plot
+# Subdaily
 Sys.setlocale("LC_TIME", "en_US.UTF-8")
-esp_val_sor_totunc_sf_plot<- esp_val_sor_unc_sf %>% 
+esp_val_sor_totunc_sf_plot_subd<- esp_val_sor_unc_sf %>% 
+  filter(lubridate::year(TIMESTAMP)==2004) %>% 
+  filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
+  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+  ggplot(aes(x=TIMESTAMP,y=sfcor_mean))+
+  geom_line(aes(col='black'))+
+  geom_ribbon(aes(ymin=sfcor_totunc2_lo,
+                  ymax=sfcor_totunc2_up,
+                  fill='gray'), colour=NA,alpha=0.8)+
+  scale_colour_manual(name=NULL,values=c('black'),
+                      labels=c('HD corrected'))+
+  scale_fill_manual(name=NULL,values=c('gray'),
+                    labels=c('Total uncertainty'))+
+  theme_cowplot()+
+  theme(legend.position = 'top',legend.title=element_blank())+
+  labs(x=NULL,
+       y=expression(paste('Sap flow, ',cm^3,h^-1)))
+
+
+# Daily
+
+esp_val_sor_totunc_sf_daily<- esp_val_sor_unc_sf %>% 
   group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
   filter(lubridate::year(TIMESTAMP)==2004) %>% 
   filter(lubridate::yday(TIMESTAMP)%in%c(120:270)) %>% 
   summarise(
-    across(contains('sf'),mean,na.rm=TRUE)
-  ) %>% 
+   
+    sfcor_day = mean(sfcor_mean,na.rm=TRUE),
+    sfcor_daytotunc = 1/length(sfcor_totunc[!is.na(sfcor_totunc)])*sqrt(sum(sfcor_totunc^2,na.rm=TRUE))
+    
+  ) 
+
+
+esp_val_sor_unc_sf %>% 
   filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
-  ggplot(aes(x=day,y=sfcor_mean*24/1000))+
+  filter(TIMESTAMP==as.POSIXct('2004-06-04 11:15:00',tz='GMT') |
+           TIMESTAMP==as.POSIXct('2004-05-30 11:15:00',tz='GMT')) %>% View()
+
+
+esp_val_sor_unc_sf %>% 
+  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+  filter(lubridate::yday(TIMESTAMP)%in%c(150:160)) %>% 
+  select(TIMESTAMP,sfcor_mean,sfcor_totunc) %>% View()
+
+# Compare days with low (20/05/2004) and high flow (4/6/2004)
+
+esp_val_sor_totunc_sf_daily %>% 
+  filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>%  
+           filter(day==as.POSIXct('2004-06-04',tz='GMT') |
+                    day==as.POSIXct('2004-05-30',tz='GMT')) 
+
+
+# Plot
+
+Sys.setlocale("LC_TIME", "en_US.UTF-8")
+esp_val_sor_totunc_sf_plot_daily <-esp_val_sor_totunc_sf_daily %>%  
+  filter(tree=='ESP_VAL_SOR_Psy_Jt_12')%>% 
+  ggplot(aes(x=day,y=sfcor_day*24/1000))+
   geom_line(aes(col='black'))+
-  geom_ribbon(aes(ymin=sfcor_totunc2_lo*24/1000,
-                  ymax=sfcor_totunc2_up*24/1000,
+  geom_ribbon(aes(ymin=(sfcor_day-sfcor_daytotunc)*24/1000,
+                  ymax=(sfcor_day+sfcor_daytotunc)*24/1000,
                   fill='gray'), colour=NA,alpha=0.8)+
   scale_colour_manual(name=NULL,values=c('black'),
                       labels=c('HD corrected'))+
@@ -669,6 +558,10 @@ esp_val_sor_totunc_sf_plot<- esp_val_sor_unc_sf %>%
   labs(x=NULL,
        y= expression(paste('Sap flow, kg·', day^-1)))
 
+
+
+
+
 # Construct plot
 
 esp_val_sor_plot<- method_uncert_timseries + 
@@ -677,9 +570,22 @@ plot_layout(nrow=3,heights=c(1,1,1))+
 plot_annotation(tag_levels = list(c('     (a)','     (b)', '     (c)')))
 
 cowplot::save_plot(
-  'docs/Fig_uncert_hd.pdf', esp_val_sor_plot, nrow = 1, 
+  'docs/Fig_B3_uncert_hd.pdf', esp_val_sor_plot, nrow = 1, 
   base_height = 21, base_width = 20, units = 'cm'
 )
+
+# Construct plot subdaily
+Sys.setlocale("LC_TIME", "en_US.UTF-8")
+esp_val_sor_plot_subd<- method_uncert_timseries_subd + 
+  esp_val_sor_unc_sf_plot_subd + esp_val_sor_totunc_sf_plot_subd+
+  plot_layout(nrow=3,heights=c(1,1,1))+
+  plot_annotation(tag_levels = list(c('     (a)','     (b)', '     (c)')))
+
+cowplot::save_plot(
+  'docs/Fig_B3_uncert_hd_subd.pdf', esp_val_sor_plot, nrow = 1, 
+  base_height = 21, base_width = 20, units = 'cm'
+)
+
 
 # 4. A test of radial scaling ---------------------------------------------
 
@@ -700,10 +606,7 @@ umb_rad_data<- umb_2013_sp <- USA_UMB_CON_sw %>%
   tidyr::pivot_longer(-TIMESTAMP,names_to='pl_code',
                       values_to='sfd') %>% 
   filter(lubridate::year(TIMESTAMP)==2013) %>% 
-  group_by(pl_code,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
-  # Aggregate at daily level
-  summarise(
-    across(contains('sfd'),mean,na.rm=TRUE)) %>%
+  filter(lubridate::yday(TIMESTAMP)%in%c(155:165)) %>% 
   # Join plant metadata
   left_join(get_plant_md(USA_UMB_CON_sw)) %>%
   # Select species
@@ -725,19 +628,19 @@ umb_rad_uncert <- umb_rad_data %>%
   #Rowwise to allow qtot calculations
   rowwise() %>% 
   mutate(
-    sfd_norad=sfd*pl_sapw_area*24/1000,
+    sfd_norad=sfd*pl_sapw_area,
     # Apply radially integration according to wood type
     # Result of qtot is a matrix with n bootstrap estimates
     # 'apply' to get mean and quantiles of boot samples
-    # units converted
+    # units converted to g m-2 s-1
     sfd_boot=sapflux::qtot(sfd*100/36,a=0,b=pl_sens_length/1000, woodType=wood_type,
                   uncertainty=TRUE,nboot=100,treeRadius=0.5*pl_dbh/100,
                   sapRadius=pl_sapw_depth/100),
-    sfdrad_mean=apply(sfd_boot,1,mean,na.rm=TRUE)*3600*24/1000,
-    sfdrad_low=apply(sfd_boot,1,quantile,prob=0.025,na.rm=TRUE)*3600*24/1000,
-    sfdrad_up=apply(sfd_boot,1,quantile,prob=0.975,na.rm=TRUE)*3600*24/1000,
+    sfdrad_mean=apply(sfd_boot,1,mean,na.rm=TRUE)*3600,
+    sfdrad_low=apply(sfd_boot,1,quantile,prob=0.170,na.rm=TRUE)*3600,
+    sfdrad_up=apply(sfd_boot,1,quantile,prob=0.830,na.rm=TRUE)*3600,
   ) %>% 
-  select(-sfd_boot)
+  dplyr::select(-sfd_boot)
 
 
 # Create plot
@@ -749,14 +652,13 @@ f_labels <- data.frame(pl_code = c('USA_UMB_CON_Pst_Js_2',
 
 
 umb_rad_uncert_plot<- umb_rad_uncert %>% 
-  arrange(day,pl_code) %>% 
-  filter(lubridate::yday(day)%in%c(150:270)) %>% 
+  arrange(TIMESTAMP,pl_code) %>% 
   filter(pl_code%in%c('USA_UMB_CON_Pst_Js_2',
                        'USA_UMB_CON_Qru_Js_10',
                        'USA_UMB_CON_Pgr_Js_3')) %>% 
-  ggplot(aes(x=day,y=sfd_norad,col='black'))+
+  ggplot(aes(x=TIMESTAMP,y=sfd_norad,col='black'))+
   geom_line()+
-  geom_line(aes(x=day,y=sfdrad_mean,col='blue'))+
+  geom_line(aes(x=TIMESTAMP,y=sfdrad_mean,col='blue'))+
   geom_ribbon(aes(ymin=sfdrad_low,ymax=sfdrad_up),
               colour=NA,fill='blue',alpha=0.2)+
   geom_label(aes(label=paste(pl_species,wood_type,sep=',')), 
@@ -765,18 +667,72 @@ umb_rad_uncert_plot<- umb_rad_uncert %>%
             hjust=-0.3,vjust=1,
            size=8, show.legend=FALSE)+
   scale_colour_manual(name=NULL,values=c('black','blue'),
-                      labels=c('SFD','SFD radially integrated'))+
+                      labels=c('Sap flow','Sap flow radially integrated'))+
   theme_cowplot()+
   labs(x=NULL,
-       y= expression(paste('Daily sap flow, kg·', day^-1)))+
+       y= expression(paste('Sap flow, ',cm^3,h^-1)))+
   facet_grid(rows=vars(pl_code),scales='free_y',as.table=FALSE)+
   theme(strip.text.y = element_text(size=10),legend.position='top')
 
 
 cowplot::save_plot(
-  'docs/Fig_rad_uncert.pdf', umb_rad_uncert_plot, nrow = 1, 
+  'docs/Fig_B4_rad_uncert.pdf', umb_rad_uncert_plot, nrow = 1, 
   base_height = 21, base_width = 20, units = 'cm'
 )
 
 
+
+# Old code ----------------------------------------------------------------
+
+
+
+# # Plot old
+# Sys.setlocale("LC_TIME", "en_US.UTF-8")
+# esp_val_sor_unc_sf_plot<- esp_val_sor_unc_sf %>% 
+#   group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+#   filter(lubridate::year(TIMESTAMP)==2004) %>% 
+#   filter(lubridate::yday(TIMESTAMP)%in%c(120:270)) %>% 
+#   summarise(
+#     across(contains('sf'),mean,na.rm=TRUE)
+#   ) %>% 
+#   filter(tree=='ESP_VAL_SOR_Psy_Jt_12') %>% 
+#   ggplot(aes(x=day,y=sfcor_mean*24/1000))+
+#   geom_line(aes(col='black'))+
+#   geom_ribbon(aes(ymin=sfcor_uncsw_lo*24/1000,ymax=sfcor_uncsw_up*24/1000,
+#                   fill='red'), colour=NA,alpha=0.3)+
+#   geom_ribbon(aes(ymin=sfcor_uncmeth_lo*24/1000,ymax=sfcor_uncmeth_up*24/1000,
+#                   fill='blue'), colour=NA,alpha=0.3)+
+#   scale_colour_manual(name=NULL,values=c('black'),
+#                       labels=c('HD corrected'))+
+#   scale_fill_manual(name=NULL,values=c('red','blue'),
+#                     labels=c('method','sapwood'))+
+#   theme_cowplot()+
+#   theme(legend.position = 'top',legend.title=element_blank())+
+#   labs(x=NULL,
+#        y= expression(paste('Sap flow, kg·', day^-1)))
+# 
+
+
+
+# # daily
+# 
+# method_uncert_timseries<- esp_val_sor_unc%>% 
+#   filter(lubridate::year(TIMESTAMP)==2004) %>% 
+#   filter(lubridate::yday(TIMESTAMP)%in%c(120:270)) %>% 
+#   group_by(tree,day=lubridate::floor_date(TIMESTAMP,'day')) %>%
+#   summarise(
+#     across(contains('sfd'),mean,na.rm=TRUE)) %>%
+#   filter(tree%in%'ESP_VAL_SOR_Psy_Jt_12') %>% 
+#   ggplot(aes(x=day,y=sfd))+
+#   geom_ribbon(aes(ymin=sfd_lo,ymax=sfd_up),fill='black',  colour=NA,alpha=0.4)+
+#   geom_line(aes(x=day,y=sfd,col='black'))+
+#   geom_line(aes(x=day,y=sfdcor,col='blue'))+
+#   geom_ribbon(aes(ymin=sfdcor_lo,ymax=sfdcor_up),fill='blue', colour=NA,alpha=0.4)+
+#   scale_colour_manual(name=NULL,values=c('black','blue'),
+#                       labels=c('HD uncorrected','HD corrected'))+
+#   theme_cowplot()+
+#   theme(legend.position = 'top')+
+#   xlab(NULL)+
+#   ylab(expression(paste('Sap flow density, ',cm^3,cm^-2,h^-1)))
+# 
 

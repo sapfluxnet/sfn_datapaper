@@ -130,7 +130,7 @@ name_aff_list <- coauthor_afflong %>%
 # Create a list with all names
 name_aff_list %>%   
   group_by(last_name, name,author_order) %>% 
-  summarise(affs = paste(ID, collapse = ",")) %>% 
+  summarise(affs = paste(ID[order(ID)], collapse = ",")) %>% 
   arrange(author_order) %>% 
   mutate(
     affs = paste0("^", affs, "^"),
