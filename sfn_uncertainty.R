@@ -416,7 +416,7 @@ esp_val_sor_totunc_sf_plot_subd<- esp_val_sor_unc_sf %>%
   geom_line(aes(col='black'))+
   geom_ribbon(aes(ymin=sfcor_totunc2_lo,
                   ymax=sfcor_totunc2_up,
-                  fill='gray'), colour=NA,alpha=0.8)+
+                  fill='gray'), colour=NA,alpha=0.5)+
   scale_colour_manual(name=NULL,values=c('black'),
                       labels=c('HD corrected'))+
   scale_fill_manual(name=NULL,values=c('gray'),
@@ -454,7 +454,7 @@ esp_val_sor_plot_subd<- method_uncert_timseries_subd +
   plot_annotation(tag_levels = list(c('     (a)','     (b)', '     (c)')))
 
 cowplot::save_plot(
-  'docs/Fig_B3_uncert_hd_subd.pdf', esp_val_sor_plot, nrow = 1, 
+  'docs/Fig_B3_uncert_hd_subd.pdf', esp_val_sor_plot_subd, nrow = 1, 
   base_height = 21, base_width = 20, units = 'cm'
 )
 
