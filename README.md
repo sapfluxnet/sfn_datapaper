@@ -1,7 +1,7 @@
 SAPFLUXNET data paper
 ================
 
-### Data and proejct folder structure
+### Data and project folder structure
 
 To run the code in this repository, one needs the following structure
 within the project folder:
@@ -25,6 +25,9 @@ within the project folder:
  
 * Scripts to generate the supplement (figures and tables)
  - `supporting.Rmd`: output: - `supporting.docx`
+
+* Script to generate Appendix A:
+ - `appendix.Rmd`: output: - `appendix.docx`
  
-* Scripts to generate uncertainty estimation (Appendix)
+* Scripts to generate uncertainty estimation (Appendix B)
 - `sfn_uncertainty.R`
