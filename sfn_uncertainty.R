@@ -54,7 +54,7 @@ coefficients <- subdata %>% group_by(method) %>%
 # Display model coefficients ----------------------------------------------
 # Table B1 in the appendix
 
-coefficients %>% 
+table_coefs <- coefficients %>% 
   mutate(method=fct_relevel(method,'HD','CHP','HR','HPTM','CHD','HFD')) %>%  
   arrange(method) %>% 
   select(method,beta0,beta1) %>% 
@@ -66,9 +66,13 @@ coefficients %>%
     method='Method',
     beta0='Intercept',
     beta1='Slope') %>% 
-  align(part='header',align='left') %>% 
+  align(part='header',align='left')
+
+table_coefs %>% 
   save_as_docx(path='docs/table_coefs.docx')
 
+table_coefs %>% 
+  save_as_image(path='docs/table_coefs.pdf', zoom=0.2)
 
 # 3. Sapfluxnet daily data ------------------------------------------------
 
@@ -332,6 +336,15 @@ data_sw_ba <- tibble(
 # Model
 modsw <- lm(log(sapwood_area_cm2)~log(basal_area_cm2),data=data_sw_ba)
 
+visreg::visreg(modsw,gg=TRUE) + 
+  geom_point(size=5)+
+  xlab(expression(paste('Tree basal area ',cm^2)))+
+  ylab(expression(paste('Tree sapwood area ',cm^2)))+
+  theme_bw()+
+  theme(axis.title = element_text(size=20),
+        axis.text = element_text(size=20),
+       )
+
 # Calculations
 esp_val_sor_unc_sf <- esp_val_sor_unc %>% 
   mutate(pl_basal_area=pi*(pl_dbh/2)^2,
@@ -517,7 +530,7 @@ umb_rad_uncert <- umb_rad_data %>%
   dplyr::select(-sfd_boot)
 
 # 8.3. Create plot --------------------------------------------------------
-
+Sys.setlocale("LC_TIME", "en_US.UTF-8")
 f_labels <- data.frame(pl_code = c('USA_UMB_CON_Pst_Js_2',
                                'USA_UMB_CON_Qru_Js_10',
                                'USA_UMB_CON_Pgr_Js_3'), 
