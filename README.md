@@ -6,7 +6,7 @@ SAPFLUXNET data paper
 To run the code in this repository, one needs the following structure
 within the project folder:
 
-  - data: contains the sapfluxnet data version(s), e.g. 0.1.5.Download from [here](https://zenodo.org/record/3971689)
+  - data: contains the sapfluxnet data version(s), e.g. 0.1.5.Download from [here](https://doi.org/10.5281/zenodo.3971689)
   - maps: contains the necessary base maps
       - maps/Crowther\_Nature\_Files\_Revision\_01\_WGS84\_GeoTiff:
         contains global tree density map from Crowther in Nature. Download from:
